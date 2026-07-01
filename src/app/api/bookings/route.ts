@@ -132,7 +132,7 @@ export async function PUT(request: NextRequest) {
       await updateFeishuBooking(id, {
         status: booking.status,
         current_step: String(booking.currentStep),
-        progress: parseInt((booking.currentStep / (GROOMING_STAGES[booking.serviceType]?.length || 10)) * 100)
+        progress: Math.floor((booking.currentStep / (GROOMING_STAGES[booking.serviceType]?.length || 10)) * 100)
       });
     } catch (err) {
       console.warn('Failed to sync to Feishu:', err);

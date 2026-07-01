@@ -80,7 +80,7 @@ export function useBookings() {
     
     // Send WeChat notification (simulated)
     if (updated) {
-      await sendWeChatNotification(id, updated.phone);
+      await sendWeChatNotification(id, updated.phone || '');
       await handleUpdateBooking(id, { wechatNoticeSent: true });
     }
   }, [handleUpdateBooking]);
@@ -123,7 +123,7 @@ export function useBookings() {
       });
       
       // Send completion notification
-      await sendStatusUpdate(id, '服务已完成，欢迎来接您的宠物！', booking.phone);
+      await sendStatusUpdate(id, '服务已完成，欢迎来接您的宠物！', booking.phone || '');
     }
   }, [bookings, handleUpdateBooking]);
 

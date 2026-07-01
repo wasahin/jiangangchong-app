@@ -126,8 +126,9 @@ export default function StatusPage() {
     [BookingStatus.PENDING]: '等待审核',
     [BookingStatus.ACCEPTED]: '已接受',
     [BookingStatus.IN_SERVICE]: '服务中',
-    [BookingStatus.COMPLETED]: '已完成'
-  }[booking.status] || booking.status;
+    [BookingStatus.COMPLETED]: '已完成',
+    [BookingStatus.CANCELLED]: '已取消'
+  }[booking.status as BookingStatus] || booking.status;
 
   const progress = calculateProgress(booking);
   const currentStepName = getCurrentStepName(booking);
