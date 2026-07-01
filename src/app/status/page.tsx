@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { NeumorphicCard } from '@/components/NeumorphicCard';
 import { StatusBadge } from '@/components/StatusBadge';
@@ -41,7 +41,7 @@ function getCurrentStepName(booking: any): string {
 
 
 
-export default function StatusPage() {
+function StatusPageContent() {
   const searchParams = useSearchParams();
   const bookingId = searchParams.get('booking');
   
@@ -261,5 +261,13 @@ export default function StatusPage() {
       
       <Navigation currentPage="home" />
     </div>
+  );
+}
+
+export default function StatusPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-neumo-light flex items-center justify-center"><p className="text-gray-500">加载中...</p></div>}>
+      <StatusPageContent />
+    </Suspense>
   );
 }
