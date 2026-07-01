@@ -23,7 +23,7 @@ function mapFeishuToBooking(record: any): Booking {
     phone: parseFeishuText(record.fields.phone) || '',
     petName: parseFeishuText(record.fields.pet_name) || '',
     serviceType: serviceType as ServiceType,
-    weightRange: { label: '未知', value: 'unknown' },
+    weightRange: { label: '未知', min: 0, max: 0 },
     bookingDateTime: '',
     vaccineDate: '',
     outsideGroomed: false,
