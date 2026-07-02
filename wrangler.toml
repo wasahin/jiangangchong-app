@@ -1,0 +1,11 @@
+name = "jingangchong-app"
+
+[env.production]
+name = "jingangchong-app"
+routes = [
+  { pattern = "jiangangchong-app.pages.dev/*", zone_name = "pages.dev" }
+]
+
+[build]
+command = "npm run build && npm run build:pages"
+publish = ".vercel/output/static"

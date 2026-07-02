@@ -93,9 +93,9 @@ export async function getBookingById(bookingId: string): Promise<BookingRecord |
 }
 
 // 生成固定状态链接
-export function generateStatusLink(bookingId: string): string {
-  // 固定链接格式：https://域名.com/status?booking=JKC-20250623-001
-  return `${window.location.origin}/status?booking=${encodeURIComponent(bookingId)}`;
+export function generateStatusLink(bookingId: string, origin?: string): string {
+  const baseUrl = origin || process.env.NEXT_PUBLIC_APP_URL || 'https://jiangangchong-app.pages.dev';
+  return `${baseUrl}/status?booking=${encodeURIComponent(bookingId)}`;
 }
 
 // 生成 booking_id（前端备用方案，建议由飞书自动生成）

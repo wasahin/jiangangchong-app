@@ -1,8 +1,104 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Booking, ServiceType, BookingStatus } from '@/types/booking';
-import { getBookings, createBooking, updateBooking, getBookingById as getLocalBooking } from '@/lib/storage';
+import { GROOMING_STAGES, WEIGHT_RANGES } from '@/lib/constants';
 import { getBookingById as getFeishuBooking, createBookingInFeishu, updateBookingStatus as updateFeishuBooking } from '@/lib/feishu';
-import { GROOMING_STAGES } from '@/lib/constants';
+
+const MEMORY_STORAGE_KEY = 'jingangchong_memory_bookings';
+
+let memoryBookings: Booking[] = [];
+
+function loadMemoryBookings(): Booking[] {
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const data = localStorage.getItem(MEMORY_STORAGE_KEY);
+      if (data) {
+        memoryBookings = JSON.parse(data);
+      }
+    } catch {
+      memoryBookings = [];
+    }
+  }
+  return memoryBookings;
+}
+
+function saveMemoryBookings(bookings: Booking[]): void {
+  memoryBookings = bookings;
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(MEMORY_STORAGE_KEY, JSON.stringify(bookings));
+  }
+}
+
+function getBookings(): Booking[] {
+  if (memoryBookings.length === 0) {
+    loadMemoryBookings();
+  }
+  return memoryBookings;
+}
+
+function getBookingById(id: string): Booking | undefined {
+  return getBookings().find(b => b.id === id);
+}
+
+function createBooking(data: {
+  ownerName: string;
+  phone: string;
+  petName: string;
+  serviceType: ServiceType;
+  weightRange: string;
+  bookingDate: string;
+  bookingTime: string;
+  vaccineDate: string;
+  outsideGroomed: string;
+  emotionStable: string;
+  notes?: string;
+}): Booking {
+  const bookingId = `BK${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  
+  const weightRangeObj = WEIGHT_RANGES.find(w => w.label === data.weightRange) || WEIGHT_RANGES[0];
+  
+  const booking: Booking = {
+    id: bookingId,
+    ownerName: data.ownerName,
+    phone: data.phone,
+    petName: data.petName,
+    serviceType: data.serviceType,
+    weightRange: weightRangeObj,
+    bookingDateTime: `${data.bookingDate} ${data.bookingTime}`,
+    vaccineDate: data.vaccineDate,
+    outsideGroomed: data.outsideGroomed === 'Yes',
+    emotionStable: data.emotionStable === 'Yes',
+    notes: data.notes,
+    status: BookingStatus.PENDING,
+    currentPhase: '等待审核',
+    currentStep: 0,
+    wechatNoticeSent: false,
+    displayInServiceList: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
+  const bookings = getBookings();
+  bookings.push(booking);
+  saveMemoryBookings(bookings);
+  
+  return booking;
+}
+
+function updateBooking(id: string, updates: Partial<Booking>): Booking | undefined {
+  const bookings = getBookings();
+  const index = bookings.findIndex(b => b.id === id);
+  
+  if (index === -1) return undefined;
+  
+  bookings[index] = {
+    ...bookings[index],
+    ...updates,
+    updatedAt: new Date().toISOString()
+  };
+  
+  saveMemoryBookings(bookings);
+  return bookings[index];
+}
 
 function parseFeishuText(value: any): string {
   if (!value) return '';
@@ -46,14 +142,18 @@ export async function GET(request: NextRequest) {
   const id = searchParams.get('id');
   
   if (id) {
-    const localBooking = getLocalBooking(id);
+    const localBooking = getBookingById(id);
     if (localBooking) {
       return NextResponse.json(localBooking);
     }
     
-    const feishuBooking = await getFeishuBooking(id);
-    if (feishuBooking) {
-      return NextResponse.json(mapFeishuToBooking(feishuBooking));
+    try {
+      const feishuBooking = await getFeishuBooking(id);
+      if (feishuBooking) {
+        return NextResponse.json(mapFeishuToBooking(feishuBooking));
+      }
+    } catch (error) {
+      console.warn('Failed to fetch from Feishu:', error);
     }
     
     return NextResponse.json({ error: '预约不存在' }, { status: 404 });
@@ -101,6 +201,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(booking, { status: 201 });
   } catch (error) {
+    console.error('Create booking error:', error);
     return NextResponse.json(
       { error: '创建失败' },
       { status: 500 }
@@ -140,6 +241,7 @@ export async function PUT(request: NextRequest) {
     
     return NextResponse.json(booking);
   } catch (error) {
+    console.error('Update booking error:', error);
     return NextResponse.json(
       { error: '更新失败' },
       { status: 500 }
