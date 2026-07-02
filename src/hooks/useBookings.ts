@@ -162,6 +162,7 @@ export function useBookings() {
     calculateETA,
     getStepsWithStatus,
     getBookingCounts,
+    getAllBookings: () => bookings,
     refreshCounts: () => setCounts(getBookingCounts())
   };
 }

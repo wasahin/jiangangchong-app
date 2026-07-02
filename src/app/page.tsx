@@ -19,7 +19,8 @@ export default function CustomerPage() {
     getCurrentStepName, 
     calculateETA,
     counts,
-    refreshCounts
+    refreshCounts,
+    getAllBookings
   } = useBookings();
   
   const [lastBookingId, setLastBookingId] = useState<string>('');
@@ -41,6 +42,11 @@ export default function CustomerPage() {
   
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasSubmittedToday, setHasSubmittedToday] = useState(() => {
+    const lastSubmit = localStorage.getItem('jingangchong_last_submit_date');
+    const today = new Date().toDateString();
+    return lastSubmit === today;
+  });
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -49,6 +55,21 @@ export default function CustomerPage() {
     }, 30000);
     return () => clearInterval(interval);
   }, [refreshCounts]);
+
+  const allBookings = getAllBookings ? getAllBookings() : activeBookings;
+  
+  const getBookedTimeSlots = (date: string) => {
+    const slots = new Set<string>();
+    allBookings.forEach(booking => {
+      if (booking.bookingDateTime && booking.bookingDateTime.startsWith(date)) {
+        const time = booking.bookingDateTime.split(' ')[1];
+        if (time) {
+          slots.add(time);
+        }
+      }
+    });
+    return slots;
+  };
 
   const generateTimeOptions = () => {
     const options = [];
@@ -61,8 +82,18 @@ export default function CustomerPage() {
     return options;
   };
 
+  const bookedSlots = formData.bookingDate ? getBookedTimeSlots(formData.bookingDate) : new Set<string>();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isSubmitting || hasSubmittedToday) {
+      if (hasSubmittedToday) {
+        alert('您今天已经提交过预约，请等待门店审核');
+      }
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -70,6 +101,8 @@ export default function CustomerPage() {
       if (booking) {
         setLastBookingId(booking.id);
         setSubmitted(true);
+        setHasSubmittedToday(true);
+        localStorage.setItem('jingangchong_last_submit_date', new Date().toDateString());
       }
     } catch (error) {
       console.error('Submit error:', error);
@@ -435,9 +468,19 @@ export default function CustomerPage() {
                   className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all text-gray-900"
                 >
                   <option value="">选择时间</option>
-                  {generateTimeOptions().map(time => (
-                    <option key={time} value={time}>{time}</option>
-                  ))}
+                  {generateTimeOptions().map(time => {
+                    const isBooked = bookedSlots.has(time);
+                    return (
+                      <option 
+                        key={time} 
+                        value={time}
+                        disabled={isBooked}
+                        className={isBooked ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : ''}
+                      >
+                        {time} {isBooked && '(已预约)'}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>

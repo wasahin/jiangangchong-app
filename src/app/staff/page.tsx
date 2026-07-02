@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { NeumorphicCard } from '@/components/NeumorphicCard';
 import { Button } from '@/components/Button';
 import { Navigation } from '@/components/Navigation';
@@ -8,7 +9,80 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { useBookings } from '@/hooks/useBookings';
 import { BookingStatus } from '@/types/booking';
 
+const STAFF_PASSWORD = process.env.NEXT_PUBLIC_STAFF_PASSWORD || 'jingangchong';
+
+function StaffLogin({ onSuccess }: { onSuccess: () => void }) {
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    if (password === STAFF_PASSWORD) {
+      localStorage.setItem('jingangchong_staff_auth', 'true');
+      onSuccess();
+    } else {
+      setError('密码错误，请重试');
+      setPassword('');
+    }
+    
+    setIsLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-neumo-light flex items-center justify-center p-4">
+      <div className="max-w-sm w-full">
+        <NeumorphicCard>
+          <div className="text-center py-8">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-accent-amber/20 flex items-center justify-center shadow-neumo-pressed-md">
+              <span className="text-4xl">🔐</span>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">员工登录</h3>
+            <p className="text-sm text-gray-500 mb-6">请输入密码访问员工后台</p>
+            
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="请输入密码"
+                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all text-gray-900"
+                autoFocus
+              />
+              
+              {error && (
+                <p className="text-red-500 text-sm text-center">{error}</p>
+              )}
+              
+              <Button 
+                variant="primary" 
+                type="submit" 
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? '验证中...' : '登录'}
+              </Button>
+            </form>
+            
+            <p className="text-xs text-gray-400 mt-6">
+              如有问题请联系管理员
+            </p>
+          </div>
+        </NeumorphicCard>
+      </div>
+    </div>
+  );
+}
+
 export default function StaffPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('jingangchong_staff_auth') === 'true';
+  });
+  
   const { 
     pendingBookings, 
     acceptedBookings,
@@ -25,13 +99,25 @@ export default function StaffPage() {
     getStepsWithStatus
   } = useBookings();
 
+  if (!isAuthenticated) {
+    return <StaffLogin onSuccess={() => setIsAuthenticated(true)} />;
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <div className="sticky top-0 z-50 bg-neumo-light/90 backdrop-blur-xl border-b border-white/40 mb-6">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <BrandHeader />
-            <span className="text-sm font-semibold text-accent-amber tracking-wide">员工后台</span>
+            <div className="flex items-center gap-4">
+              <a 
+                href="/" 
+                className="text-sm font-semibold text-gray-600 hover:text-accent-amber transition-colors"
+              >
+                返回客户看板
+              </a>
+              <span className="text-sm font-semibold text-accent-amber tracking-wide">员工后台</span>
+            </div>
           </div>
         </div>
       </div>
