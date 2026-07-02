@@ -4,8 +4,7 @@ interface NavigationProps {
 
 export function Navigation({ currentPage }: NavigationProps) {
   const navItems = [
-    { id: 'home', label: '首页', href: '/' },
-    { id: 'staff', label: '员工', href: '/staff' }
+    { id: 'home', label: '首页', href: '/' }
   ];
   
   return (
