@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NeumorphicCard } from '@/components/NeumorphicCard';
 import { Button } from '@/components/Button';
 import { Navigation } from '@/components/Navigation';
@@ -79,9 +79,12 @@ function StaffLogin({ onSuccess }: { onSuccess: () => void }) {
 }
 
 export default function StaffPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('jingangchong_staff_auth') === 'true';
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  useEffect(() => {
+    const auth = localStorage.getItem('jingangchong_staff_auth');
+    setIsAuthenticated(auth === 'true');
+  }, []);
   
   const { 
     pendingBookings, 

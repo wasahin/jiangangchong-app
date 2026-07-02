@@ -42,12 +42,14 @@ export default function CustomerPage() {
   
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasSubmittedToday, setHasSubmittedToday] = useState(() => {
+  const [hasSubmittedToday, setHasSubmittedToday] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
     const lastSubmit = localStorage.getItem('jingangchong_last_submit_date');
     const today = new Date().toDateString();
-    return lastSubmit === today;
-  });
-  const [copied, setCopied] = useState(false);
+    setHasSubmittedToday(lastSubmit === today);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
