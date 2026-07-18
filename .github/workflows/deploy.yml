@@ -39,13 +39,15 @@ jobs:
       - name: Build for Cloudflare Pages
         run: npm run build:pages
 
-      - name: List build output
-        run: ls -la .vercel/output/static
+      - name: Install Wrangler
+        run: npm install -g wrangler
+
+      - name: Try to create Cloudflare Pages project if it doesn't exist
+        run: wrangler pages project create jingangchong-app --account-id ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} --production-branch main --no-git-remote 2>&1 || echo "Project may already exist, continuing..."
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: jingangchong-app
-          directory: .vercel/output/static
+        run: wrangler pages deploy .vercel/output/static --project-name jingangchong-app --account-id ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} --verbose
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
