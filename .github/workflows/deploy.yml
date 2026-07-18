@@ -159,41 +159,34 @@ jobs:
           echo "Account ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
           echo "Project: jingangchong-app"
           echo ""
-          RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app" \
-            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "compatibility_flags": ["nodejs_compat"],
-              "compatibility_date": "2024-09-23",
-              "production_branch": "main"
-            }')
-          echo "=== API 完整响应 ==="
-          echo "$RESPONSE"
-          echo ""
-          echo "=== 响应解析 ==="
-          SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
-          echo "Success: $SUCCESS"
-          if [ "$SUCCESS" = "true" ]; then
-            echo "✓ 兼容性标志设置成功"
-            echo "--- 返回的项目配置 ---"
-            echo "$RESPONSE" | jq '.result'
-            echo ""
-            FLAGS=$(echo "$RESPONSE" | jq -r '.result.compatibility_flags')
-            echo "返回的 compatibility_flags: $FLAGS"
+          echo "尝试使用 wrangler pages project update 设置兼容性标志..."
+          set +e
+          wrangler pages project update jingangchong-app --compatibility-flags nodejs_compat --compatibility-date 2024-09-23 2>&1
+          UPDATE_EXIT=$?
+          set -e
+          if [ $UPDATE_EXIT -eq 0 ]; then
+            echo "✓ 使用 wrangler pages project update 设置成功"
             echo "compat_set=true" >> $GITHUB_OUTPUT
           else
-            ERROR=$(echo "$RESPONSE" | jq -r '.errors[0].message')
-            CODE=$(echo "$RESPONSE" | jq -r '.errors[0].code')
-            echo "✗ 设置失败"
-            echo "错误代码: $CODE"
-            echo "错误信息: $ERROR"
-            echo "compat_set=false" >> $GITHUB_OUTPUT
+            echo "⚠ wrangler pages project update 失败, 尝试 Cloudflare API..."
+            RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app" \
+              -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "compatibility_flags": ["nodejs_compat"],
+                "compatibility_date": "2024-09-23",
+                "production_branch": "main"
+              }')
+            echo "API 响应: $RESPONSE"
+            SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
+            if [ "$SUCCESS" = "true" ]; then
+              echo "✓ 兼容性标志设置成功"
+              echo "compat_set=true" >> $GITHUB_OUTPUT
+            else
+              echo "⚠ API 设置也失败, 请手动在 Cloudflare 仪表板设置"
+              echo "compat_set=false" >> $GITHUB_OUTPUT
+            fi
           fi
-          echo ""
-          echo "=== 再次验证项目配置 ==="
-          VERIFY=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app" \
-            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}")
-          echo "$VERIFY" | jq '.result | {compatibility_flags, compatibility_date}'
 
       # ============================================================
       # 7. 部署到 Cloudflare Pages - 使用 debug 日志级别
