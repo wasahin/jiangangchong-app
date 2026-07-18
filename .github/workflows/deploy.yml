@@ -1,0 +1,49 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js
+        run: npm run build
+        env:
+          NEXT_PUBLIC_FEISHU_APP_ID: ${{ secrets.NEXT_PUBLIC_FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          NEXT_PUBLIC_FEISHU_BASE_ID: ${{ secrets.NEXT_PUBLIC_FEISHU_BASE_ID }}
+          NEXT_PUBLIC_FEISHU_TABLE_ID: ${{ secrets.NEXT_PUBLIC_FEISHU_TABLE_ID }}
+          NEXT_PUBLIC_STAFF_PASSWORD: ${{ secrets.NEXT_PUBLIC_STAFF_PASSWORD }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+
+      - name: Build for Cloudflare Pages
+        run: npm run build:pages
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: jingangchong-app
+          directory: .vercel/output/static
+          wranglerVersion: 4.x
