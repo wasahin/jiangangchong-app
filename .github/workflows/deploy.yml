@@ -209,9 +209,8 @@ jobs:
           echo "项目名: jingangchong-app"
           echo "部署目录: .vercel/output/static"
           echo ""
-          # 使用 tee 同时输出到控制台和日志文件
           set +e
-          wrangler pages deploy .vercel/output/static --project-name jingangchong-app 2>&1 | tee deploy.log
+          WRANGLER_COMPATIBILITY_FLAGS=nodejs_compat wrangler pages deploy .vercel/output/static --project-name jingangchong-app 2>&1 | tee deploy.log
           DEPLOY_EXIT=$?
           set -e
           echo ""
@@ -225,7 +224,6 @@ jobs:
             exit 1
           fi
           echo "✓ 部署成功"
-          # 提取部署 URL
           DEPLOY_URL=$(grep -oP 'https://[a-z0-9.-]+\.pages\.dev' deploy.log | head -1)
           echo "deployment_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
           echo "部署 URL: $DEPLOY_URL"
