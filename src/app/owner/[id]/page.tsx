@@ -8,6 +8,8 @@ import { useBooking } from '@/hooks/useBookings';
 import { BookingStatus } from '@/types/booking';
 import { useParams } from 'next/navigation';
 
+export const runtime = 'edge';
+
 export default function OwnerPage() {
   const params = useParams<{ id: string }>();
   const { booking, progress, currentStepName, eta, steps } = useBooking(params.id);

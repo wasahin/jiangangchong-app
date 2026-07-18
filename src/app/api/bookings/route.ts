@@ -3,6 +3,8 @@ import { Booking, ServiceType, BookingStatus } from '@/types/booking';
 import { GROOMING_STAGES, WEIGHT_RANGES } from '@/lib/constants';
 import { getBookingById as getFeishuBooking, createBookingInFeishu, updateBookingStatus as updateFeishuBooking } from '@/lib/feishu';
 
+export const runtime = 'edge';
+
 const MEMORY_STORAGE_KEY = 'jingangchong_memory_bookings';
 
 let memoryBookings: Booking[] = [];
