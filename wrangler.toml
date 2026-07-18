@@ -1,6 +1,6 @@
 name = "jingangchong-app"
+compatibility_flags = ["nodejs_compat"]
+compatibility_date = "2024-09-23"
 
 [pages]
 pages_build_output_dir = ".vercel/output/static"
-compatibility_flags = ["nodejs_compat"]
-compatibility_date = "2024-09-23"
