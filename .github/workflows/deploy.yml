@@ -153,12 +153,12 @@ jobs:
       # 6. 设置 Node.js 兼容性标志 (解决 nodejs_compat 错误)
       # ============================================================
       - name: Set Node.js compatibility flags
+        id: set_compat
         run: |
           echo "=== 设置 Node.js 兼容性标志 ==="
           echo "Account ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
           echo "Project: jingangchong-app"
           echo ""
-          # 使用 Cloudflare API 设置兼容性标志
           RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app" \
             -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
             -H "Content-Type: application/json" \
@@ -167,17 +167,33 @@ jobs:
               "compatibility_date": "2024-09-23",
               "production_branch": "main"
             }')
-          echo "API 响应: $RESPONSE"
+          echo "=== API 完整响应 ==="
+          echo "$RESPONSE"
           echo ""
-          # 检查响应是否成功
+          echo "=== 响应解析 ==="
           SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
+          echo "Success: $SUCCESS"
           if [ "$SUCCESS" = "true" ]; then
             echo "✓ 兼容性标志设置成功"
+            echo "--- 返回的项目配置 ---"
+            echo "$RESPONSE" | jq '.result'
+            echo ""
+            FLAGS=$(echo "$RESPONSE" | jq -r '.result.compatibility_flags')
+            echo "返回的 compatibility_flags: $FLAGS"
+            echo "compat_set=true" >> $GITHUB_OUTPUT
           else
             ERROR=$(echo "$RESPONSE" | jq -r '.errors[0].message')
-            echo "⚠ 设置可能失败: $ERROR"
-            echo "ℹ 如果项目已存在且标志已设置, 这是正常的"
+            CODE=$(echo "$RESPONSE" | jq -r '.errors[0].code')
+            echo "✗ 设置失败"
+            echo "错误代码: $CODE"
+            echo "错误信息: $ERROR"
+            echo "compat_set=false" >> $GITHUB_OUTPUT
           fi
+          echo ""
+          echo "=== 再次验证项目配置 ==="
+          VERIFY=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}")
+          echo "$VERIFY" | jq '.result | {compatibility_flags, compatibility_date}'
 
       # ============================================================
       # 7. 部署到 Cloudflare Pages - 使用 debug 日志级别
