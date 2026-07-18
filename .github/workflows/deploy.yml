@@ -43,11 +43,13 @@ jobs:
         run: npm install -g wrangler
 
       - name: Try to create Cloudflare Pages project if it doesn't exist
-        run: wrangler pages project create jingangchong-app --account-id ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} --production-branch main --no-git-remote 2>&1 || echo "Project may already exist, continuing..."
+        run: wrangler pages project create jingangchong-app --production-branch main --no-git-remote 2>&1 || echo "Project may already exist, continuing..."
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Deploy to Cloudflare Pages
-        run: wrangler pages deploy .vercel/output/static --project-name jingangchong-app --account-id ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} --verbose
+        run: wrangler pages deploy .vercel/output/static --project-name jingangchong-app
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
