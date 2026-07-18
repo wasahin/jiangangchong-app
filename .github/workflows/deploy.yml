@@ -172,8 +172,8 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "compatibility_flags": ["nodejs_compat"],
-              "compatibility_date": "2024-09-23"
+              "flags": ["nodejs_compat"],
+              "date": "2024-09-23"
             }')
           echo "PUT 响应长度: ${#PUT_RESPONSE}"
           echo "PUT 响应:"
@@ -192,8 +192,10 @@ jobs:
               -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
               -H "Content-Type: application/json" \
               -d '{
-                "functions_compatibility_flags": ["nodejs_compat"],
-                "functions_compatibility_date": "2024-09-23"
+                "functions_compatibility": {
+                  "flags": ["nodejs_compat"],
+                  "date": "2024-09-23"
+                }
               }')
             echo "PATCH 响应长度: ${#PATCH_RESPONSE}"
             echo "PATCH 响应:"
