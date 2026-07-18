@@ -209,7 +209,7 @@ jobs:
           echo "部署目录: .vercel/output/static"
           echo ""
           set +e
-          WRANGLER_COMPATIBILITY_FLAGS=nodejs_compat wrangler pages deploy .vercel/output/static --project-name jingangchong-app 2>&1 | tee deploy.log
+          wrangler pages deploy .vercel/output/static --project-name jingangchong-app --compatibility-flags=nodejs_compat --compatibility-date=2024-09-23 2>&1 | tee deploy.log
           DEPLOY_EXIT=$?
           set -e
           echo ""
@@ -220,16 +220,32 @@ jobs:
             echo ""
             echo "=== 完整部署日志 ==="
             cat deploy.log
-            exit 1
+            echo ""
+            echo "=== 尝试不带兼容性标志部署 ==="
+            set +e
+            wrangler pages deploy .vercel/output/static --project-name jingangchong-app 2>&1 | tee deploy2.log
+            DEPLOY_EXIT2=$?
+            set -e
+            if [ $DEPLOY_EXIT2 -eq 0 ]; then
+              echo "✓ 不带兼容性标志部署成功"
+              DEPLOY_URL=$(grep -oP 'https://[a-z0-9.-]+\.pages\.dev' deploy2.log | head -1)
+              echo "deployment_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+              echo "部署 URL: $DEPLOY_URL"
+            else
+              echo "::error::两种方式都部署失败"
+              cat deploy2.log
+              exit 1
+            fi
+          else
+            echo "✓ 部署成功"
+            DEPLOY_URL=$(grep -oP 'https://[a-z0-9.-]+\.pages\.dev' deploy.log | head -1)
+            echo "deployment_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+            echo "部署 URL: $DEPLOY_URL"
           fi
-          echo "✓ 部署成功"
-          DEPLOY_URL=$(grep -oP 'https://[a-z0-9.-]+\.pages\.dev' deploy.log | head -1)
-          echo "deployment_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
-          echo "部署 URL: $DEPLOY_URL"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          WRANGLER_LOG: debug # 启用 wrangler debug 日志
+          WRANGLER_LOG: debug
 
       # ============================================================
       # 7. 部署后验证 - 检查 URL 是否可访问
