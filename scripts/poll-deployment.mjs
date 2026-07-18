@@ -275,8 +275,7 @@ async function main() {
   log(`Cloudflare 项目: ${CLOUDFLARE_PROJECT}`);
   log(`轮询间隔: ${POLL_INTERVAL / 1000}s`);
   if (!GITHUB_TOKEN) {
-    err('未设置 GITHUB_TOKEN, 无法访问 GitHub API');
-    process.exit(1);
+    log(`${c.yellow}警告: 未设置 GITHUB_TOKEN, 将使用无认证访问 (有速率限制)${c.reset}`);
   }
   log('');
 
