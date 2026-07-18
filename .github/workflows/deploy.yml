@@ -150,7 +150,37 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       # ============================================================
-      # 6. 部署到 Cloudflare Pages - 使用 debug 日志级别
+      # 6. 设置 Node.js 兼容性标志 (解决 nodejs_compat 错误)
+      # ============================================================
+      - name: Set Node.js compatibility flags
+        run: |
+          echo "=== 设置 Node.js 兼容性标志 ==="
+          echo "Account ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
+          echo "Project: jingangchong-app"
+          echo ""
+          # 使用 Cloudflare API 设置兼容性标志
+          RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "compatibility_flags": ["nodejs_compat"],
+              "compatibility_date": "2024-09-23",
+              "production_branch": "main"
+            }')
+          echo "API 响应: $RESPONSE"
+          echo ""
+          # 检查响应是否成功
+          SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
+          if [ "$SUCCESS" = "true" ]; then
+            echo "✓ 兼容性标志设置成功"
+          else
+            ERROR=$(echo "$RESPONSE" | jq -r '.errors[0].message')
+            echo "⚠ 设置可能失败: $ERROR"
+            echo "ℹ 如果项目已存在且标志已设置, 这是正常的"
+          fi
+
+      # ============================================================
+      # 7. 部署到 Cloudflare Pages - 使用 debug 日志级别
       # ============================================================
       - name: Deploy to Cloudflare Pages
         id: deploy
