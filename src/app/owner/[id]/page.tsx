@@ -6,12 +6,10 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { BrandHeader } from '@/components/BrandHeader';
 import { useBooking } from '@/hooks/useBookings';
 import { BookingStatus } from '@/types/booking';
+import { useParams } from 'next/navigation';
 
-interface OwnerPageProps {
-  params: { id: string };
-}
-
-export default function OwnerPage({ params }: OwnerPageProps) {
+export default function OwnerPage() {
+  const params = useParams<{ id: string }>();
   const { booking, progress, currentStepName, eta, steps } = useBooking(params.id);
 
   if (!booking) {
@@ -60,7 +58,6 @@ export default function OwnerPage({ params }: OwnerPageProps) {
         <StatusBadge status={booking.status} />
       </div>
       
-      {/* Main Status Card */}
       <NeumorphicCard>
         <div className="text-center py-4">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{booking.petName}</h1>
@@ -68,12 +65,10 @@ export default function OwnerPage({ params }: OwnerPageProps) {
         </div>
       </NeumorphicCard>
       
-      {/* Status Description */}
       <div className="bg-accent-amber/10 rounded-neumo-button p-4 text-center shadow-neumo-pressed-sm">
         <p className="text-accent-amberDark font-medium">{getStatusDescription()}</p>
       </div>
       
-      {/* Progress Card - Only show when in service */}
       {booking.status === BookingStatus.IN_SERVICE && (
         <NeumorphicCard>
           <div className="mb-4">
@@ -101,7 +96,6 @@ export default function OwnerPage({ params }: OwnerPageProps) {
             )}
           </div>
           
-          {/* Step Indicators */}
           <div className="mt-4 pt-4 border-t border-neumo-alt">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
@@ -121,7 +115,6 @@ export default function OwnerPage({ params }: OwnerPageProps) {
         </NeumorphicCard>
       )}
       
-      {/* Flow Steps Card */}
       <NeumorphicCard>
         <h2 className="text-sm font-semibold text-gray-500 mb-4">服务流程</h2>
         <div className="space-y-0">
@@ -169,7 +162,6 @@ export default function OwnerPage({ params }: OwnerPageProps) {
         </div>
       </NeumorphicCard>
       
-      {/* Info Card */}
       <NeumorphicCard>
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div className="bg-neumo-light rounded-neumo-button p-3 shadow-neumo-pressed-sm">
@@ -191,7 +183,6 @@ export default function OwnerPage({ params }: OwnerPageProps) {
         </div>
       </NeumorphicCard>
       
-      {/* Action Buttons */}
       <div className="flex gap-3">
         <Button variant="primary" className="flex-1">
           联系门店
@@ -201,7 +192,6 @@ export default function OwnerPage({ params }: OwnerPageProps) {
         </Button>
       </div>
       
-      {/* Disclaimer */}
       <p className="text-xs text-gray-400 text-center px-4">
         📌 最终服务是否适合您的宠物，需美容师到店评估后确定
       </p>
