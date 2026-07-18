@@ -159,38 +159,34 @@ jobs:
           echo "Account ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
           echo "Project: jingangchong-app"
           echo ""
-          echo "尝试使用 Functions 兼容性 API 设置 nodejs_compat..."
-          RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app/functions/compatibility" \
-            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "compatibility_flags": ["nodejs_compat"],
-              "compatibility_date": "2024-09-23"
-            }')
-          echo "API 响应: $RESPONSE"
-          SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
-          if [ "$SUCCESS" = "true" ]; then
-            echo "✓ Functions 兼容性标志设置成功"
+          echo "使用 wrangler CLI 更新项目兼容性设置..."
+          set +e
+          wrangler pages project update jingangchong-app --compatibility-flags=nodejs_compat --compatibility-date=2024-09-23 2>&1 | tee compat.log
+          COMPAT_EXIT=$?
+          set -e
+          echo ""
+          echo "=== wrangler 输出 ==="
+          cat compat.log
+          echo ""
+          if [ $COMPAT_EXIT -eq 0 ]; then
+            echo "✓ wrangler 兼容性标志设置成功"
             echo "compat_set=true" >> $GITHUB_OUTPUT
           else
-            ERROR=$(echo "$RESPONSE" | jq -r '.errors[0].message')
-            echo "⚠ Functions API 设置失败: $ERROR"
-            echo ""
-            echo "尝试使用项目级别 API..."
-            RESPONSE2=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app" \
+            echo "⚠ wrangler CLI 设置失败, 尝试使用 API..."
+            RESPONSE=$(curl -s -X PATCH "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app" \
               -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
               -H "Content-Type: application/json" \
               -d '{
                 "functions_compatibility_flags": ["nodejs_compat"],
                 "functions_compatibility_date": "2024-09-23"
               }')
-            echo "API 响应: $RESPONSE2"
-            SUCCESS2=$(echo "$RESPONSE2" | jq -r '.success')
-            if [ "$SUCCESS2" = "true" ]; then
-              echo "✓ 项目级别兼容性标志设置成功"
+            echo "API 响应: $RESPONSE"
+            SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
+            if [ "$SUCCESS" = "true" ]; then
+              echo "✓ API 设置成功"
               echo "compat_set=true" >> $GITHUB_OUTPUT
             else
-              echo "⚠ 所有 API 设置都失败了"
+              echo "⚠ API 设置也失败了"
               echo "请手动在 Cloudflare 仪表板设置:"
               echo "1. 进入 Pages → jingangchong-app"
               echo "2. 点击 Settings → Functions"
@@ -198,6 +194,9 @@ jobs:
               echo "compat_set=false" >> $GITHUB_OUTPUT
             fi
           fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       # ============================================================
       # 7. 部署到 Cloudflare Pages - 使用 debug 日志级别
