@@ -220,10 +220,12 @@ jobs:
           echo "=== 部署到 Cloudflare Pages ==="
           echo "项目名: jingangchong-app"
           echo "部署目录: .vercel/output/static"
-          echo "兼容性标志已在部署前通过 API 设置"
+          echo ""
+          echo "=== 尝试直接设置项目兼容性 ==="
+          wrangler pages project update jingangchong-app --compatibility-flags nodejs_compat --compatibility-date 2024-09-23 2>&1 || echo "项目更新命令可能不支持此参数"
           echo ""
           set +e
-          wrangler pages deploy .vercel/output/static --project-name jingangchong-app 2>&1 | tee deploy.log
+          wrangler pages deploy .vercel/output/static --project-name jingangchong-app --compatibility-flags nodejs_compat --compatibility-date 2024-09-23 2>&1 | tee deploy.log
           DEPLOY_EXIT=$?
           set -e
           echo ""
