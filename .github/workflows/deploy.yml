@@ -64,7 +64,35 @@ jobs:
           NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
 
       - name: Build for Cloudflare Pages
-        run: npm run build:pages
+        id: build_pages
+        run: |
+          echo "=== 开始 Cloudflare Pages 构建 ==="
+          echo "当前目录: $(pwd)"
+          echo "检查 .next 目录..."
+          ls -la .next 2>/dev/null || echo ".next 目录不存在"
+          echo ""
+          echo "检查 vercel 输出目录..."
+          ls -la .vercel/output/static 2>/dev/null || echo ".vercel/output/static 目录不存在"
+          echo ""
+          echo "=== 执行构建 ==="
+          set +e
+          npm run build:pages 2>&1 | tee build-pages.log
+          BUILD_EXIT=$?
+          set -e
+          echo ""
+          echo "=== 构建退出码: $BUILD_EXIT ==="
+          echo ""
+          if [ $BUILD_EXIT -ne 0 ]; then
+            echo "::error::Cloudflare Pages 构建失败"
+            echo ""
+            echo "=== 完整构建日志 ==="
+            cat build-pages.log
+            echo ""
+            echo "=== 环境变量 ==="
+            env | grep -E '(NODE_ENV|NEXT_)'
+            exit 1
+          fi
+          echo "✓ Cloudflare Pages 构建成功"
 
       # ============================================================
       # 3. 构建产物验证 - 确保输出目录存在且包含文件
