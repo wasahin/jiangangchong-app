@@ -187,25 +187,45 @@ jobs:
           echo "Account ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
           echo "Project: jingangchong-app"
           echo ""
-          echo "=== 步骤 1: 尝试使用 Cloudflare API 设置 Functions 兼容性 ==="
-          RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app/functions/compatibility" \
+          echo "=== 步骤 1: 使用 Cloudflare API 更新项目配置 ==="
+          RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app" \
             -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "compatibility_flags": ["nodejs_compat"],
-              "compatibility_date": "2024-09-23"
+              "functions_compatibility": {
+                "flags": ["nodejs_compat"],
+                "date": "2024-09-23"
+              }
             }')
           echo "API 响应:"
           echo "$RESPONSE"
           echo ""
           SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
           if [ "$SUCCESS" = "true" ]; then
-            echo "✓ Functions 兼容性标志设置成功"
+            echo "✓ 项目兼容性标志设置成功"
             echo "compat_set=true" >> $GITHUB_OUTPUT
           else
-            echo "⚠ API 设置失败，尝试 wrangler CLI..."
-            wrangler pages project update jingangchong-app --compatibility-flags nodejs_compat --compatibility-date 2024-09-23 2>&1 || echo "wrangler CLI 也失败"
-            echo "compat_set=false" >> $GITHUB_OUTPUT
+            echo "⚠ 项目 API 设置失败"
+            echo ""
+            echo "=== 步骤 2: 尝试 Functions 兼容性 API ==="
+            RESPONSE2=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app/functions/compatibility" \
+              -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "flags": ["nodejs_compat"],
+                "date": "2024-09-23"
+              }')
+            echo "API 响应:"
+            echo "$RESPONSE2"
+            echo ""
+            SUCCESS2=$(echo "$RESPONSE2" | jq -r '.success')
+            if [ "$SUCCESS2" = "true" ]; then
+              echo "✓ Functions API 设置成功"
+              echo "compat_set=true" >> $GITHUB_OUTPUT
+            else
+              echo "⚠ 所有 API 设置都失败了"
+              echo "compat_set=false" >> $GITHUB_OUTPUT
+            fi
           fi
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
