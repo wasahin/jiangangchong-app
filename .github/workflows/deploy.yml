@@ -203,7 +203,8 @@ jobs:
             echo "✓ Functions 兼容性标志设置成功"
             echo "compat_set=true" >> $GITHUB_OUTPUT
           else
-            echo "⚠ API 设置失败"
+            echo "⚠ API 设置失败，尝试 wrangler CLI..."
+            wrangler pages project update jingangchong-app --compatibility-flags nodejs_compat --compatibility-date 2024-09-23 2>&1 || echo "wrangler CLI 也失败"
             echo "compat_set=false" >> $GITHUB_OUTPUT
           fi
         env:
