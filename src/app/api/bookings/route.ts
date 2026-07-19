@@ -3,31 +3,16 @@ import { Booking, ServiceType, BookingStatus } from '@/types/booking';
 import { GROOMING_STAGES, WEIGHT_RANGES } from '@/lib/constants';
 import { getBookingById as getFeishuBooking, createBookingInFeishu, updateBookingStatus as updateFeishuBooking } from '@/lib/feishu';
 
-export const runtime = 'edge';
-
 const MEMORY_STORAGE_KEY = 'jingangchong_memory_bookings';
 
 let memoryBookings: Booking[] = [];
 
 function loadMemoryBookings(): Booking[] {
-  if (typeof localStorage !== 'undefined') {
-    try {
-      const data = localStorage.getItem(MEMORY_STORAGE_KEY);
-      if (data) {
-        memoryBookings = JSON.parse(data);
-      }
-    } catch {
-      memoryBookings = [];
-    }
-  }
   return memoryBookings;
 }
 
 function saveMemoryBookings(bookings: Booking[]): void {
   memoryBookings = bookings;
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem(MEMORY_STORAGE_KEY, JSON.stringify(bookings));
-  }
 }
 
 function getBookings(): Booking[] {

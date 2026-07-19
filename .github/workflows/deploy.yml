@@ -159,57 +159,24 @@ jobs:
           echo "Account ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
           echo "Project: jingangchong-app"
           echo ""
-          echo "=== 步骤 1: 获取当前项目配置 ==="
-          GET_RESPONSE=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app" \
-            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-            -H "Content-Type: application/json")
-          echo "GET 响应长度: ${#GET_RESPONSE}"
-          echo "GET 响应前 2000 字符:"
-          echo "${GET_RESPONSE:0:2000}"
-          echo ""
-          echo "=== 步骤 2: 设置 Functions 兼容性标志 ==="
-          PUT_RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app/functions/compatibility" \
+          echo "=== 步骤 1: 尝试使用 Cloudflare API 设置 Functions 兼容性 ==="
+          RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app/functions/compatibility" \
             -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "flags": ["nodejs_compat"],
-              "date": "2024-09-23"
+              "compatibility_flags": ["nodejs_compat"],
+              "compatibility_date": "2024-09-23"
             }')
-          echo "PUT 响应长度: ${#PUT_RESPONSE}"
-          echo "PUT 响应:"
-          echo "$PUT_RESPONSE"
+          echo "API 响应:"
+          echo "$RESPONSE"
           echo ""
-          SUCCESS=$(echo "$PUT_RESPONSE" | jq -r '.success')
+          SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
           if [ "$SUCCESS" = "true" ]; then
             echo "✓ Functions 兼容性标志设置成功"
             echo "compat_set=true" >> $GITHUB_OUTPUT
           else
-            ERROR=$(echo "$PUT_RESPONSE" | jq -r '.errors[0].message // "Unknown error"')
-            echo "⚠ Functions API 设置失败: $ERROR"
-            echo ""
-            echo "=== 步骤 3: 尝试更新项目配置 ==="
-            PATCH_RESPONSE=$(curl -s -X PATCH "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app" \
-              -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "functions_compatibility": {
-                  "flags": ["nodejs_compat"],
-                  "date": "2024-09-23"
-                }
-              }')
-            echo "PATCH 响应长度: ${#PATCH_RESPONSE}"
-            echo "PATCH 响应:"
-            echo "$PATCH_RESPONSE"
-            echo ""
-            SUCCESS2=$(echo "$PATCH_RESPONSE" | jq -r '.success')
-            if [ "$SUCCESS2" = "true" ]; then
-              echo "✓ PATCH API 设置成功"
-              echo "compat_set=true" >> $GITHUB_OUTPUT
-            else
-              ERROR2=$(echo "$PATCH_RESPONSE" | jq -r '.errors[0].message // "Unknown error"')
-              echo "⚠ PATCH API 设置也失败了: $ERROR2"
-              echo "compat_set=false" >> $GITHUB_OUTPUT
-            fi
+            echo "⚠ API 设置失败"
+            echo "compat_set=false" >> $GITHUB_OUTPUT
           fi
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
