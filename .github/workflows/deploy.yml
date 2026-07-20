@@ -83,7 +83,7 @@ jobs:
           echo "=== 部署到 Cloudflare Pages ==="
           echo "Functions directory contents:"
           ls -la functions/api/bookings/
-          wrangler pages deploy out --project-name jingangchong-app --functions-dir=functions --compatibility-flags=nodejs_compat --compatibility-date=2024-01-01
+          wrangler pages deploy out --project-name jingangchong-app --functions-dir=functions
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
