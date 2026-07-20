@@ -1,0 +1,8 @@
+module.exports = {
+  functions: {
+    '*': {
+      compatibility_flags: ['nodejs_compat'],
+      compatibility_date: '2024-09-23'
+    }
+  }
+};
