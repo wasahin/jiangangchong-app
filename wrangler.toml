@@ -3,6 +3,9 @@ name = "jingangchong-app"
 [pages]
 pages_build_output_dir = "out"
 
+[compatibility_flags]
+nodejs_compat = true
+
 [vars]
 NEXT_PUBLIC_FEISHU_APP_ID = ""
 FEISHU_APP_SECRET = ""

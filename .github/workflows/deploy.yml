@@ -75,10 +75,14 @@ jobs:
       - name: Deploy to Cloudflare Pages
         run: |
           echo "=== 部署到 Cloudflare Pages ==="
-          wrangler pages deploy out --project-name jingangchong-app
+          wrangler pages deploy out --project-name jingangchong-app --compatibility-flags=nodejs_compat
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          NEXT_PUBLIC_FEISHU_APP_ID: ${{ secrets.NEXT_PUBLIC_FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          NEXT_PUBLIC_FEISHU_BASE_ID: ${{ secrets.NEXT_PUBLIC_FEISHU_BASE_ID }}
+          NEXT_PUBLIC_FEISHU_TABLE_ID: ${{ secrets.NEXT_PUBLIC_FEISHU_TABLE_ID }}
 
       - name: Deployment summary
         if: always()
