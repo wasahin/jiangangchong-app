@@ -72,6 +72,12 @@ jobs:
           echo "=== Wrangler 版本信息 ==="
           wrangler --version
 
+      - name: Copy Functions to Build Output
+        run: |
+          echo "=== 复制 Functions 到构建产物 ==="
+          cp -r functions out/functions || echo "functions 目录不存在"
+          ls -la out/functions/api/bookings/
+
       - name: Deploy to Cloudflare Pages
         run: |
           echo "=== 部署到 Cloudflare Pages ==="
