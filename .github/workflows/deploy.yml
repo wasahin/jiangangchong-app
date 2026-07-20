@@ -237,8 +237,9 @@ jobs:
           echo "=== 检查 wrangler pages deploy 帮助 ==="
           wrangler pages deploy --help 2>&1 | head -30
           echo ""
+          echo "=== 使用 wrangler CLI 部署 ==="
           set +e
-          wrangler pages deploy .vercel/output/static --project-name jingangchong-app 2>&1 | tee deploy.log
+          wrangler pages deploy .vercel/output/static --project-name jingangchong-app --compatibility-flags nodejs_compat 2>&1 | tee deploy.log
           DEPLOY_EXIT=$?
           set -e
           echo ""
