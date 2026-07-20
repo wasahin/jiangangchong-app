@@ -78,13 +78,10 @@ jobs:
           cp -r functions out/functions || echo "functions 目录不存在"
           ls -la out/functions/api/bookings/
 
-      - name: Set nodejs_compat flag via Cloudflare API
+      - name: Set nodejs_compat flag via Wrangler CLI
         run: |
           echo "=== 设置 nodejs_compat 兼容性标志 ==="
-          curl -X PATCH "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/jingangchong-app" \
-            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-            -H "Content-Type: application/json" \
-            -d '{"functions": {"compatibility_flags": ["nodejs_compat"]}}'
+          wrangler pages project update jingangchong-app --compatibility-flags=nodejs_compat
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
