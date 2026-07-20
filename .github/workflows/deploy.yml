@@ -52,14 +52,14 @@ jobs:
       - name: Verify build output
         run: |
           echo "=== 验证构建产物 ==="
-          if [ ! -d ".next" ]; then
-            echo "::error::.next 目录不存在!"
+          if [ ! -d "out" ]; then
+            echo "::error::out 目录不存在!"
             exit 1
           fi
-          FILE_COUNT=$(find .next -type f | wc -l)
+          FILE_COUNT=$(find out -type f | wc -l)
           echo "文件总数: $FILE_COUNT"
           if [ "$FILE_COUNT" -eq 0 ]; then
-            echo "::error::.next 目录为空!"
+            echo "::error::out 目录为空!"
             exit 1
           fi
           echo "✓ 构建产物验证通过"
@@ -75,7 +75,7 @@ jobs:
       - name: Deploy to Cloudflare Pages
         run: |
           echo "=== 部署到 Cloudflare Pages ==="
-          wrangler pages deploy .next --project-name jingangchong-app
+          wrangler pages deploy out --project-name jingangchong-app
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
