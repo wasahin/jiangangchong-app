@@ -187,46 +187,39 @@ jobs:
           echo "Account ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
           echo "Project: jingangchong-app"
           echo ""
-          echo "=== 步骤 1: 使用 Cloudflare API 更新项目配置 ==="
-          RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app" \
+          echo "=== 步骤 1: 获取当前 Functions 兼容性设置 ==="
+          GET_RESPONSE=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app/functions/compatibility" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json")
+          echo "GET 响应:"
+          echo "$GET_RESPONSE"
+          echo ""
+          echo "=== 步骤 2: 设置 Functions 兼容性标志 ==="
+          PUT_RESPONSE=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app/functions/compatibility" \
             -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "functions_compatibility": {
-                "flags": ["nodejs_compat"],
-                "date": "2024-09-23"
-              }
+              "compatibility_flags": ["nodejs_compat"],
+              "compatibility_date": "2024-09-23"
             }')
-          echo "API 响应:"
-          echo "$RESPONSE"
+          echo "PUT 响应:"
+          echo "$PUT_RESPONSE"
           echo ""
-          SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
+          SUCCESS=$(echo "$PUT_RESPONSE" | jq -r '.success')
           if [ "$SUCCESS" = "true" ]; then
-            echo "✓ 项目兼容性标志设置成功"
+            echo "✓ Functions 兼容性标志设置成功"
             echo "compat_set=true" >> $GITHUB_OUTPUT
           else
-            echo "⚠ 项目 API 设置失败"
-            echo ""
-            echo "=== 步骤 2: 尝试 Functions 兼容性 API ==="
-            RESPONSE2=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app/functions/compatibility" \
-              -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-              -H "Content-Type: application/json" \
-              -d '{
-                "flags": ["nodejs_compat"],
-                "date": "2024-09-23"
-              }')
-            echo "API 响应:"
-            echo "$RESPONSE2"
-            echo ""
-            SUCCESS2=$(echo "$RESPONSE2" | jq -r '.success')
-            if [ "$SUCCESS2" = "true" ]; then
-              echo "✓ Functions API 设置成功"
-              echo "compat_set=true" >> $GITHUB_OUTPUT
-            else
-              echo "⚠ 所有 API 设置都失败了"
-              echo "compat_set=false" >> $GITHUB_OUTPUT
-            fi
+            echo "⚠ API 设置失败"
+            echo "compat_set=false" >> $GITHUB_OUTPUT
           fi
+          echo ""
+          echo "=== 步骤 3: 再次获取确认设置 ==="
+          GET_RESPONSE2=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/jingangchong-app/functions/compatibility" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json")
+          echo "GET 响应 (设置后):"
+          echo "$GET_RESPONSE2"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -241,11 +234,11 @@ jobs:
           echo "项目名: jingangchong-app"
           echo "部署目录: .vercel/output/static"
           echo ""
-          echo "=== 尝试直接设置项目兼容性 ==="
-          wrangler pages project update jingangchong-app --compatibility-flags nodejs_compat --compatibility-date 2024-09-23 2>&1 || echo "项目更新命令可能不支持此参数"
+          echo "=== 检查 wrangler pages deploy 帮助 ==="
+          wrangler pages deploy --help 2>&1 | head -30
           echo ""
           set +e
-          wrangler pages deploy .vercel/output/static --project-name jingangchong-app --compatibility-flags nodejs_compat --compatibility-date 2024-09-23 2>&1 | tee deploy.log
+          wrangler pages deploy .vercel/output/static --project-name jingangchong-app 2>&1 | tee deploy.log
           DEPLOY_EXIT=$?
           set -e
           echo ""
