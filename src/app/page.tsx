@@ -549,6 +549,12 @@ export default function CustomerPage() {
         </NeumorphicCard>
       </div>
       
+      <footer className="text-center py-6">
+        <a href="/staff" className="text-gray-400 text-xs hover:text-gray-600 transition-colors">
+          内部入口
+        </a>
+      </footer>
+      
       <Navigation currentPage="home" />
     </div>
   );
