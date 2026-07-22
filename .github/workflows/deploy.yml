@@ -24,18 +24,6 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Environment diagnostics
-        run: |
-          echo "=== 环境信息 ==="
-          echo "Node.js 版本: $(node --version)"
-          echo "npm 版本: $(npm --version)"
-          echo "操作系统: $(uname -a)"
-          echo "当前目录: $(pwd)"
-          echo ""
-          echo "=== Git 信息 ==="
-          echo "Commit: $(git rev-parse HEAD)"
-          echo "Branch: $(git rev-parse --abbrev-ref HEAD)"
-
       - name: Install dependencies
         run: npm ci
 
@@ -64,28 +52,27 @@ jobs:
           fi
           echo "✓ 构建产物验证通过"
 
-      - name: Install Wrangler
-        run: npm install -g wrangler
-
-      - name: Verify Wrangler installation
+      - name: Copy Functions to Build Output
         run: |
-          echo "=== Wrangler 版本信息 ==="
-          wrangler --version
+          echo "=== 复制 Functions ==="
+          if [ -d "functions" ]; then
+            cp -r functions out/functions
+            echo "✓ Functions copied"
+          else
+            echo "⚠️ functions 目录不存在"
+          fi
 
       - name: Deploy to Cloudflare Pages
-        run: |
-          echo "=== 部署到 Cloudflare Pages ==="
-          echo "Current directory:"
-          pwd
-          echo "Functions directory:"
-          ls -la functions/
-          wrangler pages deploy out --project-name jingangchong-app
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        id: deployment
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: jingangchong-app
+          directory: out
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deployment summary
-        if: always()
         run: |
           echo "## 🚀 Cloudflare Pages 部署摘要" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -94,14 +81,7 @@ jobs:
           echo "| 仓库 | ${{ github.repository }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 分支 | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Node.js | $(node --version) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ job.status }}" = "success" ]; then
-            echo "### ✅ 部署成功" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "访问地址: https://jiangangchong-app.pages.dev" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### ❌ 部署失败" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "请查看上方的错误日志" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "### ✅ 部署成功" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "访问地址: https://jiangangchong-app.pages.dev" >> $GITHUB_STEP_SUMMARY
