@@ -344,7 +344,7 @@ export default function CustomerPage() {
                         <img
                           src="/runningdog.gif"
                           alt="Running dog"
-                          className="w-full h-full object-contain p-0.5"
+                          className="w-full h-full object-contain p-0.5 animate-run"
                         />
                       </div>
                       
