@@ -550,7 +550,12 @@ export default function CustomerPage() {
       </div>
       
       <footer className="text-center py-6">
-        <a href="/staff" className="text-gray-400 text-xs hover:text-gray-600 transition-colors">
+        <a 
+          href="/staff" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-gray-400 text-xs hover:text-gray-600 transition-colors"
+        >
           内部入口
         </a>
       </footer>
