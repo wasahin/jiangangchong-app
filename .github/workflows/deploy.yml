@@ -9,10 +9,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
 
     steps:
       - name: Checkout repository
@@ -62,15 +58,16 @@ jobs:
             echo "⚠️ functions 目录不存在"
           fi
 
+      - name: Install wrangler
+        run: npm install -g wrangler@latest
+
       - name: Deploy to Cloudflare Pages
-        id: deployment
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: jingangchong-app
-          directory: out
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "=== 部署到 Cloudflare Pages ==="
+          wrangler pages deploy out --project-name jingangchong-app
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Deployment summary
         run: |
