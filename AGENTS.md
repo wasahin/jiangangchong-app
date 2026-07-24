@@ -26,7 +26,7 @@
 
 ---
 
-## Design System - Liquid Glass (iOS Style)
+## Design System - Neumorphic Soft UI (Barley White Theme)
 
 ### Color Palette
 
@@ -36,17 +36,18 @@
 | Blue | `#5AC8FA`, `#007AFF` |
 | Green | `#4CD964`, `#34C759` |
 | Red | `#FF3B30` |
-| Background | `#F2F2F7`, `#F5F0EB` |
-| Text | `#1a1a1a` |
-| Barley White | `#FFF4CC` |
+| Background | `#FFF4CC` (Barley White) |
 | Card Surface | `#FFF9E6` |
 | Text Primary | `#5C5C5C` |
 | Text Secondary | `#9A9A9A` |
 | Amber Brand | `#FFA500` |
-| Amber Light | `#FFB333` |
+| Amber Light | `#FFB733` |
 | Amber Dark | `#E89000` |
 | Pink Accent | `#FF9A9E` |
 | Pink Light | `#FFB8BA` |
+| Light Shadow | `rgba(255, 255, 255, 0.9)` |
+| Dark Shadow | `rgba(240, 220, 180, 0.35)` |
+| Card Border | `rgba(240, 220, 180, 0.2)` |
 
 ### Dark Mode Colors
 
@@ -58,44 +59,48 @@
 | Text Secondary | `#8E8E93` |
 | Logo Paw | `#FFD700` to `#FF8C00` |
 
-### Liquid Glass Card Spec
+### Neumorphic Card Spec
 
 ```
-backdrop-blur: 24px
-saturate: 180%
-bg: linear-gradient(135deg, rgba(255,253,240,0.95) 0%, rgba(255,248,225,0.85) 100%)
+bg: #FFF9E6 (Card Surface)
 border: 1px solid rgba(240, 220, 180, 0.2)
-shadow: 6px 6px 16px rgba(0,0,0,0.12), -4px -4px 12px rgba(255,255,255,0.9), inset 1px 1px 3px rgba(255,255,255,0.7)
-border-radius: 24px
-hover: translateY(-4px) scale(1.01) + enhanced shadow
+shadow: 8px 8px 16px rgba(240,220,180,0.35), -8px -8px 16px rgba(255,255,255,0.9)
+border-radius: 18px
+hover: transition-shadow duration-200
 ```
+
+### Raised vs Pressed States
+
+| State | Shadow | Usage |
+|---|---|---|
+| Raised | `8px 8px 16px rgba(240,220,180,0.35), -8px -8px 16px rgba(255,255,255,0.9)` | Default cards, buttons |
+| Pressed | `inset 5px 5px 10px rgba(240,220,180,0.4), inset -5px -5px 10px rgba(255,255,255,0.9)` | Inputs, clicked states |
 
 ### Button Spec
 
 | Type | Style |
 |---|---|
-| Primary (Amber) | `linear-gradient(180deg, rgba(255,165,24,0.95) 0%, rgba(255,122,0,0.92) 100%)` |
+| Primary (Amber) | `linear-gradient(to bottom right, #FFA500, #E89000)` |
 | Blue (iOS) | `linear-gradient(180deg, rgba(90,200,250,0.98) 0%, rgba(50,180,240,0.95) 100%)` |
 | Green | `linear-gradient(180deg, rgba(76,217,100,0.95) 0%, rgba(52,199,89,0.92) 100%)` |
-| Secondary (Glass) | `linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(240,240,240,0.5) 100%)` + `backdrop-filter: blur(16px)` |
+| Secondary (Neumorphic) | `bg-neumo-light` + neumorphic raised shadow |
 
 ### UI Standards
 
 - **Font**: SF Pro / PingFang SC (never Inter)
-- **Border Radius**: buttons 16px, inputs 12px, cards 20-24px
-- **Transitions**: `cubic-bezier(0.34, 1.56, 0.64, 1)` or `cubic-bezier(0.25, 0.46, 0.45, 0.94)`
-- **Hover**: `-translate-y-[1px]`, `brightness(1.05)`
-- **Active (press)**: `scale-[0.985]`, `brightness(0.97)`
+- **Border Radius**: buttons 12px, inputs 12px, cards 18px
+- **Transitions**: `cubic-bezier(0.34, 1.56, 0.64, 1)`
+- **Hover**: `-translate-y-[1px]`, `brightness(1.05)`, enhanced shadow
+- **Active (press)**: `translate-y-[0.5px]`, `brightness(0.95)`
 - **Min button height**: 48px (small: 40px)
 - **Contrast**: All buttons must pass WCAG AA (>= 4.5:1)
-- **Shadow system**: outer soft light + top inner highlight + bottom inner depth
-- **Glass nav bars**: `backdrop-filter: blur(24px) saturate(180%)` with semi-transparent bg
+- **Shadow system**: paired yellow-beige-tinged shadows (dark shadow + light shadow)
+- **Status board**: 3 equal-width cards in a row (accepted pattern)
 
 ### Prohibited Design Elements
 
 - No `em-dash (—)` in visible text
 - No AI purple gradients, neon glow, pure black `#000000`, pure white `#FFFFFF`
-- No three equal-width cards in a row (use asymmetric grids or single column)
 - No decorative shadows beyond functional ones
 - No pseudo-decorative gradients, borders, or glows
 
@@ -163,7 +168,7 @@ Recommended: 已确认, 护理准备中, 清洗护理中, 吹干修整中, 可�
 ### Page Copy & Visual Style
 
 - Professional, transparent, efficient
-- Clean, readable, iOS-style information hierarchy
+- Clean, readable, neumorphic soft UI information hierarchy
 
 ### Excel Service Steps
 
@@ -230,7 +235,7 @@ Same as above, plus:
 - Shop intro + process explanation
 - Badge: "Booking requires store review after submission"
 - Buttons: "Fill in Booking" (scrolls to form), "Contact via WeChat"
-- Live store status board (auto-refresh 30s): Currently Under Review / Accepted Today / Currently In Service
+- Live store status board (auto-refresh 30s): Currently Under Review / Accepted Today / Currently In Service (3 equal-width cards)
 - 10-field booking form (owner name, phone, pet name, date/time 10:00-17:00, service type, weight, vaccine date, outside groomed, emotionally stable, special notes)
 - Submit button -> writes to storage, shows result card
 - Result card: status badge, pet name, time/service/weight, info grid, WeChat notice
