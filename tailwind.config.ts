@@ -41,13 +41,13 @@ module.exports = {
         // ============================================
         
         // --- Light Theme: 浅粉色大麦白背景 ---
-        // Background: Soft barley white ~#FFF4CC
+        // Background: Warm amber light ~#FFF8E7
         // Card surface: Lighter barley white ~#FFF9E6
         // Light shadow: White ~rgba(255,255,255,0.9)
         // Dark shadow: Yellow-beige-tinged ~rgba(240,220,180,0.35)
         neumo: {
           // Barley white background colors
-          light: '#FFF4CC',
+          light: '#FFF8E7',
           surface: '#FFF9E6',
           alt: '#FAF0C4',
           
@@ -176,4 +176,5 @@ module.exports = {
   },
   plugins: [],
 }
+
 

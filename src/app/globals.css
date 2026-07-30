@@ -50,6 +50,19 @@ body {
   animation: bounce 0.6s ease-in-out infinite;
 }
 
+
+/* ============================================
+   LIGHT MODE - Explicit background to prevent overrides
+   ============================================ */
+
+body {
+  background-color: #FFF8E7;
+}
+
+html:not(.dark) body {
+  background-color: #FFF8E7 !important;
+}
+
 /* ============================================
    DARK MODE STYLES
    ============================================ */
@@ -141,3 +154,4 @@ html.dark option {
   background-color: #2C2C2E !important;
   color: #FFFFFF !important;
 }
+
