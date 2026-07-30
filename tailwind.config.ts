@@ -40,8 +40,8 @@ module.exports = {
         // Two variants: Light (浅色) and Rich (深色)
         // ============================================
         
-        // --- Light Theme: 浅粉色大麦白背景 ---
-        // Background: Warm amber light ~#FFF8E7
+        // --- Light Theme: 浅大麦白背景 ---
+        // Background: Barley white #FFF4CC
         // Card surface: Lighter barley white ~#FFF9E6
         // Light shadow: White ~rgba(255,255,255,0.9)
         // Dark shadow: Yellow-beige-tinged ~rgba(240,220,180,0.35)

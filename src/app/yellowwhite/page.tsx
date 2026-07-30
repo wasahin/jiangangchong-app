@@ -114,7 +114,7 @@ const Icon = {
 };
 
 export default function YellowWhitePage() {
-  // Background theme hook for light/rich pink toggle
+  // Background theme hook for light/rich barley white toggle
   const { theme, config } = useBackgroundTheme('light');
   const shadows = theme === 'light' ? LIGHT_SHADOWS : RICH_SHADOWS;
 
@@ -161,7 +161,7 @@ export default function YellowWhitePage() {
           className="text-xs tracking-wider"
           style={{ color: theme === 'light' ? '#9A9A9A' : '#AAAAAA' }}
         >
-          {theme === 'light' ? 'Light Pink' : 'Rich Pink'} Background
+          {theme === 'light' ? 'Light Barley White' : 'Rich Barley White'} Background
         </p>
       </div>
 
