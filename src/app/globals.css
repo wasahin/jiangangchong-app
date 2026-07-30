@@ -1,4 +1,4 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -48,4 +48,96 @@ body {
 
 .animate-bounce-slow {
   animation: bounce 0.6s ease-in-out infinite;
+}
+
+/* ============================================
+   DARK MODE STYLES
+   ============================================ */
+
+html.dark body {
+  background-color: #1C1C1E !important;
+  color: #FFFFFF;
+}
+
+html.dark .bg-neumo-light {
+  background-color: #2C2C2E !important;
+}
+
+html.dark .bg-neumo-surface {
+  background-color: #3D3D40 !important;
+}
+
+html.dark .text-gray-900 {
+  color: #FFFFFF !important;
+}
+
+html.dark .text-gray-700 {
+  color: #E5E5EA !important;
+}
+
+html.dark .text-gray-500 {
+  color: #8E8E93 !important;
+}
+
+html.dark .text-gray-400 {
+  color: #6C6C70 !important;
+}
+
+html.dark .border-white\/40 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .border-gray-200 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .bg-gray-50 {
+  background-color: #2C2C2E !important;
+}
+
+html.dark .bg-gray-100 {
+  background-color: #3D3D40 !important;
+}
+
+html.dark .bg-accent-amber\/10 {
+  background-color: rgba(255, 165, 0, 0.15) !important;
+}
+
+html.dark .bg-accent-amber\/30 {
+  background-color: rgba(255, 165, 0, 0.25) !important;
+}
+
+html.dark .shadow-neumo-raised-md {
+  box-shadow: 4px 4px 8px rgba(0,0,0,0.5), -2px -2px 6px rgba(255,255,255,0.05), inset 1px 1px 2px rgba(255,255,255,0.1) !important;
+}
+
+html.dark .shadow-neumo-pressed-sm {
+  box-shadow: inset 2px 2px 4px rgba(0,0,0,0.4), inset -1px -1px 3px rgba(255,255,255,0.05) !important;
+}
+
+html.dark .shadow-neumo-pressed-md {
+  box-shadow: inset 3px 3px 6px rgba(0,0,0,0.4), inset -2px -2px 4px rgba(255,255,255,0.05) !important;
+}
+
+html.dark nav {
+  background-color: rgba(28, 28, 30, 0.9) !important;
+  border-top-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #2C2C2E !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #6C6C70 !important;
+}
+
+html.dark option {
+  background-color: #2C2C2E !important;
+  color: #FFFFFF !important;
 }

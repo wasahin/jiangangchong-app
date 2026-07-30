@@ -1,5 +1,6 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import './globals.css';
+import { DarkModeToggle } from '@/components/DarkModeToggle';
 
 export const metadata: Metadata = {
   title: '金刚宠 | 宠物洗护进度看板',
@@ -14,8 +15,11 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="scroll-smooth">
       <body className="bg-neumo-light min-h-screen pb-20">
+        <DarkModeToggle />
+
         {children}
       </body>
     </html>
   );
 }
+
