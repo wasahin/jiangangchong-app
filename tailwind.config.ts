@@ -1,4 +1,4 @@
-﻿/** @type {import('tailwindcss').Config} */
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
   content: [
@@ -47,7 +47,7 @@ module.exports = {
         // Dark shadow: Yellow-beige-tinged ~rgba(240,220,180,0.35)
         neumo: {
           // Barley white background colors
-          light: '#FFF8E7',
+          light: '#FFF4CC',
           surface: '#FFF9E6',
           alt: '#FAF0C4',
           

@@ -1,4 +1,4 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -56,11 +56,11 @@ body {
    ============================================ */
 
 body {
-  background-color: #FFF8E7;
+  background-color: #FFF4CC;
 }
 
 html:not(.dark) body {
-  background-color: #FFF8E7 !important;
+  background-color: #FFF4CC !important;
 }
 
 /* ============================================
