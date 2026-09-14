@@ -149,8 +149,8 @@ export default function CustomerPage() {
         
         <NeumorphicCard>
           <div className="text-center py-8">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-accent-amber/20 flex items-center justify-center shadow-neumo-pressed-md">
-              <svg className="w-10 h-10 text-accent-amber" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-brand-v2-success/20 flex items-center justify-center shadow-neumo-pressed-md">
+              <svg className="w-10 h-10 text-brand-v2-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
@@ -159,13 +159,13 @@ export default function CustomerPage() {
             <p className="text-sm text-gray-400 mb-6">
               门店确认后会通过微信通知您
             </p>
-            <div className="bg-accent-amber/10 rounded-neumo-button p-4 text-sm text-accent-amberDark shadow-neumo-pressed-sm mb-4">
+            <div className="bg-brand-v2-warning/10 rounded-neumo-button p-4 text-sm text-brand-v2-warning shadow-neumo-pressed-sm mb-4">
               <p>📌 注意：最终服务适宜性由美容师现场评估后确定</p>
             </div>
             
             <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
               <p className="text-xs text-gray-500 mb-2">您的专属状态链接</p>
-              <p className="font-mono text-xs text-accent-amber break-all mb-3">{statusLink}</p>
+              <p className="font-mono text-xs text-brand-v2-gold break-all mb-3">{statusLink}</p>
               <Button 
                 variant="primary" 
                 size="small"
@@ -194,18 +194,18 @@ export default function CustomerPage() {
     <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
       <BrandHeader />
       
-      {/* Live Store Status Board */}
+      {/* Live Store Status Board — Brand v2 functional colors */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-neumo-surface rounded-neumo-card p-4 text-center shadow-neumo-raised-md">
-          <p className="text-[28px] font-bold text-accent-amber">{counts.pending}</p>
+        <div className="bg-brand-v2-bg-section rounded-neumo-card p-4 text-center shadow-neumo-raised-md">
+          <p className="text-[28px] font-bold text-brand-v2-warning">{counts.pending}</p>
           <p className="text-xs text-gray-400 mt-1">待审核</p>
         </div>
-        <div className="bg-neumo-surface rounded-neumo-card p-4 text-center shadow-neumo-raised-md">
-          <p className="text-[28px] font-bold text-lime-600">{counts.accepted}</p>
+        <div className="bg-brand-v2-bg-section rounded-neumo-card p-4 text-center shadow-neumo-raised-md">
+          <p className="text-[28px] font-bold text-brand-v2-success">{counts.accepted}</p>
           <p className="text-xs text-gray-400 mt-1">已确认</p>
         </div>
-        <div className="bg-neumo-surface rounded-neumo-card p-4 text-center shadow-neumo-raised-md">
-          <p className="text-[28px] font-bold text-accent-pink">{counts.inService}</p>
+        <div className="bg-brand-v2-bg-section rounded-neumo-card p-4 text-center shadow-neumo-raised-md">
+          <p className="text-[28px] font-bold text-brand-v2-info">{counts.inService}</p>
           <p className="text-xs text-gray-400 mt-1">服务中</p>
         </div>
       </div>
@@ -228,10 +228,10 @@ export default function CustomerPage() {
         </div>
       </div>
       
-      {/* Shop Info Card */}
-      <NeumorphicCard 
+      {/* Shop Info Card — Brand v2 hero surface */}
+      <NeumorphicCard
         customShadow="6px 6px 16px rgba(0,0,0,0.12), -4px -4px 12px rgba(255,255,255,0.9), inset 1px 1px 3px rgba(255,255,255,0.7)"
-        customBackground="linear-gradient(145deg, rgba(255,253,240,0.95), rgba(255,248,225,0.85))"
+        customBackground="linear-gradient(145deg, rgba(245,230,200,0.95), rgba(240,220,170,0.85))"
       >
         <div className="flex items-start gap-4 mb-4">
           <div 
@@ -251,12 +251,12 @@ export default function CustomerPage() {
           </div>
         </div>
         
-        <div className="bg-accent-amber/10 rounded-neumo-button p-3 mb-4 shadow-neumo-pressed-sm">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent-amber/30 text-accent-amberDark rounded-neumo-pill text-xs font-medium">
+        <div className="bg-brand-v2-warning/10 rounded-neumo-button p-3 mb-4 shadow-neumo-pressed-sm">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-brand-v2-warning/25 text-brand-v2-warning rounded-neumo-pill text-xs font-medium">
             <span>⚠️</span>
             预约需门店审核
           </span>
-          <p className="text-xs text-accent-amberDark mt-2">
+          <p className="text-xs text-brand-v2-warning/90 mt-2">
             提交预约后需要门店审核确认，最终服务时间以门店确认为准。
           </p>
         </div>
@@ -276,7 +276,7 @@ export default function CustomerPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">当前服务中</h2>
           <span className="flex items-center gap-1 text-xs text-gray-400">
-            <span className="w-1.5 h-1.5 bg-accent-pink rounded-full animate-pulse"></span>
+            <span className="w-1.5 h-1.5 bg-brand-v2-info rounded-full animate-pulse"></span>
             自动刷新
           </span>
         </div>
@@ -307,8 +307,8 @@ export default function CustomerPage() {
                   
                   <div className="mb-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="w-3 h-3 rounded-full bg-sky-400 animate-pulse"></span>
-                      <span className="text-sm font-medium text-sky-700">当前步骤</span>
+                      <span className="w-3 h-3 rounded-full bg-brand-v2-info animate-pulse"></span>
+                      <span className="text-sm font-medium text-brand-v2-info">当前步骤</span>
                     </div>
                     
                     <div className="flex items-center justify-between mb-2">
@@ -323,12 +323,12 @@ export default function CustomerPage() {
                         boxShadow: '5px 5px 10px rgba(0,0,0,0.15), -3px -3px 8px rgba(255,255,255,0.9), inset 1px 1px 3px rgba(255,255,255,0.7)'
                       }}
                     >
-                      <div 
+                      <div
                         className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
-                        style={{ 
+                        style={{
                           width: `${progress}%`,
-                          background: 'linear-gradient(90deg, #FF9500, #FFB333)',
-                          boxShadow: '0 0 25px rgba(255,165,0,0.7), 0 0 50px rgba(255,165,0,0.4), inset 0 2px 0 rgba(255,255,255,0.5)'
+                          background: 'linear-gradient(90deg, var(--brand-gold), #E8C572)',
+                          boxShadow: '0 0 25px rgba(212,162,76,0.7), 0 0 50px rgba(212,162,76,0.4), inset 0 2px 0 rgba(255,255,255,0.5)'
                         }}
                       />
                       
@@ -367,11 +367,11 @@ export default function CustomerPage() {
                   <div className="flex items-center justify-between">
                     <div className="text-xs">
                       <span className="text-gray-400">预计剩余 </span>
-                      <span className="font-semibold text-accent-amber">{eta}分钟</span>
+                      <span className="font-semibold text-brand-v2-gold">{eta}分钟</span>
                     </div>
                     <div className={`px-2.5 py-1 rounded-neumo-pill text-xs font-medium ${
-                      booking.wechatNoticeSent 
-                        ? 'bg-accent-pink/30 text-pink-700 shadow-neumo-pressed-sm' 
+                      booking.wechatNoticeSent
+                        ? 'bg-brand-v2-success/20 text-brand-v2-success shadow-neumo-pressed-sm'
                         : 'bg-neumo-light text-gray-400 shadow-neumo-pressed-sm'
                     }`}>
                       {booking.wechatNoticeSent ? '通知已发送' : '等待通知'}
@@ -396,7 +396,7 @@ export default function CustomerPage() {
                 required
                 value={formData.ownerName}
                 onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
-                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all text-gray-900"
+                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v2-gold transition-all text-gray-900"
                 placeholder="请输入您的姓名"
               />
             </div>
@@ -407,7 +407,7 @@ export default function CustomerPage() {
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all text-gray-900"
+                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v2-gold transition-all text-gray-900"
                 placeholder="请输入手机号码"
               />
             </div>
@@ -419,7 +419,7 @@ export default function CustomerPage() {
                 required
                 value={formData.petName}
                 onChange={(e) => setFormData({ ...formData, petName: e.target.value })}
-                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all text-gray-900"
+                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v2-gold transition-all text-gray-900"
                 placeholder="请输入宠物名字"
               />
             </div>
@@ -429,7 +429,7 @@ export default function CustomerPage() {
               <select
                 value={formData.serviceType}
                 onChange={(e) => setFormData({ ...formData, serviceType: e.target.value as ServiceType })}
-                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all text-gray-900"
+                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v2-gold transition-all text-gray-900"
               >
                 <option value={ServiceType.PREMIUM_WASH}>精致洗</option>
                 <option value={ServiceType.STANDARD_WASH}>标准洗</option>
@@ -442,7 +442,7 @@ export default function CustomerPage() {
               <select
                 value={formData.weightRange}
                 onChange={(e) => setFormData({ ...formData, weightRange: e.target.value })}
-                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all text-gray-900"
+                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v2-gold transition-all text-gray-900"
               >
                 {WEIGHT_RANGES.map(range => (
                   <option key={range.label} value={range.label}>{range.label}</option>
@@ -458,7 +458,7 @@ export default function CustomerPage() {
                   required
                   value={formData.bookingDate}
                   onChange={(e) => setFormData({ ...formData, bookingDate: e.target.value })}
-                  className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all"
+                  className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v2-gold transition-all"
                 />
               </div>
               <div>
@@ -467,7 +467,7 @@ export default function CustomerPage() {
                   required
                   value={formData.bookingTime}
                   onChange={(e) => setFormData({ ...formData, bookingTime: e.target.value })}
-                  className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all text-gray-900"
+                  className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v2-gold transition-all text-gray-900"
                 >
                   <option value="">选择时间</option>
                   {generateTimeOptions().map(time => {
@@ -493,7 +493,7 @@ export default function CustomerPage() {
                 type="date"
                 value={formData.vaccineDate}
                 onChange={(e) => setFormData({ ...formData, vaccineDate: e.target.value })}
-                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all"
+                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v2-gold transition-all"
               />
             </div>
             
@@ -503,7 +503,7 @@ export default function CustomerPage() {
                 <select
                   value={formData.outsideGroomed}
                   onChange={(e) => setFormData({ ...formData, outsideGroomed: e.target.value })}
-                  className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all text-gray-900"
+                  className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v2-gold transition-all text-gray-900"
                 >
                   <option value="Yes">是</option>
                   <option value="No">否</option>
@@ -514,7 +514,7 @@ export default function CustomerPage() {
                 <select
                   value={formData.emotionStable}
                   onChange={(e) => setFormData({ ...formData, emotionStable: e.target.value })}
-                  className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all text-gray-900"
+                  className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v2-gold transition-all text-gray-900"
                 >
                   <option value="Yes">是</option>
                   <option value="No">否</option>
@@ -527,13 +527,13 @@ export default function CustomerPage() {
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all resize-none text-gray-900"
+                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v2-gold transition-all resize-none text-gray-900"
                 rows={3}
                 placeholder="如有特殊需求请备注"
               />
             </div>
             
-            <div className="bg-accent-amber/10 rounded-neumo-button p-3 text-sm text-accent-amberDark shadow-neumo-pressed-sm">
+            <div className="bg-brand-v2-warning/10 rounded-neumo-button p-3 text-sm text-brand-v2-warning shadow-neumo-pressed-sm">
               <p>⚠️ 提交预约后需要门店审核确认，最终服务时间以门店确认为准。最终服务适宜性由美容师现场评估后确定。</p>
             </div>
             

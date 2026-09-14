@@ -39,17 +39,21 @@ module.exports = {
         // BRAND V2 (2026-09-15) — 10-color premium palette
         // Designed for 90后/00后 中山中产 · 亲和 + 专业 + Effortless + Reliable + Clean
         // Authoritative source: src/lib/design-tokens.ts
+        //
+        // Uses rgb(... / <alpha-value>) so opacity modifiers work
+        // (e.g. bg-brand-v2-gold/25, text-brand-v2-success/70).
+        // Solid color = rgb(N N N / 1) which equals the hex form.
         // ============================================
         'brand-v2': {
-          gold:       '#D4A24C',  // Sparkle Gold — logo match
-          navy:       '#1B3A5C',  // Deep Navy — trust, professional
-          success:    '#2E7D32',  // Forest Green — booking confirmed
-          warning:    '#E67E22',  // Warm Orange — slot conflict, dormancy
-          error:      '#C62828',  // Deep Red — payment failed
-          info:       '#0A66C2',  // LinkedIn Blue — verification sent
-          'bg-page':    '#FAF6EE',  // Warm Off-White — dominant canvas
-          'bg-section': '#F0E8D6',  // Cream Alt — alternating sections
-          'bg-hero':    '#F5E6C8',  // Warm Cream — top banners, ribbons
+          gold:       'rgb(212 162 76 / <alpha-value>)',   // #D4A24C Sparkle Gold
+          navy:       'rgb(27 58 92 / <alpha-value>)',     // #1B3A5C Deep Navy
+          success:    'rgb(46 125 50 / <alpha-value>)',    // #2E7D32 Forest Green
+          warning:    'rgb(230 126 34 / <alpha-value>)',   // #E67E22 Warm Orange
+          error:      'rgb(198 40 40 / <alpha-value>)',    // #C62828 Deep Red
+          info:       'rgb(10 102 194 / <alpha-value>)',   // #0A66C2 LinkedIn Blue
+          'bg-page':    'rgb(250 246 238 / <alpha-value>)',   // #FAF6EE Warm Off-White
+          'bg-section': 'rgb(240 232 214 / <alpha-value>)',   // #F0E8D6 Cream Alt
+          'bg-hero':    'rgb(245 230 200 / <alpha-value>)',   // #F5E6C8 Warm Cream
         },
 
         // ============================================

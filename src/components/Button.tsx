@@ -1,7 +1,7 @@
 import { NEUMORPHIC_CONFIG } from './neumorphic-config';
 
 interface ButtonProps {
-  variant?: 'primary' | 'secondary' | 'pink' | 'cyan' | 'pressed';
+  variant?: 'primary' | 'secondary' | 'pink' | 'cyan' | 'pressed' | 'navy';
   size?: 'small' | 'medium' | 'large';
   children: React.ReactNode;
   onClick?: () => void;
@@ -10,23 +10,34 @@ interface ButtonProps {
   type?: 'button' | 'submit' | 'reset';
 }
 
-export function Button({ 
-  variant = 'primary', 
-  size = 'medium', 
-  children, 
+export function Button({
+  variant = 'primary',
+  size = 'medium',
+  children,
   onClick,
   disabled = false,
   className = '',
   type = 'button',
 }: ButtonProps) {
-  
+
   const baseStyles = 'relative font-semibold transition-all inline-flex items-center justify-center';
-  
+
   const getVariantStyles = () => {
     switch (variant) {
-      case 'primary': // Amber - main action
+      case 'primary': // Brand v2 Sparkle Gold — main action
         return `
-          bg-gradient-to-br from-accent-amber via-accent-amberDark to-accent-amber
+          bg-gradient-to-br from-brand-v2-gold via-[#C99A45] to-brand-v2-gold
+          text-white
+          shadow-neumo-raised-sm
+          hover:shadow-neumo-raised-md
+          hover:-translate-y-[1px]
+          hover:brightness-105
+          active:translate-y-[0.5px]
+          active:brightness-95
+        `;
+      case 'navy': // Brand v2 Deep Navy — premium secondary action
+        return `
+          bg-gradient-to-br from-brand-v2-navy via-[#0F2A45] to-brand-v2-navy
           text-white
           shadow-neumo-raised-sm
           hover:shadow-neumo-raised-md
@@ -45,7 +56,7 @@ export function Button({
           active:shadow-neumo-pressed-sm
           active:translate-y-[0.5px]
         `;
-      case 'pink': // Pink - secondary accent emphasis
+      case 'pink': // Pink - secondary accent emphasis (kept for backwards compat)
         return `
           bg-gradient-to-br from-accent-pink via-[#FF8A8E] to-accent-pink
           text-white

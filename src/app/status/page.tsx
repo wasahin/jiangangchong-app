@@ -159,7 +159,7 @@ function StatusPageContent() {
           <div className="mb-4">
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray-600">当前进度</span>
-              <span className="font-bold text-accent-amber">{progress}%</span>
+              <span className="font-bold text-brand-v2-gold">{progress}%</span>
             </div>
             <div className="h-3 bg-gray-100 rounded-full overflow-hidden shadow-neumo-pressed-sm">
               <div 
@@ -175,8 +175,8 @@ function StatusPageContent() {
 
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-3 h-3 rounded-full bg-sky-400 animate-pulse"></span>
-              <span className="text-sm font-medium text-sky-700">当前步骤</span>
+              <span className="w-3 h-3 rounded-full bg-brand-v2-info animate-pulse"></span>
+              <span className="text-sm font-medium text-brand-v2-info">当前步骤</span>
             </div>
             
             <div className="flex items-center justify-between mb-2">
@@ -249,7 +249,7 @@ function StatusPageContent() {
 
         <button
           onClick={handleCopyLink}
-          className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-accent-amber to-accent-amberLight text-white font-medium shadow-lg hover:shadow-xl transition-all active:scale-[0.98]"
+          className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand-v2-gold to-[#E8C572] text-white font-medium shadow-lg hover:shadow-xl transition-all active:scale-[0.98]"
         >
           {copied ? '✓ 链接已复制' : '复制状态链接'}
         </button>

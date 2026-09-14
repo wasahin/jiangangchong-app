@@ -38,7 +38,7 @@ function StaffLogin({ onSuccess }: { onSuccess: () => void }) {
       <div className="max-w-sm w-full">
         <NeumorphicCard>
           <div className="text-center py-8">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-accent-amber/20 flex items-center justify-center shadow-neumo-pressed-md">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-brand-v2-gold/20 flex items-center justify-center shadow-neumo-pressed-md">
               <span className="text-4xl">🔐</span>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">员工登录</h3>
@@ -50,12 +50,12 @@ function StaffLogin({ onSuccess }: { onSuccess: () => void }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="请输入密码"
-                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-accent-amber transition-all text-gray-900"
+                className="w-full px-4 py-3 bg-neumo-light border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v2-gold transition-all text-gray-900"
                 autoFocus
               />
               
               {error && (
-                <p className="text-red-500 text-sm text-center">{error}</p>
+                <p className="text-brand-v2-error text-sm text-center">{error}</p>
               )}
               
               <Button 
@@ -115,11 +115,11 @@ export default function StaffPage() {
             <div className="flex items-center gap-4">
               <a 
                 href="/" 
-                className="text-sm font-semibold text-gray-600 hover:text-accent-amber transition-colors"
+                className="text-sm font-semibold text-gray-600 hover:text-brand-v2-gold transition-colors"
               >
                 返回客户看板
               </a>
-              <span className="text-sm font-semibold text-accent-amber tracking-wide">员工后台</span>
+              <span className="text-sm font-semibold text-brand-v2-gold tracking-wide">员工后台</span>
             </div>
           </div>
         </div>
@@ -312,10 +312,10 @@ export default function StaffPage() {
                         
                         {/* Current Step Display */}
                         {stepName && (
-                          <div className="mb-5 bg-sky-50 rounded-xl p-3">
+                          <div className="mb-5 bg-brand-v2-info/10 rounded-xl p-3">
                             <div className="flex items-center gap-2 mb-2">
-                              <span className="w-3 h-3 rounded-full bg-sky-400 animate-pulse"></span>
-                              <span className="text-sm font-medium text-sky-700">当前步骤</span>
+                              <span className="w-3 h-3 rounded-full bg-brand-v2-info animate-pulse"></span>
+                              <span className="text-sm font-medium text-brand-v2-info">当前步骤</span>
                             </div>
                             <p className="text-base font-semibold text-gray-900">{stepName}</p>
                             <div className="flex items-center gap-3 mt-3">
@@ -324,7 +324,7 @@ export default function StaffPage() {
                                 <span className="text-xs text-gray-400">已完成</span>
                               </div>
                               <div className="flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+                                <span className="w-2 h-2 rounded-full bg-brand-v2-info animate-pulse"></span>
                                 <span className="text-xs text-gray-400">进行中</span>
                               </div>
                               <div className="flex items-center gap-1">

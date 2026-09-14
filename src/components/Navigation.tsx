@@ -6,9 +6,9 @@ export function Navigation({ currentPage }: NavigationProps) {
   const navItems = [
     { id: 'home', label: '首页', href: '/' }
   ];
-  
+
   return (
-    <nav className="sticky bottom-0 z-50 bg-neumo-light/90 backdrop-blur-xl border-t border-white/40">
+    <nav className="sticky bottom-0 z-50 bg-brand-v2-bg-page/90 backdrop-blur-xl border-t border-white/40">
       <div className="max-w-lg mx-auto flex justify-around">
         {navItems.map(item => {
           const isActive = currentPage === item.id;
@@ -19,8 +19,8 @@ export function Navigation({ currentPage }: NavigationProps) {
               className={`
                 flex flex-col items-center py-3 px-6
                 transition-all duration-200
-                ${isActive 
-                  ? 'text-accent-amber' 
+                ${isActive
+                  ? 'text-brand-v2-gold'
                   : 'text-gray-400 hover:text-gray-600'
                 }
               `}
@@ -28,11 +28,11 @@ export function Navigation({ currentPage }: NavigationProps) {
               <span className="text-2xl mb-1">
                 {item.id === 'home' ? '🏠' : '👨‍💼'}
               </span>
-              <span className={`text-xs font-semibold tracking-wide ${isActive ? 'text-accent-amber' : ''}`}>
+              <span className={`text-xs font-semibold tracking-wide ${isActive ? 'text-brand-v2-gold' : ''}`}>
                 {item.label}
               </span>
               {isActive && (
-                <div className="w-1 h-1 rounded-full bg-accent-amber mt-1" />
+                <div className="w-1 h-1 rounded-full bg-brand-v2-gold mt-1" />
               )}
             </a>
           );
