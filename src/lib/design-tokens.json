@@ -1,0 +1,34 @@
+{
+  "_comment": "金刚宠 · Brand v2 design tokens (2026-09-15). 10 colors. Goal: 亲和 / 专业 / Effortless / Reliable / Clean & tidy for 90后/00后 中山中产.",
+  "_source": "wasahin/jiangangchong-app · src/lib/design-tokens.json",
+  "_license": "MIT",
+  "primary": {
+    "name": "Sparkle Gold",
+    "hex": "#D4A24C",
+    "use": "Logo, hero accents, primary CTA, tier-up ribbons",
+    "harmonizes_with": ["#1B3A5C navy", "#FAF6EE page bg"]
+  },
+  "secondary": {
+    "name": "Deep Navy",
+    "hex": "#1B3A5C",
+    "use": "Body text contrast, premium headers, trust badges",
+    "harmonizes_with": ["#D4A24C gold"]
+  },
+  "functional": {
+    "success":   { "name": "Forest Green",  "hex": "#2E7D32", "use": "Booking confirmed, payment OK, tier-up" },
+    "warning":   { "name": "Warm Orange",   "hex": "#E67E22", "use": "Slot conflict, dormancy, 'last call'" },
+    "error":     { "name": "Deep Red",      "hex": "#C62828", "use": "Payment failed, validation error" },
+    "info":      { "name": "LinkedIn Blue", "hex": "#0A66C2", "use": "Verification sent, neutral notification" }
+  },
+  "background": {
+    "page":    { "name": "Warm Off-White",  "hex": "#FAF6EE", "use": "Dominant canvas (90% of screen)" },
+    "section": { "name": "Cream Alt",       "hex": "#F0E8D6", "use": "Alternating sections, dense card bg" },
+    "hero":    { "name": "Warm Cream",      "hex": "#F5E6C8", "use": "Top banners, hero sections, ribbons" }
+  },
+  "_migration_notes": [
+    "Existing brand.* tokens (#FF9500, #FF6B00) in tailwind.config.ts are NOT removed — kept for backwards compat.",
+    "The new brand-v2-* namespace is non-breaking and additive.",
+    "Old globals.css body bg #FFF4CC should be replaced with var(--brand-bg-page) #FAF6EE in a follow-up commit.",
+    "Existing neumo.* / system.* / accent.* tokens are untouched."
+  ]
+}

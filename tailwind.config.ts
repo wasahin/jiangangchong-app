@@ -36,6 +36,23 @@ module.exports = {
         },
 
         // ============================================
+        // BRAND V2 (2026-09-15) — 10-color premium palette
+        // Designed for 90后/00后 中山中产 · 亲和 + 专业 + Effortless + Reliable + Clean
+        // Authoritative source: src/lib/design-tokens.ts
+        // ============================================
+        'brand-v2': {
+          gold:       '#D4A24C',  // Sparkle Gold — logo match
+          navy:       '#1B3A5C',  // Deep Navy — trust, professional
+          success:    '#2E7D32',  // Forest Green — booking confirmed
+          warning:    '#E67E22',  // Warm Orange — slot conflict, dormancy
+          error:      '#C62828',  // Deep Red — payment failed
+          info:       '#0A66C2',  // LinkedIn Blue — verification sent
+          'bg-page':    '#FAF6EE',  // Warm Off-White — dominant canvas
+          'bg-section': '#F0E8D6',  // Cream Alt — alternating sections
+          'bg-hero':    '#F5E6C8',  // Warm Cream — top banners, ribbons
+        },
+
+        // ============================================
         // NEUMORPHIC BARLEY WHITE THEME (YellowWhite Testpage)
         // Two variants: Light (浅色) and Rich (深色)
         // ============================================

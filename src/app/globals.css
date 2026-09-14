@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   金刚宠 · Brand v2 Design Tokens (2026-09-15)
+   Authoritative source: src/lib/design-tokens.ts
+   Use: var(--brand-gold), var(--brand-navy), etc.
+   ============================================ */
+:root {
+  --brand-gold:        #D4A24C;
+  --brand-navy:        #1B3A5C;
+  --brand-success:     #2E7D32;
+  --brand-warning:     #E67E22;
+  --brand-error:       #C62828;
+  --brand-info:        #0A66C2;
+  --brand-bg-page:     #FAF6EE;
+  --brand-bg-section:  #F0E8D6;
+  --brand-bg-hero:     #F5E6C8;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -52,15 +69,15 @@ body {
 
 
 /* ============================================
-   LIGHT MODE - Explicit background to prevent overrides
+   LIGHT MODE - Brand v2 background (#FAF6EE warm off-white)
    ============================================ */
 
 body {
-  background-color: #FFF4CC;
+  background-color: var(--brand-bg-page);
 }
 
 html:not(.dark) body {
-  background-color: #FFF4CC !important;
+  background-color: var(--brand-bg-page) !important;
 }
 
 /* ============================================
