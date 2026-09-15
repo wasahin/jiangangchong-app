@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金刚宠 · 宠物健康追踪卡生成器（独立版）</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+/* ============================================
+   Brand v2 (2026-09-15) palette applied
+   Primary    Gold  #D4A24C
+   Secondary  Navy  #1B3A5C
+   Success    Green #2E7D32
+   Warning    Orng  #E67E22
+   Bg page    Cream #FAF6EE
+   Bg section Sand  #F0E8D6
+   Bg hero    Honey #F5E6C8
+   ============================================ */
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Microsoft YaHei',sans-serif; background:#FAF6EE; padding:24px; color:#1B3A5C; }
+.app { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 430px; gap:28px; align-items:start; }
+h1 { grid-column:1/-1; font-size:22px; color:#1B3A5C; margin-bottom:4px; }
+.sub { grid-column:1/-1; font-size:13px; color:#5A6F84; margin-bottom:12px; }
+
+/* 表单区 */
+.form-panel { background:#fff; border-radius:14px; padding:22px; box-shadow:0 4px 16px rgba(27,58,92,.08); }
+.form-panel h2 { font-size:15px; color:#1B3A5C; margin:18px 0 10px; border-left:4px solid #D4A24C; padding-left:8px; }
+.form-panel h2:first-child { margin-top:0; }
+.row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+.field { display:flex; flex-direction:column; gap:4px; }
+.field.full { grid-column:1/-1; }
+label { font-size:12px; color:#5A6F84; font-weight:bold; }
+input,select,textarea { padding:8px 10px; border:1px solid #F0E8D6; border-radius:8px; font-size:13px; font-family:inherit; background:#FAF6EE; }
+input:focus,select:focus,textarea:focus { outline:none; border-color:#D4A24C; background:#fff; }
+textarea { resize:vertical; min-height:52px; }
+.btn { margin-top:16px; width:100%; padding:13px; background:#D4A24C; color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:bold; cursor:pointer; font-family:inherit; }
+.btn:hover { background:#C99A45; }
+.btn.gray { background:#1B3A5C; margin-top:8px; }
+.btn.gray:hover { background:#0F2A45; }
+.tip { font-size:12px; color:#5A6F84; margin-top:10px; line-height:1.7; background:#FAF6EE; padding:10px 12px; border-radius:8px; }
+
+/* 卡片预览区 */
+.preview-wrap { position:sticky; top:20px; }
+.card { width:400px; background:#FAF6EE; border-radius:20px; overflow:hidden; box-shadow:0 8px 28px rgba(27,58,92,.18); }
+.card-head { background:linear-gradient(135deg,#1B3A5C,#D4A24C); color:#fff; padding:20px 22px 16px; }
+.head-row { display:flex; align-items:center; gap:12px; }
+.logo { width:46px; height:46px; border-radius:10px; object-fit:cover; background:#fff; padding:2px; flex-shrink:0; }
+.logo-foot { width:28px; height:28px; border-radius:6px; object-fit:cover; vertical-align:middle; margin-right:6px; }
+.card-head .shop { font-size:12px; opacity:.9; letter-spacing:2px; }
+.card-head .title { font-size:21px; font-weight:bold; margin-top:4px; }
+.card-head .meta { font-size:12px; margin-top:6px; opacity:.92; }
+.card-body { padding:18px 20px 20px; }
+.pet-basic { display:flex; justify-content:space-between; align-items:center; background:#fff; border-radius:12px; padding:12px 16px; margin-bottom:14px; }
+.pet-basic .name { font-size:19px; font-weight:bold; color:#1B3A5C; }
+.pet-basic .times { font-size:11px; background:#F5E6C8; color:#1B3A5C; padding:3px 10px; border-radius:20px; font-weight:bold; }
+.sec-title { font-size:13px; font-weight:bold; color:#1B3A5C; margin:14px 0 8px; }
+.measure-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.m-item { background:#fff; border-radius:10px; padding:10px 6px; text-align:center; }
+.m-item .m-label { font-size:11px; color:#5A6F84; }
+.m-item .m-val { font-size:16px; font-weight:bold; color:#1B3A5C; margin:3px 0; }
+.m-item .m-delta { font-size:10px; font-weight:bold; }
+.up { color:#E67E22; } .down { color:#2E7D32; } .flat { color:#999; }
+.check-list { background:#fff; border-radius:12px; padding:6px 14px; }
+.check-row { display:flex; justify-content:space-between; padding:9px 0; font-size:13px; border-bottom:1px dashed #F0E8D6; }
+.check-row:last-child { border-bottom:none; }
+.check-row .c-name { color:#1B3A5C; font-weight:bold; }
+.check-row .c-status { color:#5A6F84; }
+.badge-good { color:#2E7D32; font-weight:bold; }
+.badge-warn { color:#E67E22; font-weight:bold; }
+.note-box { background:#F5E6C8; border-radius:12px; padding:12px 14px; margin-top:12px; }
+.note-box .n-label { font-size:11px; color:#1B3A5C; font-weight:bold; margin-bottom:4px; }
+.note-box .n-text { font-size:12.5px; color:#1B3A5C; line-height:1.6; }
+.next-box { display:flex; justify-content:space-between; align-items:center; background:#1B3A5C; color:#FAF6EE; border-radius:12px; padding:12px 16px; margin-top:12px; font-size:13px; }
+.next-box .nx-d { font-weight:bold; font-size:14px; }
+.card-foot { background:#1B3A5C; color:#FAF6EE; font-size:10.5px; text-align:center; padding:10px; line-height:1.6; display:flex; align-items:center; justify-content:center; gap:8px; }
+.prod-line { font-size:11px; color:#5A6F84; text-align:center; margin-top:10px; }
+.sig-line { display:flex; justify-content:space-between; font-size:11px; color:#5A6F84; margin-top:10px; padding:0 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>🐾 金刚宠 · 宠物健康追踪卡生成器（独立版）</h1>
+  <div class="sub">左边填数据，右边自动生成卡片 → 点「保存卡片图片」→ 在企业微信发给客户即可</div>
+
+  <!-- 表单 -->
+  <div class="form-panel">
+    <h2>基本信息</h2>
+    <div class="row">
+      <div class="field"><label>宠物名</label><input id="petName" placeholder="如：豆豆" oninput="render()"></div>
+      <div class="field"><label>品种</label><input id="breed" placeholder="如：金毛" oninput="render()"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>到店日期</label><input type="date" id="date" oninput="render()"></div>
+      <div class="field"><label>第几次到店</label><input id="times" type="number" value="2" min="1" oninput="render()"></div>
+    </div>
+
+    <h2>体重体尺（本次 / 上次）</h2>
+    <div class="row">
+      <div class="field"><label>本次体重(kg)</label><input id="wNow" type="number" step="0.1" placeholder="5.2" oninput="render()"></div>
+      <div class="field"><label>上次体重(kg)</label><input id="wLast" type="number" step="0.1" placeholder="5.4" oninput="render()"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>本次体长(cm)</label><input id="lNow" type="number" step="0.5" oninput="render()"></div>
+      <div class="field"><label>上次体长(cm)</label><input id="lLast" type="number" step="0.5" oninput="render()"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>本次胸围(cm)</label><input id="cNow" type="number" step="0.5" oninput="render()"></div>
+      <div class="field"><label>上次胸围(cm)</label><input id="cLast" type="number" step="0.5" oninput="render()"></div>
+    </div>
+
+    <h2>健康检查</h2>
+    <div class="row">
+      <div class="field"><label>皮肤状态</label>
+        <select id="skin" onchange="render()">
+          <option>良好，无红点</option><option>轻微泛红，已护理</option><option>需关注，建议就医</option>
+        </select>
+      </div>
+      <div class="field"><label>耳朵</label>
+        <select id="ear" onchange="render()">
+          <option>清洁完成</option><option>轻微泛红，已处理</option><option>正常</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>牙齿</label>
+        <select id="teeth" onchange="render()">
+          <option>正常</option><option>轻微牙垢</option><option>建议下次做牙护</option>
+        </select>
+      </div>
+      <div class="field"><label>指甲</label>
+        <select id="nail" onchange="render()">
+          <option>已修剪</option><option>正常，无需修剪</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>本次使用洗护产品</label><input id="product" value="HYPONIC低敏全犬种洗发水" oninput="render()"></div>
+      <div class="field"><label>美容师</label><input id="groomer" placeholder="签名/名字" oninput="render()"></div>
+    </div>
+
+    <h2>备注与预约</h2>
+    <div class="field full" style="margin-bottom:10px">
+      <label>主理人备注（发给客户的贴心建议）</label>
+      <textarea id="note" oninput="render()" placeholder="如：体重轻微下降，建议观察食量；胸围略增，可适当减少零食～">体重轻微下降，建议观察食量；胸围略增，可适当减少零食～</textarea>
+    </div>
+    <div class="field full">
+      <label>建议下次洗护日期</label><input type="date" id="nextDate" oninput="render()">
+    </div>
+
+    <button class="btn" onclick="saveCard()">📸 保存卡片图片</button>
+    <button class="btn gray" onclick="window.print()">🖨️ 打印</button>
+    <div class="tip">
+      💡 使用流程：每次洗护前称重量尺寸 → 填本表 → 保存图片 → 企业微信发给客户。<br>
+      若保存按钮无反应（网络受限），直接用 <b>Win + Shift + S</b> 框选右侧卡片截图，再粘贴到企业微信即可。
+    </div>
+  </div>
+
+  <!-- 卡片预览 -->
+  <div class="preview-wrap">
+    <div class="card" id="card">
+      <div class="card-head">
+        <div class="head-row">
+          <img src="LOGO_PLACEHOLDER" alt="金刚宠" class="logo">
+          <div>
+            <div class="shop">JINGANGCHONG · HEALTH REPORT</div>
+            <div class="title">📋 毛孩子健康追踪卡</div>
+          </div>
+        </div>
+        <div class="meta" id="mDate">2026年9月14日</div>
+      </div>
+      <div class="card-body">
+        <div class="pet-basic">
+          <div><div class="name" id="mName">豆豆</div><div style="font-size:11px;color:#5A6F84" id="mBreed">金毛</div></div>
+          <div class="times" id="mTimes">第2次到店</div>
+        </div>
+
+        <div class="sec-title">⚖️ 体重体尺变化</div>
+        <div class="measure-grid">
+          <div class="m-item"><div class="m-label">体重</div><div class="m-val" id="mW">5.2kg</div><div class="m-delta" id="dW"></div></div>
+          <div class="m-item"><div class="m-label">体长</div><div class="m-val" id="mL">32cm</div><div class="m-delta" id="dL"></div></div>
+          <div class="m-item"><div class="m-label">胸围</div><div class="m-val" id="mC">38cm</div><div class="m-delta" id="dC"></div></div>
+        </div>
+
+        <div class="sec-title">🐾 健康检查</div>
+        <div class="check-list">
+          <div class="check-row"><span class="c-name">皮肤</span><span class="c-status" id="mSkin"></span></div>
+          <div class="check-row"><span class="c-name">耳朵</span><span class="c-status" id="mEar"></span></div>
+          <div class="check-row"><span class="c-name">牙齿</span><span class="c-status" id="mTeeth"></span></div>
+          <div class="check-row"><span class="c-name">指甲</span><span class="c-status" id="mNail"></span></div>
+        </div>
+
+        <div class="note-box">
+          <div class="n-label">💡 主理人备注</div>
+          <div class="n-text" id="mNote"></div>
+        </div>
+
+        <div class="next-box">
+          <span>📅 建议下次洗护</span><span class="nx-d" id="mNext">—</span>
+        </div>
+
+        <div class="prod-line" id="mProduct"></div>
+        <div class="sig-line"><span id="mGroomer"></span><span>金刚宠 · 白石路22-24号</span></div>
+      </div>
+      <div class="card-foot">
+        <img src="LOGO_PLACEHOLDER" alt="金刚宠" class="logo-foot">
+        <div>中山市石岐区白石路22-24号 ｜ 营业时间 9:00-20:30<br>
+        每次到店建档 · 数据变化第一时间发现</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const today = new Date().toISOString().slice(0,10);
+$('date').value = today;
+// 默认下次日期 = 今天+20天
+const nd = new Date(); nd.setDate(nd.getDate()+20);
+$('nextDate').value = nd.toISOString().slice(0,10);
+
+function fmtDate(v){ if(!v) return '—'; const [y,m,d]=v.split('-'); return `${y}年${parseInt(m)}月${parseInt(d)}日`; }
+
+function delta(now,last,unit){
+  if(now==='' ) return {text:'',cls:''};
+  if(last==='') return {text:'新增记录',cls:'flat'};
+  const diff=(parseFloat(now)-parseFloat(last));
+  if(Math.abs(diff)<0.01) return {text:'— 持平',cls:'flat'};
+  const sign=diff>0?'↑':'↓';
+  return {text:`${sign} ${Math.abs(diff).toFixed(1)}${unit}`, cls: diff>0?'up':'down'};
+}
+
+function statusCls(text){
+  return /良好|正常|完成|已修剪/.test(text) ? `<span class="badge-good">${text}</span>` : `<span class="badge-warn">${text}</span>`;
+}
+
+function render(){
+  $('mName').textContent = $('petName').value || '宝贝名';
+  $('mBreed').textContent = $('breed').value || '品种';
+  $('mDate').textContent = fmtDate($('date').value);
+  $('mTimes').textContent = `第${$('times').value||'—'}次到店`;
+
+  $('mW').textContent = $('wNow').value ? $('wNow').value+'kg' : '—';
+  $('mL').textContent = $('lNow').value ? $('lNow').value+'cm' : '—';
+  $('mC').textContent = $('cNow').value ? $('cNow').value+'cm' : '—';
+  const dW=delta($('wNow').value,$('wLast').value,'kg');
+  const dL=delta($('lNow').value,$('lLast').value,'cm');
+  const dC=delta($('cNow').value,$('cLast').value,'cm');
+  $('dW').textContent=dW.text; $('dW').className='m-delta '+dW.cls;
+  $('dL').textContent=dL.text; $('dL').className='m-delta '+dL.cls;
+  $('dC').textContent=dC.text; $('dC').className='m-delta '+dC.cls;
+
+  $('mSkin').innerHTML=statusCls($('skin').value);
+  $('mEar').innerHTML=statusCls($('ear').value);
+  $('mTeeth').innerHTML=statusCls($('teeth').value);
+  $('mNail').innerHTML=statusCls($('nail').value);
+
+  $('mNote').textContent=$('note').value;
+  $('mNext').textContent=fmtDate($('nextDate').value);
+  $('mProduct').textContent=$('product').value ? '🧴 本次洗护：'+$('product').value : '';
+  $('mGroomer').textContent=$('groomer').value ? '美容师：'+$('groomer').value : '';
+}
+render();
+
+function saveCard(){
+  if(typeof html2canvas==='undefined'){ alert('网络加载失败，请用 Win+Shift+S 截图保存'); return; }
+  html2canvas($('card'),{scale:2,backgroundColor:'#FAF6EE',useCORS:true}).then(canvas=>{
+    const a=document.createElement('a');
+    a.download=`健康追踪卡_${$('petName').value||'宠物'}_${$('date').value}.png`;
+    a.href=canvas.toDataURL('image/png');
+    a.click();
+  });
+}
+</script>
+</body>
+</html>

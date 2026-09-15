@@ -113,8 +113,17 @@ export default function StaffPage() {
           <div className="flex items-center justify-between">
             <BrandHeader />
             <div className="flex items-center gap-4">
-              <a 
-                href="/" 
+              <a
+                href="/pet-health-card.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold text-gray-600 hover:text-brand-v2-gold transition-colors flex items-center gap-1"
+              >
+                <span>🐾</span>
+                健康追踪卡
+              </a>
+              <a
+                href="/"
                 className="text-sm font-semibold text-gray-600 hover:text-brand-v2-gold transition-colors"
               >
                 返回客户看板
