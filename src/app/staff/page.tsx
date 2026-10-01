@@ -114,7 +114,7 @@ export default function StaffPage() {
             <BrandHeader />
             <div className="flex items-center gap-4">
               <a
-                href="/pet-health-card.html"
+                href="https://wasahin.github.io/jiangangchongapp-tools/pet-health-card.html"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm font-semibold text-gray-600 hover:text-brand-v2-gold transition-colors flex items-center gap-1"
