@@ -80,7 +80,6 @@ function StaffLogin({ onSuccess }: { onSuccess: () => void }) {
 
 export default function StaffPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isHealthCardOpen, setHealthCardOpen] = useState(false);
   
   useEffect(() => {
     const auth = localStorage.getItem('jingangchong_staff_auth');
@@ -418,46 +417,7 @@ export default function StaffPage() {
             </NeumorphicCard>
           </div>
         </div>
-
-      {/* Pet Health Tracking Card — Collapsible */}
-      <NeumorphicCard className="mt-6" padding="p-0">
-        <button
-          type="button"
-          onClick={() => setHealthCardOpen(!isHealthCardOpen)}
-          className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-white/30 transition-colors rounded-[inherit]"
-          aria-expanded={isHealthCardOpen}
-        >
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-xl">🐾</span>
-            <h2 className="text-lg font-semibold text-gray-900">宠物健康追踪卡</h2>
-            <span className="text-xs text-gray-400 hidden sm:inline">· 填写宠物体重/体尺/护理记录 → 导出 PNG 发客户</span>
-          </div>
-          <span className="text-sm font-medium text-brand-v2-gold flex items-center gap-1 shrink-0 ml-3">
-            {isHealthCardOpen ? '收起' : '展开'}
-            <span
-              className={`inline-block transition-transform duration-200 ${isHealthCardOpen ? 'rotate-180' : ''}`}
-              aria-hidden="true"
-            >
-              ▼
-            </span>
-          </span>
-        </button>
-
-        {isHealthCardOpen && (
-          <div className="px-5 pb-5 border-t border-gray-100 pt-4">
-            <iframe
-              src="/pet-health-card.html"
-              title="宠物健康追踪卡"
-              className="w-full rounded-neumo-button bg-neumo-light shadow-neumo-pressed-sm"
-              style={{ height: '780px', border: 'none' }}
-            />
-            <p className="text-xs text-gray-400 mt-2 text-center">
-              填好后点卡片右上角「保存图片」导出 PNG, 通过微信发给对方
-            </p>
-          </div>
-        )}
-      </NeumorphicCard>
-
+      
       <Navigation currentPage="staff" />
     </div>
   );
