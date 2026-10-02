@@ -285,26 +285,15 @@ export default function CustomerPage() {
         </div>
       </div>
 
-      {/* Editor's Note — magazine interlude between price menu and shop info */}
-      <div className="relative bg-brand-v2-bg-section rounded-neumo-card p-6 sm:p-8 shadow-neumo-pressed-sm text-center overflow-hidden">
-        <div className="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-brand-v2-gold/10 blur-xl pointer-events-none" />
-        <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-brand-v2-warning/10 blur-xl pointer-events-none" />
-        <div className="relative">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <span className="h-px w-8 bg-brand-v2-gold" aria-hidden="true" />
-            <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-brand-v2-gold">
-              Editor's Note · 卷首语
-            </span>
-            <span className="h-px w-8 bg-brand-v2-gold" aria-hidden="true" />
-          </div>
-          <p className="font-display-italic text-xl sm:text-2xl text-gray-900 leading-snug mb-3">
-            "毛孩子的第一杯水, 第一口饭,<br className="hidden sm:block" />
-            第一次出门, 都不该是被催促完成的."
-          </p>
-          <p className="text-xs text-gray-500 mt-1 font-mono tracking-wider uppercase">
-            — 我们慢一点, 它才安心
-          </p>
-        </div>
+      {/* Pull-quote interlude between price menu and shop info */}
+      <div className="relative px-2 sm:px-8 py-8 sm:py-10 text-center border-t border-b border-dashed border-brand-v2-gold/25">
+        <p className="font-display-italic text-xl sm:text-2xl text-gray-900 leading-snug mb-3">
+          "毛孩子的第一杯水, 第一口饭,<br className="hidden sm:block" />
+          第一次出门, 都不该是被催促完成的."
+        </p>
+        <p className="text-xs text-gray-500 mt-2 font-mono tracking-wider uppercase">
+          — 我们慢一点, 它才安心
+        </p>
       </div>
 
       {/* Shop Info Card — Brand v2 hero surface */}
