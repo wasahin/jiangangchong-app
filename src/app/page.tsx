@@ -296,52 +296,6 @@ export default function CustomerPage() {
         </p>
       </div>
 
-      {/* Shop Info Card — Brand v2 hero surface */}
-      <NeumorphicCard
-        customShadow="6px 6px 16px rgba(0,0,0,0.12), -4px -4px 12px rgba(255,255,255,0.9), inset 1px 1px 3px rgba(255,255,255,0.7)"
-        customBackground="linear-gradient(145deg, rgba(245,230,200,0.95), rgba(240,220,170,0.85))"
-      >
-        <div className="flex items-start gap-4 mb-4">
-          <div 
-            className="relative w-14 h-14 flex-shrink-0 rounded-full overflow-hidden"
-            style={{ 
-            }}
-          >
-            <img 
-              src="/amberlogo.png" 
-              alt="金刚宠 Logo" 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-display-italic text-2xl text-gray-900">金刚宠宠物美容</h3>
-            <p className="text-sm text-gray-500 mt-0.5">专业宠物美容护理服务</p>
-            <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-brand-v2-gold mt-1">
-              Premier Pet Grooming Studio
-            </p>
-          </div>
-        </div>
-        
-        <div className="bg-brand-v2-warning/10 rounded-neumo-button p-3 mb-4 shadow-neumo-pressed-sm">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-brand-v2-warning/25 text-brand-v2-warning rounded-neumo-pill text-xs font-medium">
-            <span>⚠️</span>
-            预约需门店审核
-          </span>
-          <p className="text-xs text-brand-v2-warning/90 mt-2">
-            提交预约后需要门店审核确认，最终服务时间以门店确认为准。
-          </p>
-        </div>
-        
-        <div className="flex gap-3">
-          <Button variant="secondary" size="medium" onClick={handleScrollToForm} className="flex-1">
-            填写预约
-          </Button>
-          <Button variant="pink" size="medium" onClick={handleCopyWeChat} className="flex-1">
-            {copied ? '已复制' : '联系微信'}
-          </Button>
-        </div>
-      </NeumorphicCard>
-      
       {/* Public Status Dashboard - Current Services */}
       <div id="section-active" className="scroll-mt-20">
       <NeumorphicCard>
@@ -462,14 +416,52 @@ export default function CustomerPage() {
       </NeumorphicCard>
       </div>
       
-      {/* Booking Form */}
+      {/* Booking Form — header merged from former Shop Info Card */}
       <div id="booking-form" className="scroll-mt-20">
-        <NeumorphicCard>
-          <h2 className="font-display-italic text-2xl text-gray-900">预约表单</h2>
-          <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-brand-v2-gold mt-1">
-            Book a Visit
-          </p>
-          <div className="mb-4" />
+        <NeumorphicCard
+          customShadow="6px 6px 16px rgba(0,0,0,0.12), -4px -4px 12px rgba(255,255,255,0.9), inset 1px 1px 3px rgba(255,255,255,0.7)"
+          customBackground="linear-gradient(145deg, rgba(245,230,200,0.95), rgba(240,220,170,0.85))"
+        >
+          <div className="flex items-start gap-4 mb-4">
+            <div
+              className="relative w-14 h-14 flex-shrink-0 rounded-full overflow-hidden"
+              style={{
+                boxShadow: '6px 6px 12px rgba(212,162,76,0.35), -3px -3px 8px rgba(232,197,114,0.7), inset 1px 1px 3px rgba(255,255,255,0.5)'
+              }}
+            >
+              <img
+                src="/amberlogo.png"
+                alt="金刚宠 Logo"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-display-italic text-2xl text-gray-900">金刚宠宠物美容</h3>
+              <p className="text-sm text-gray-500 mt-0.5">专业宠物美容护理服务</p>
+              <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-brand-v2-gold mt-1">
+                Premier Pet Grooming Studio
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 mb-4">
+            <Button variant="pink" size="medium" onClick={handleCopyWeChat} className="w-full">
+              {copied ? '已复制' : '联系微信'}
+            </Button>
+          </div>
+
+          <div className="bg-brand-v2-warning/10 rounded-neumo-button p-3 mb-4 shadow-neumo-pressed-sm">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-brand-v2-warning/25 text-brand-v2-warning rounded-neumo-pill text-xs font-medium">
+              <span>⚠️</span>
+              预约需门店审核
+            </span>
+            <p className="text-xs text-brand-v2-warning/90 mt-2">
+              提交预约后需要门店审核确认，最终服务时间以门店确认为准。
+            </p>
+          </div>
+
+          <div className="border-t border-dashed border-brand-v2-gold/25 mb-4" />
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">主人姓名 *</label>
