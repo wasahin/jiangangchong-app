@@ -219,43 +219,15 @@ export default function CustomerPage() {
   }
 
   return (
-    <div className="max-w-lg lg:max-w-5xl mx-auto px-4 lg:px-16 lg:pr-32 py-6 space-y-6 relative">
+    <div className="max-w-lg lg:max-w-5xl mx-auto px-4 lg:px-16 pr-14 lg:pr-32 py-6 space-y-6 relative">
       <BrandHeader />
 
-      {/* Magazine-style section TOC — fixed side rail (desktop) */}
-      <div className="hidden lg:block fixed right-6 top-1/2 -translate-y-1/2 z-30">
+      {/* Magazine-style section TOC — fixed side rail, always visible */}
+      <div className="fixed right-2 lg:right-6 top-1/2 -translate-y-1/2 z-30">
         <MagazineNav
           orientation="vertical"
           tone="light"
-          className="gap-3"
-          items={[
-            {
-              label: '状态',
-              caption: 'STATUS',
-              onClick: handleScrollToSection('section-status'),
-              active: activeSection === 'section-status',
-            },
-            {
-              label: '当前服务',
-              caption: 'ACTIVE',
-              onClick: handleScrollToSection('section-active'),
-              active: activeSection === 'section-active',
-            },
-            {
-              label: '预约',
-              caption: 'BOOK',
-              onClick: handleScrollToForm,
-              active: activeSection === 'booking-form',
-            },
-          ]}
-        />
-      </div>
-
-      {/* Mobile section TOC — horizontal, scrolls with content */}
-      <div className="lg:hidden">
-        <MagazineNav
-          tone="light"
-          className="px-1"
+          className="gap-2 lg:gap-3"
           items={[
             {
               label: '状态',
@@ -355,6 +327,9 @@ export default function CustomerPage() {
           <div className="flex-1">
             <h3 className="font-display-italic text-2xl text-gray-900">金刚宠宠物美容</h3>
             <p className="text-sm text-gray-500 mt-0.5">专业宠物美容护理服务</p>
+            <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-brand-v2-gold mt-1">
+              Premier Pet Grooming Studio
+            </p>
           </div>
         </div>
         
@@ -381,9 +356,14 @@ export default function CustomerPage() {
       {/* Public Status Dashboard - Current Services */}
       <div id="section-active" className="scroll-mt-20">
       <NeumorphicCard>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display-italic text-2xl text-gray-900">当前服务中</h2>
-          <span className="flex items-center gap-1 text-xs text-gray-400">
+        <div className="flex items-start justify-between mb-4 gap-4">
+          <div>
+            <h2 className="font-display-italic text-2xl text-gray-900">当前服务中</h2>
+            <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-brand-v2-gold mt-1">
+              Live Services
+            </p>
+          </div>
+          <span className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
             <span className="w-1.5 h-1.5 bg-brand-v2-info rounded-full animate-pulse"></span>
             自动刷新
           </span>
@@ -496,7 +476,11 @@ export default function CustomerPage() {
       {/* Booking Form */}
       <div id="booking-form" className="scroll-mt-20">
         <NeumorphicCard>
-          <h2 className="font-display-italic text-2xl text-gray-900 mb-4">预约表单</h2>
+          <h2 className="font-display-italic text-2xl text-gray-900">预约表单</h2>
+          <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-brand-v2-gold mt-1">
+            Book a Visit
+          </p>
+          <div className="mb-4" />
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">主人姓名 *</label>

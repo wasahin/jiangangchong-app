@@ -101,10 +101,10 @@ export function MagazineNav({
               }`}
               aria-hidden="true"
             />
-            <span className="font-serif-sc whitespace-nowrap">{item.label}</span>
+            <span className="font-serif-sc whitespace-nowrap text-[10px] lg:text-[11px]">{item.label}</span>
             {item.caption && (
               <span
-                className={`font-mono text-[10px] tracking-[0.22em] ${isActive ? 'text-brand-v2-gold' : 'text-gray-400'}`}
+                className={`font-mono text-[9px] lg:text-[10px] tracking-[0.22em] hidden lg:inline ${isActive ? 'text-brand-v2-gold' : 'text-gray-400'}`}
               >
                 · {item.caption}
               </span>
