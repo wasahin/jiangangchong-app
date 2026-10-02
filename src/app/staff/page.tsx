@@ -6,6 +6,7 @@ import { Button } from '@/components/Button';
 import { Navigation } from '@/components/Navigation';
 import { BrandHeader } from '@/components/BrandHeader';
 import { StatusBadge } from '@/components/StatusBadge';
+import { MagazineNav } from '@/components/MagazineNav';
 import { useBookings } from '@/hooks/useBookings';
 import { BookingStatus } from '@/types/booking';
 
@@ -110,26 +111,29 @@ export default function StaffPage() {
     <div className="max-w-4xl mx-auto px-4 py-6">
       <div className="sticky top-0 z-50 bg-neumo-light/90 backdrop-blur-xl border-b border-white/40 mb-6">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-6 flex-wrap">
             <BrandHeader />
-            <div className="flex items-center gap-4">
-              <a
-                href="/pet-health-card.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-semibold text-gray-600 hover:text-brand-v2-gold transition-colors flex items-center gap-1"
-              >
-                <span>🐾</span>
-                健康追踪卡
-              </a>
-              <a
-                href="/"
-                className="text-sm font-semibold text-gray-600 hover:text-brand-v2-gold transition-colors"
-              >
-                返回客户看板
-              </a>
-              <span className="text-sm font-semibold text-brand-v2-gold tracking-wide">员工后台</span>
-            </div>
+            <MagazineNav
+              tone="light"
+              items={[
+                {
+                  label: '健康追踪卡',
+                  caption: 'HEALTH CARD',
+                  href: '/pet-health-card.html',
+                  external: true,
+                },
+                {
+                  label: '返回客户看板',
+                  caption: 'CUSTOMER BOARD',
+                  href: '/',
+                },
+                {
+                  label: '员工后台',
+                  caption: 'STAFF',
+                  active: true,
+                },
+              ]}
+            />
           </div>
         </div>
       </div>

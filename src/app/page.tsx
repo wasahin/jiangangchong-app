@@ -7,6 +7,7 @@ import { Navigation } from '@/components/Navigation';
 import { BrandHeader } from '@/components/BrandHeader';
 import { StatusBadge } from '@/components/StatusBadge';
 import { HouseIcon } from '@/components/HouseIcon';
+import { MagazineNav } from '@/components/MagazineNav';
 import { useBookings } from '@/hooks/useBookings';
 import { ServiceType, BookingStatus } from '@/types/booking';
 import { WEIGHT_RANGES } from '@/lib/constants';
@@ -135,6 +136,11 @@ export default function CustomerPage() {
     document.getElementById('booking-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleScrollToSection = (id: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   const handleCopyWeChat = () => {
     navigator.clipboard.writeText('jingangchong_pet');
     setCopied(true);
@@ -193,9 +199,32 @@ export default function CustomerPage() {
   return (
     <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
       <BrandHeader />
-      
+
+      {/* Magazine-style section TOC */}
+      <MagazineNav
+        tone="light"
+        className="px-1"
+        items={[
+          {
+            label: '状态',
+            caption: 'STATUS',
+            onClick: handleScrollToSection('section-status'),
+          },
+          {
+            label: '当前服务',
+            caption: 'ACTIVE',
+            onClick: handleScrollToSection('section-active'),
+          },
+          {
+            label: '预约',
+            caption: 'BOOK',
+            onClick: handleScrollToForm,
+          },
+        ]}
+      />
+
       {/* Live Store Status Board — Brand v2 functional colors */}
-      <div className="grid grid-cols-3 gap-3">
+      <div id="section-status" className="grid grid-cols-3 gap-3 scroll-mt-20">
         <div className="bg-brand-v2-bg-section rounded-neumo-card p-4 text-center shadow-neumo-raised-md">
           <p className="text-[28px] font-bold text-brand-v2-warning">{counts.pending}</p>
           <p className="text-xs text-gray-400 mt-1">待审核</p>
@@ -272,6 +301,7 @@ export default function CustomerPage() {
       </NeumorphicCard>
       
       {/* Public Status Dashboard - Current Services */}
+      <div id="section-active" className="scroll-mt-20">
       <NeumorphicCard>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">当前服务中</h2>
@@ -383,9 +413,10 @@ export default function CustomerPage() {
           </div>
         )}
       </NeumorphicCard>
+      </div>
       
       {/* Booking Form */}
-      <div id="booking-form">
+      <div id="booking-form" className="scroll-mt-20">
         <NeumorphicCard>
           <h2 className="text-lg font-semibold text-gray-900 mb-4">预约表单</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
