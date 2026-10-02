@@ -13,19 +13,41 @@ import { ServiceType, BookingStatus } from '@/types/booking';
 import { WEIGHT_RANGES } from '@/lib/constants';
 
 export default function CustomerPage() {
-  const { 
-    activeBookings, 
-    createBooking, 
-    calculateProgress, 
-    getCurrentStepName, 
+  const {
+    activeBookings,
+    createBooking,
+    calculateProgress,
+    getCurrentStepName,
     calculateETA,
     counts,
     refreshCounts,
     getAllBookings
   } = useBookings();
-  
+
   const [lastBookingId, setLastBookingId] = useState<string>('');
   const lastBooking = activeBookings.find(b => b.id === lastBookingId);
+  const [activeSection, setActiveSection] = useState<string>('section-status');
+
+  // Track which section is in view; updates MagazineNav active state
+  useEffect(() => {
+    const ids = ['section-status', 'section-active', 'booking-form'];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]) {
+          setActiveSection(visible[0].target.id);
+        }
+      },
+      { rootMargin: '-25% 0px -55% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] }
+    );
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
   
   const [formData, setFormData] = useState({
     ownerName: '',
@@ -197,31 +219,65 @@ export default function CustomerPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+    <div className="max-w-lg lg:max-w-5xl mx-auto px-4 lg:px-16 lg:pr-32 py-6 space-y-6 relative">
       <BrandHeader />
 
-      {/* Magazine-style section TOC */}
-      <MagazineNav
-        tone="light"
-        className="px-1"
-        items={[
-          {
-            label: '状态',
-            caption: 'STATUS',
-            onClick: handleScrollToSection('section-status'),
-          },
-          {
-            label: '当前服务',
-            caption: 'ACTIVE',
-            onClick: handleScrollToSection('section-active'),
-          },
-          {
-            label: '预约',
-            caption: 'BOOK',
-            onClick: handleScrollToForm,
-          },
-        ]}
-      />
+      {/* Magazine-style section TOC — fixed side rail (desktop) */}
+      <div className="hidden lg:block fixed right-6 top-1/2 -translate-y-1/2 z-30">
+        <MagazineNav
+          orientation="vertical"
+          tone="light"
+          className="gap-3"
+          items={[
+            {
+              label: '状态',
+              caption: 'STATUS',
+              onClick: handleScrollToSection('section-status'),
+              active: activeSection === 'section-status',
+            },
+            {
+              label: '当前服务',
+              caption: 'ACTIVE',
+              onClick: handleScrollToSection('section-active'),
+              active: activeSection === 'section-active',
+            },
+            {
+              label: '预约',
+              caption: 'BOOK',
+              onClick: handleScrollToForm,
+              active: activeSection === 'booking-form',
+            },
+          ]}
+        />
+      </div>
+
+      {/* Mobile section TOC — horizontal, scrolls with content */}
+      <div className="lg:hidden">
+        <MagazineNav
+          tone="light"
+          className="px-1"
+          items={[
+            {
+              label: '状态',
+              caption: 'STATUS',
+              onClick: handleScrollToSection('section-status'),
+              active: activeSection === 'section-status',
+            },
+            {
+              label: '当前服务',
+              caption: 'ACTIVE',
+              onClick: handleScrollToSection('section-active'),
+              active: activeSection === 'section-active',
+            },
+            {
+              label: '预约',
+              caption: 'BOOK',
+              onClick: handleScrollToForm,
+              active: activeSection === 'booking-form',
+            },
+          ]}
+        />
+      </div>
 
       {/* Live Store Status Board — Brand v2 functional colors */}
       <div id="section-status" className="grid grid-cols-3 gap-3 scroll-mt-20">
@@ -256,7 +312,29 @@ export default function CustomerPage() {
           />
         </div>
       </div>
-      
+
+      {/* Editor's Note — magazine interlude between price menu and shop info */}
+      <div className="relative bg-brand-v2-bg-section rounded-neumo-card p-6 sm:p-8 shadow-neumo-pressed-sm text-center overflow-hidden">
+        <div className="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-brand-v2-gold/10 blur-xl pointer-events-none" />
+        <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-brand-v2-warning/10 blur-xl pointer-events-none" />
+        <div className="relative">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <span className="h-px w-8 bg-brand-v2-gold" aria-hidden="true" />
+            <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-brand-v2-gold">
+              Editor's Note · 卷首语
+            </span>
+            <span className="h-px w-8 bg-brand-v2-gold" aria-hidden="true" />
+          </div>
+          <p className="font-display-italic text-xl sm:text-2xl text-gray-900 leading-snug mb-3">
+            "毛孩子的第一杯水, 第一口饭,<br className="hidden sm:block" />
+            第一次出门, 都不该是被催促完成的."
+          </p>
+          <p className="text-xs text-gray-500 mt-1 font-mono tracking-wider uppercase">
+            — 我们慢一点, 它才安心
+          </p>
+        </div>
+      </div>
+
       {/* Shop Info Card — Brand v2 hero surface */}
       <NeumorphicCard
         customShadow="6px 6px 16px rgba(0,0,0,0.12), -4px -4px 12px rgba(255,255,255,0.9), inset 1px 1px 3px rgba(255,255,255,0.7)"
@@ -275,7 +353,7 @@ export default function CustomerPage() {
             />
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-bold text-gray-900">金刚宠宠物美容</h3>
+            <h3 className="font-display-italic text-2xl text-gray-900">金刚宠宠物美容</h3>
             <p className="text-sm text-gray-500 mt-0.5">专业宠物美容护理服务</p>
           </div>
         </div>
@@ -304,7 +382,7 @@ export default function CustomerPage() {
       <div id="section-active" className="scroll-mt-20">
       <NeumorphicCard>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">当前服务中</h2>
+          <h2 className="font-display-italic text-2xl text-gray-900">当前服务中</h2>
           <span className="flex items-center gap-1 text-xs text-gray-400">
             <span className="w-1.5 h-1.5 bg-brand-v2-info rounded-full animate-pulse"></span>
             自动刷新
@@ -418,7 +496,7 @@ export default function CustomerPage() {
       {/* Booking Form */}
       <div id="booking-form" className="scroll-mt-20">
         <NeumorphicCard>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">预约表单</h2>
+          <h2 className="font-display-italic text-2xl text-gray-900 mb-4">预约表单</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">主人姓名 *</label>
