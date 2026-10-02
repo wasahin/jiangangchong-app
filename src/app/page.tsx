@@ -298,28 +298,61 @@ export default function CustomerPage() {
 
       {/* Public Status Dashboard - Current Services */}
       <div id="section-active" className="scroll-mt-20">
-      <NeumorphicCard>
-        <div className="flex items-start justify-between mb-4 gap-4">
-          <div>
-            <h2 className="font-display-italic text-2xl text-gray-900">当前服务中</h2>
-            <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-brand-v2-gold mt-1">
-              Live Services
+      <NeumorphicCard padding="p-0" className="overflow-hidden">
+        {/* Magazine-style gradient cover — same palette as health card head */}
+        <div
+          className="relative px-5 sm:px-6 pt-5 pb-6 sm:pt-7 sm:pb-9"
+          style={{
+            background: 'linear-gradient(135deg, #F5E6C8 0%, #E8C572 55%, #D4A24C 100%)',
+          }}
+        >
+          <div className="flex items-start justify-between">
+            <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/85">
+              此刻 · Now
+            </span>
+            <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/85 flex items-center gap-1.5">
+              <span className="relative flex w-1.5 h-1.5">
+                <span className="absolute inset-0 rounded-full bg-white/70 animate-ping" />
+                <span className="relative w-1.5 h-1.5 rounded-full bg-white" />
+              </span>
+              Streaming
+            </span>
+          </div>
+
+          <div className="mt-4 sm:mt-6 flex items-end justify-between gap-4">
+            <h1 className="font-display-italic text-white text-4xl sm:text-5xl leading-none drop-shadow-sm">
+              Live
+            </h1>
+            <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/80 pb-1 text-right">
+              {(() => {
+                const d = new Date();
+                const hh = d.getHours().toString().padStart(2, '0');
+                const mm = d.getMinutes().toString().padStart(2, '0');
+                return `${hh}:${mm} — now`;
+              })()}
             </p>
           </div>
-          <span className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
-            <span className="w-1.5 h-1.5 bg-brand-v2-info rounded-full animate-pulse"></span>
-            自动刷新
-          </span>
         </div>
-        
-        {activeBookings.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
-            <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-neumo-light flex items-center justify-center shadow-neumo-pressed-md">
-              <span className="text-3xl">🐾</span>
+
+        {/* Content area — section title + service list */}
+        <div className="px-5 sm:px-6 pt-5 pb-5 sm:pb-6">
+          <div className="flex items-start justify-between mb-4 gap-4">
+            <div>
+              <h2 className="font-display-italic text-2xl text-gray-900">当前服务中</h2>
+              <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-brand-v2-gold mt-1">
+                Live Services
+              </p>
             </div>
-            <p className="text-sm">暂无正在进行的服务</p>
           </div>
-        ) : (
+
+          {activeBookings.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">
+              <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-neumo-light flex items-center justify-center shadow-neumo-pressed-md">
+                <span className="text-3xl">🐾</span>
+              </div>
+              <p className="text-sm">暂无正在进行的服务</p>
+            </div>
+          ) : (
           <div className="space-y-4">
             {activeBookings.map(booking => {
               const progress = calculateProgress(booking);
@@ -413,6 +446,7 @@ export default function CustomerPage() {
             })}
           </div>
         )}
+        </div>
       </NeumorphicCard>
       </div>
       
