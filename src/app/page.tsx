@@ -269,18 +269,18 @@ export default function CustomerPage() {
       
       {/* Advertisement Banner */}
       <div className="space-y-3">
-        <div className="relative rounded-2xl overflow-hidden shadow-neumo-raised-md">
-          <img 
-            src="/advert-1.jpg" 
-            alt="美容造型价格表" 
-            className="w-full h-auto object-cover"
+        <div className="relative rounded-[12px] overflow-hidden border border-brand-v3-gold/25">
+          <img
+            src="/advert-1.jpg"
+            alt="狗狗洗护价目表（短毛 / 梳犬）"
+            className="w-full h-auto"
           />
         </div>
-        <div className="relative rounded-2xl overflow-hidden shadow-neumo-raised-md">
-          <img 
-            src="/advert-2.jpg" 
-            alt="狗狗洗护价格表" 
-            className="w-full h-auto object-cover"
+        <div className="relative rounded-[12px] overflow-hidden border border-brand-v3-gold/25">
+          <img
+            src="/advert-2.jpg"
+            alt="美容造型价格表"
+            className="w-full h-auto"
           />
         </div>
       </div>
