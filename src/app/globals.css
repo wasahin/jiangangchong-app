@@ -3,20 +3,31 @@
 @tailwind utilities;
 
 /* ============================================
-   金刚宠 · Brand v2 Design Tokens (2026-09-15)
+   金刚宠 Brand v3 Design Tokens (2026-11-02)
+   暖陶橙 · Flat design system
    Authoritative source: src/lib/design-tokens.ts
    Use: var(--brand-gold), var(--brand-navy), etc.
    ============================================ */
 :root {
-  --brand-gold:        #D4A24C;
-  --brand-navy:        #1B3A5C;
-  --brand-success:     #2E7D32;
-  --brand-warning:     #E67E22;
-  --brand-error:       #C62828;
-  --brand-info:        #0A66C2;
-  --brand-bg-page:     #FAF6EE;
-  --brand-bg-section:  #F0E8D6;
-  --brand-bg-hero:     #F5E6C8;
+  /* Brand primary */
+  --brand-cream:      #FAF6EE;  /* 奶油白 · 松弛的容器 */
+  --brand-surface:    #FFFFFF;  /* 卡片面 */
+  --brand-navy:       #1B3A5C;  /* 藏蓝 · 专业与信任 */
+  --brand-gold:       #E2BC6E;  /* 金刚金 · 克制的精致 */
+  --brand-ink:        #1A1714;  /* 近黑 · 仪式与重心 */
+  --brand-terracotta: #C97B5A;  /* 暖陶橙 · 温暖·亲切·陪伴 */
+
+  /* Functional */
+  --brand-success:    #22C55E;
+  --brand-warning:    #F59E0B;
+  --brand-error:      #EF4444;
+  --brand-info:       #2563EB;
+
+  /* Mode-specific */
+  --brand-canvas:     #FAF6EE;
+  --brand-text:       #1B3A5C;
+  --brand-text-muted: #6B6157;
+  --brand-border:     #E6DCCB;
 }
 
 * {
@@ -36,8 +47,9 @@ body {
 }
 
 /* ============================================
-   MAGAZINE TYPOGRAPHY (2026-10-03)
-   Brand Book v3 inspired — DM Serif Display + Noto Serif SC
+   TYPOGRAPHY (v3)
+   Display = Noto Serif SC (Chinese) + DM Serif Display (Latin)
+   Label   = mono, uppercase, wide tracking
    ============================================ */
 .font-display {
   font-family: 'DM Serif Display', 'Noto Serif SC', serif;
@@ -50,141 +62,162 @@ body {
   font-style: italic;
   letter-spacing: -0.005em;
 }
+.font-serif-cn {
+  font-family: 'Noto Serif SC', 'DM Serif Display', serif;
+}
+.font-label {
+  font-family: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
 
 @keyframes run {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  25% {
-    transform: translateY(-2px) rotate(2deg);
-  }
-  50% {
-    transform: translateY(0) rotate(0deg);
-  }
-  75% {
-    transform: translateY(-2px) rotate(-2deg);
-  }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%      { transform: translateY(-2px) rotate(2deg); }
+  50%      { transform: translateY(0) rotate(0deg); }
+  75%      { transform: translateY(-2px) rotate(-2deg); }
 }
 
 @keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
 }
 
-.animate-run {
-  animation: run 0.4s ease-in-out infinite;
-}
-
-.animate-bounce-slow {
-  animation: bounce 0.6s ease-in-out infinite;
-}
-
+.animate-run { animation: run 0.4s ease-in-out infinite; }
+.animate-bounce-slow { animation: bounce 0.6s ease-in-out infinite; }
 
 /* ============================================
-   LIGHT MODE - Brand v2 background (#FAF6EE warm off-white)
+   LIGHT MODE — canvas 奶油白 #FAF6EE
+   Flat: white surfaces, hairline borders, NO neumorphic shadow
    ============================================ */
-
 body {
-  background-color: var(--brand-bg-page);
+  background-color: var(--brand-canvas);
+  color: var(--brand-text);
 }
 
 html:not(.dark) body {
-  background-color: var(--brand-bg-page) !important;
+  background-color: var(--brand-cream) !important;
+  color: var(--brand-navy);
+}
+
+html:not(.dark) .surface-card {
+  background-color: var(--brand-surface);
+  border: 1px solid var(--brand-border);
 }
 
 /* ============================================
-   DARK MODE STYLES
+   DARK MODE — canvas 藏蓝 #1B3A5C (v3 change)
    ============================================ */
-
 html.dark body {
-  background-color: #1C1C1E !important;
-  color: #FFFFFF;
+  background-color: var(--brand-navy) !important;
+  color: var(--brand-cream);
 }
 
-html.dark .bg-neumo-light {
-  background-color: #2C2C2E !important;
+html.dark .surface-card {
+  background-color: #24476D;
+  border: 1px solid rgba(226, 188, 110, 0.28);
 }
 
-html.dark .bg-neumo-surface {
-  background-color: #3D3D40 !important;
-}
+html.dark .text-gray-900 { color: var(--brand-cream) !important; }
+html.dark .text-gray-700 { color: #E4EBF2 !important; }
+html.dark .text-gray-500 { color: #B6C4D4 !important; }
+html.dark .text-gray-400 { color: #94A6BA !important; }
 
-html.dark .text-gray-900 {
-  color: #FFFFFF !important;
-}
+html.dark .border-white\/40 { border-color: rgba(226, 188, 110, 0.28) !important; }
+html.dark .border-gray-200 { border-color: rgba(226, 188, 110, 0.22) !important; }
+html.dark .bg-gray-50   { background-color: #24476D !important; }
+html.dark .bg-gray-100  { background-color: #2C5279 !important; }
 
-html.dark .text-gray-700 {
-  color: #E5E5EA !important;
-}
-
-html.dark .text-gray-500 {
-  color: #8E8E93 !important;
-}
-
-html.dark .text-gray-400 {
-  color: #6C6C70 !important;
-}
-
-html.dark .border-white\/40 {
-  border-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-html.dark .border-gray-200 {
-  border-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-html.dark .bg-gray-50 {
-  background-color: #2C2C2E !important;
-}
-
-html.dark .bg-gray-100 {
-  background-color: #3D3D40 !important;
-}
-
-html.dark .bg-accent-amber\/10 {
-  background-color: rgba(255, 165, 0, 0.15) !important;
-}
-
-html.dark .bg-accent-amber\/30 {
-  background-color: rgba(255, 165, 0, 0.25) !important;
-}
-
-html.dark .shadow-neumo-raised-md {
-  box-shadow: 4px 4px 8px rgba(0,0,0,0.5), -2px -2px 6px rgba(255,255,255,0.05), inset 1px 1px 2px rgba(255,255,255,0.1) !important;
-}
-
-html.dark .shadow-neumo-pressed-sm {
-  box-shadow: inset 2px 2px 4px rgba(0,0,0,0.4), inset -1px -1px 3px rgba(255,255,255,0.05) !important;
-}
-
-html.dark .shadow-neumo-pressed-md {
-  box-shadow: inset 3px 3px 6px rgba(0,0,0,0.4), inset -2px -2px 4px rgba(255,255,255,0.05) !important;
-}
+html.dark .bg-brand-v3-surface,
+html.dark .bg-brand-v3-surface { background-color: #24476D !important; }
 
 html.dark nav {
-  background-color: rgba(28, 28, 30, 0.9) !important;
-  border-top-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: rgba(27, 58, 92, 0.95) !important;
+  border-top-color: rgba(226, 188, 110, 0.28) !important;
 }
 
 html.dark input,
 html.dark select,
 html.dark textarea {
-  background-color: #2C2C2E !important;
-  color: #FFFFFF !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: #24476D !important;
+  color: var(--brand-cream) !important;
+  border-color: rgba(226, 188, 110, 0.28) !important;
 }
 
 html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: #6C6C70 !important;
-}
+html.dark textarea::placeholder { color: #8FA2B6 !important; }
 
 html.dark option {
-  background-color: #2C2C2E !important;
-  color: #FFFFFF !important;
+  background-color: #24476D !important;
+  color: var(--brand-cream) !important;
 }
 
+/* ============================================
+   FLAT SURFACE PRIMITIVES (v3)
+   ============================================ */
+.surface-card {
+  background-color: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  border-radius: 12px;
+}
+
+/* 金刚爪超级符号 — no shadow, no stroke, no effect */
+.paw-symbol {
+  display: inline-block;
+  color: var(--brand-gold);
+  background: none;
+  border: 0;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+/* 品牌线性图标 — navy ring + gold line */
+.icon-ring {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1.5px solid var(--brand-navy);
+  color: var(--brand-gold);
+  background: transparent;
+}
+html.dark .icon-ring { border-color: rgba(226, 188, 110, 0.55); }
+
+/* 分割线 */
+.divider-navy  { height: 1px; background: var(--brand-navy); opacity: 0.35; }
+.divider-gold  { height: 1px; background: var(--brand-gold); opacity: 0.55; }
+.divider-dotted{
+  height: 1px;
+  background-image: linear-gradient(to right, var(--brand-navy) 33%, rgba(255,255,255,0) 0%);
+  background-size: 6px 1px;
+  background-repeat: repeat-x;
+  opacity: 0.35;
+}
+html.dark .divider-navy,
+html.dark .divider-dotted { opacity: 0.5; }
+
+/* 边角装饰 — navy L corner */
+.corner-frame {
+  position: relative;
+}
+.corner-frame::before,
+.corner-frame::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: var(--brand-navy);
+  border-style: solid;
+  opacity: 0.55;
+}
+.corner-frame::before {
+  top: 8px; left: 8px;
+  border-width: 1.5px 0 0 1.5px;
+}
+.corner-frame::after {
+  bottom: 8px; right: 8px;
+  border-width: 0 1.5px 1.5px 0;
+}
+html.dark .corner-frame::before,
+html.dark .corner-frame::after { border-color: var(--brand-gold); }

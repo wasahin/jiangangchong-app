@@ -90,7 +90,7 @@ function StatusPageContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neumo-light p-4">
+      <div className="min-h-screen bg-brand-v3-cream p-4">
         <div className="max-w-lg mx-auto pt-20">
           <NeumorphicCard>
             <div className="text-center py-8">
@@ -107,7 +107,7 @@ function StatusPageContent() {
 
   if (error || !booking) {
     return (
-      <div className="min-h-screen bg-neumo-light p-4">
+      <div className="min-h-screen bg-brand-v3-cream p-4">
         <div className="max-w-lg mx-auto pt-20">
           <NeumorphicCard>
             <div className="text-center py-8">
@@ -134,7 +134,7 @@ function StatusPageContent() {
   const currentStepName = getCurrentStepName(booking);
 
   return (
-    <div className="min-h-screen bg-neumo-light p-4 pb-24">
+    <div className="min-h-screen bg-brand-v3-cream p-4 pb-24">
       <div className="max-w-lg mx-auto space-y-4">
         
         <div className="text-center py-4">
@@ -143,8 +143,8 @@ function StatusPageContent() {
         </div>
 
         <NeumorphicCard
-          customShadow="6px 6px 16px rgba(0,0,0,0.12), -4px -4px 12px rgba(255,255,255,0.9), inset 1px 1px 3px rgba(255,255,255,0.7)"
-          customBackground="linear-gradient(145deg, rgba(255,253,240,0.95), rgba(255,248,225,0.85))"
+          customShadow="0 0 0 1px #E6DCCB"
+          customBackground="#FAF6EE"
         >
           <div className="flex items-center justify-between mb-4">
             <StatusBadge status={booking.status} />
@@ -159,15 +159,15 @@ function StatusPageContent() {
           <div className="mb-4">
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray-600">当前进度</span>
-              <span className="font-bold text-brand-v2-gold">{progress}%</span>
+              <span className="font-bold text-brand-v3-gold">{progress}%</span>
             </div>
             <div className="h-3 bg-gray-100 rounded-full overflow-hidden shadow-neumo-pressed-sm">
               <div 
                 className="h-full rounded-full transition-all duration-1000 ease-out"
                 style={{ 
                   width: `${progress}%`,
-                  background: 'linear-gradient(90deg, #FF9500, #FFB333)',
-                  boxShadow: '0 0 12px rgba(255,149,0,0.5)'
+                  background: '#E2BC6E',
+                  boxShadow: 'none'
                 }}
               />
             </div>
@@ -175,8 +175,8 @@ function StatusPageContent() {
 
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-3 h-3 rounded-full bg-brand-v2-info animate-pulse"></span>
-              <span className="text-sm font-medium text-brand-v2-info">当前步骤</span>
+              <span className="w-3 h-3 rounded-full bg-brand-v3-info animate-pulse"></span>
+              <span className="text-sm font-medium text-brand-v3-info">当前步骤</span>
             </div>
             
             <div className="flex items-center justify-between mb-2">
@@ -187,16 +187,16 @@ function StatusPageContent() {
             <div 
               className="relative h-10 rounded-full overflow-hidden"
               style={{ 
-                background: 'linear-gradient(145deg, rgba(250,250,250,0.95), rgba(235,235,235,0.8))',
-                boxShadow: '5px 5px 10px rgba(0,0,0,0.15), -3px -3px 8px rgba(255,255,255,0.9), inset 1px 1px 3px rgba(255,255,255,0.7)'
+                background: '#F0E8D6',
+                boxShadow: 'none', border: '1px solid #E6DCCB'
               }}
             >
               <div 
                 className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
                 style={{ 
                   width: `${progress}%`,
-                  background: 'linear-gradient(90deg, #FF9500, #FFB333)',
-                  boxShadow: '0 0 25px rgba(255,165,0,0.7), 0 0 50px rgba(255,165,0,0.4), inset 0 2px 0 rgba(255,255,255,0.5)'
+                  background: '#E2BC6E',
+                  boxShadow: 'none'
                 }}
               />
               
@@ -205,8 +205,8 @@ function StatusPageContent() {
                 style={{ 
                   left: `${Math.max(5, Math.min(progress, 95))}%`,
                   transform: 'translate(-50%, -50%)',
-                  background: 'linear-gradient(145deg, rgba(255,255,255,0.98), rgba(240,240,240,0.8))',
-                  boxShadow: '4px 4px 8px rgba(0,0,0,0.15), -2px -2px 5px rgba(255,255,255,0.95), inset 1px 1px 3px rgba(255,255,255,0.98)'
+                  background: '#FFFFFF',
+                  boxShadow: 'none', border: '1px solid #E6DCCB'
                 }}
               >
                 <img
@@ -219,8 +219,8 @@ function StatusPageContent() {
               <div 
                 className="absolute right-0 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full z-5 overflow-hidden mr-1"
                 style={{ 
-                  background: 'linear-gradient(145deg, rgba(255,255,255,0.98), rgba(240,240,240,0.8))',
-                  boxShadow: '4px 4px 8px rgba(0,0,0,0.15), -2px -2px 5px rgba(255,255,255,0.95), inset 1px 1px 3px rgba(255,255,255,0.98)'
+                  background: '#FFFFFF',
+                  boxShadow: 'none', border: '1px solid #E6DCCB'
                 }}
               >
                 <img
@@ -249,7 +249,7 @@ function StatusPageContent() {
 
         <button
           onClick={handleCopyLink}
-          className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-brand-v2-gold to-[#E8C572] text-white font-medium shadow-lg hover:shadow-xl transition-all active:scale-[0.98]"
+          className="w-full py-3 px-4 rounded-xl bg-brand-v3-gold text-white font-medium shadow-lg hover:shadow-xl transition-all active:scale-[0.98]"
         >
           {copied ? '✓ 链接已复制' : '复制状态链接'}
         </button>
@@ -266,7 +266,7 @@ function StatusPageContent() {
 
 export default function StatusPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-neumo-light flex items-center justify-center"><p className="text-gray-500">加载中...</p></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-brand-v3-cream flex items-center justify-center"><p className="text-gray-500">加载中...</p></div>}>
       <StatusPageContent />
     </Suspense>
   );

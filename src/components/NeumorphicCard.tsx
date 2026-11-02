@@ -15,10 +15,11 @@ interface NeumorphicCardProps {
 }
 
 /**
- * NeumorphicCard — a soft surface that appears to be either
- * extruded from the canvas (raised) or pressed into it (pressed).
- * The whole card shares the canvas background; only paired shadows
- * give it form.
+ * NeumorphicCard — Brand v3 FLAT surface.
+ *
+ * v3 drops the extruded-shadow language entirely: a card is a white
+ * plane on the cream canvas, separated by a single hairline.
+ * The component name is kept so existing call sites keep working.
  */
 export function NeumorphicCard({
   children,
@@ -43,13 +44,14 @@ export function NeumorphicCard({
       onClick={onClick}
       className={`
         relative
+        bg-brand-v3-surface
         rounded-[${NEUMORPHIC_CONFIG.radiusCard}px]
         ${padding}
-        ${onClick ? 'cursor-pointer transition-shadow duration-200' : ''}
+        ${onClick ? 'cursor-pointer transition-colors duration-200 hover:border-brand-v3-gold/60' : ''}
         ${className}
       `}
       style={{
-        background: customBackground ?? NEUMORPHIC_CONFIG.surface,
+        background: customBackground ?? undefined,
         boxShadow: shadow,
       }}
     >

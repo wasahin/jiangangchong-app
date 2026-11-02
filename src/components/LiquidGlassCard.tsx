@@ -20,7 +20,7 @@ export function NeumorphicCard({
     <div 
       className={`
         rounded-neumo-card
-        bg-neumo-surface
+        bg-brand-v3-surface
         p-6
         ${shadow}
         ${className}

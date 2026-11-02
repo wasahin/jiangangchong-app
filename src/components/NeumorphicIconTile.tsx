@@ -34,12 +34,12 @@ export function NeumorphicIconTile({
   const sizePx = size === 'sm' ? 56 : size === 'md' ? 72 : 96;
 
   const background = isAccent
-    ? `linear-gradient(135deg, ${NEUMORPHIC_CONFIG.accent} 0%, ${NEUMORPHIC_CONFIG.accentDark} 100%)`
+    ? NEUMORPHIC_CONFIG.accent
     : isCyan
-      ? `linear-gradient(135deg, ${NEUMORPHIC_CONFIG.accentCyan} 0%, #D4E89C 100%)`
+      ? NEUMORPHIC_CONFIG.accentCyan
       : NEUMORPHIC_CONFIG.surface;
 
-  const color = isAccent ? NEUMORPHIC_CONFIG.textOnAccent : isCyan ? '#4A5D23' : NEUMORPHIC_CONFIG.text;
+  const color = isAccent ? NEUMORPHIC_CONFIG.textOnAccent : isCyan ? NEUMORPHIC_CONFIG.textOnAccent : NEUMORPHIC_CONFIG.text;
 
   return (
     <div

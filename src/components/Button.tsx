@@ -10,6 +10,16 @@ interface ButtonProps {
   type?: 'button' | 'submit' | 'reset';
 }
 
+/**
+ * Button — Brand v3 FLAT.
+ *
+ * v3 removes the glossy gradient language: every variant is a solid fill
+ * with a hairline edge. No extruded shadows, no glow.
+ *  - primary:  金刚金 fill, 奶油白 type
+ *  - navy:     藏蓝 fill, 奶油白 type
+ *  - pink:     暖陶橙 fill (v3's warm accent)
+ *  - secondary: white surface + hairline
+ */
 export function Button({
   variant = 'primary',
   size = 'medium',
@@ -20,81 +30,61 @@ export function Button({
   type = 'button',
 }: ButtonProps) {
 
-  const baseStyles = 'relative font-semibold transition-all inline-flex items-center justify-center';
+  const baseStyles = 'relative font-semibold transition-colors inline-flex items-center justify-center';
 
   const getVariantStyles = () => {
     switch (variant) {
-      case 'primary': // Brand v2 Sparkle Gold — main action
+      case 'primary': // 金刚金 — main action
         return `
-          bg-gradient-to-br from-brand-v2-gold via-[#C99A45] to-brand-v2-gold
-          text-white
-          shadow-neumo-raised-sm
-          hover:shadow-neumo-raised-md
-          hover:-translate-y-[1px]
-          hover:brightness-105
-          active:translate-y-[0.5px]
-          active:brightness-95
+          bg-brand-v3-gold
+          text-brand-v3-navy
+          hover:bg-brand-v3-gold/90
+          active:opacity-90
         `;
-      case 'navy': // Brand v2 Deep Navy — premium secondary action
+      case 'navy': // 藏蓝 — premium secondary action
         return `
-          bg-gradient-to-br from-brand-v2-navy via-[#0F2A45] to-brand-v2-navy
-          text-white
-          shadow-neumo-raised-sm
-          hover:shadow-neumo-raised-md
-          hover:-translate-y-[1px]
-          hover:brightness-105
-          active:translate-y-[0.5px]
-          active:brightness-95
+          bg-brand-v3-navy
+          text-brand-v3-cream
+          hover:bg-brand-v3-navy/90
+          active:opacity-90
         `;
-      case 'secondary': // Default neumorphic surface
+      case 'pink': // 暖陶橙 — was pink in v2, now the warm accent
         return `
-          bg-neumo-light
-          text-gray-700
-          shadow-neumo-raised-sm
-          hover:shadow-neumo-raised-md
-          hover:-translate-y-[1px]
-          active:shadow-neumo-pressed-sm
-          active:translate-y-[0.5px]
+          bg-brand-v3-terracotta
+          text-brand-v3-cream
+          hover:bg-brand-v3-terracotta/90
+          active:opacity-90
         `;
-      case 'pink': // Pink - secondary accent emphasis (kept for backwards compat)
+      case 'cyan': // 藏蓝 — tertiary neutral
         return `
-          bg-gradient-to-br from-accent-pink via-[#FF8A8E] to-accent-pink
-          text-white
-          shadow-neumo-raised-sm
-          hover:shadow-neumo-raised-md
-          hover:-translate-y-[1px]
-          hover:brightness-105
-          active:translate-y-[0.5px]
-          active:brightness-95
+          bg-brand-v3-navy
+          text-brand-v3-cream
+          hover:bg-brand-v3-navy/90
+          active:opacity-90
         `;
-      case 'cyan': // Barley White - tertiary neutral accent
+      case 'secondary': // flat white surface + hairline
         return `
-          bg-gradient-to-br from-accent-cyan via-[#FFF9E6] to-accent-cyan
-          text-amber-900
-          shadow-neumo-raised-sm
-          hover:shadow-neumo-raised-md
-          hover:-translate-y-[1px]
-          hover:brightness-105
-          active:translate-y-[0.5px]
-          active:brightness-95
+          bg-brand-v3-surface
+          text-brand-v3-navy
+          hover:border-brand-v3-gold/60
+          active:opacity-90
         `;
-      case 'pressed': // Pressed state
+      case 'pressed': // flat muted surface
         return `
-          bg-neumo-light
-          text-gray-500
-          shadow-neumo-pressed-sm
+          bg-brand-v3-cream
+          text-brand-v3-navy/60
         `;
       default:
         return '';
     }
   };
-  
+
   const sizeStyles = {
     small: 'px-4 py-2 text-sm rounded-neumo-button min-h-[40px]',
     medium: 'px-6 py-3 text-base rounded-neumo-button min-h-[48px]',
     large: 'px-8 py-4 text-lg rounded-neumo-card min-h-[56px]'
   };
-  
+
   return (
     <button
       type={type}
@@ -104,11 +94,12 @@ export function Button({
         ${baseStyles}
         ${sizeStyles[size]}
         ${getVariantStyles()}
+        ${variant === 'secondary' ? 'border border-brand-v3-gold/25' : ''}
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         ${className}
       `}
       style={{
-        transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+        backgroundColor: variant === 'secondary' ? NEUMORPHIC_CONFIG.surface : undefined,
       }}
     >
       <span className="relative z-10">{children}</span>

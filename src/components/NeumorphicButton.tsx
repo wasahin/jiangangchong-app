@@ -13,11 +13,14 @@ interface NeumorphicButtonProps {
 }
 
 /**
- * NeumorphicButton — three states from the reference image:
- *  - default: raised neutral surface
- *  - accent:  raised surface with amber fill (e.g. "YES")
- *  - pink:    raised surface with pink fill (secondary accent)
- *  - pressed: pressed-in surface (e.g. inactive "NO")
+ * NeumorphicButton — Brand v3 FLAT button.
+ *
+ * v3 removes gradients-as-decoration: every variant is a solid fill.
+ *  - default: white surface + hairline
+ *  - accent:  金刚金 fill (primary action)
+ *  - pink:    暖陶橙 fill (v3's warm accent, was pink in v2)
+ *  - cyan:    藏蓝 fill (secondary action)
+ *  - pressed: flat surface, muted type
  */
 export function NeumorphicButton({
   children,
@@ -34,19 +37,23 @@ export function NeumorphicButton({
   const isCyan = variant === 'cyan';
   const isPressed = variant === 'pressed';
 
-  const shadow = isPressed
-    ? NEUMORPHIC_CONFIG.pressed[size]
-    : NEUMORPHIC_CONFIG.raised[size];
-
   const background = isAccent
-    ? `linear-gradient(135deg, ${NEUMORPHIC_CONFIG.accent} 0%, ${NEUMORPHIC_CONFIG.accentDark} 100%)`
+    ? NEUMORPHIC_CONFIG.accent
     : isPink
-      ? `linear-gradient(135deg, ${NEUMORPHIC_CONFIG.accentPink} 0%, #FF8A8E 100%)`
+      ? NEUMORPHIC_CONFIG.accentPink
       : isCyan
-        ? `linear-gradient(135deg, ${NEUMORPHIC_CONFIG.accentCyan} 0%, #FFF9E6 100%)`
+        ? NEUMORPHIC_CONFIG.accentCyan
         : NEUMORPHIC_CONFIG.surface;
 
-  const color = isAccent ? NEUMORPHIC_CONFIG.textOnAccent : isPink ? '#FFFFFF' : isCyan ? '#8B7355' : NEUMORPHIC_CONFIG.text;
+  const color = isAccent
+    ? NEUMORPHIC_CONFIG.textOnAccent
+    : isPink
+      ? '#FAF6EE'
+      : isCyan
+        ? NEUMORPHIC_CONFIG.textOnAccent
+        : isPressed
+          ? NEUMORPHIC_CONFIG.textMuted
+          : NEUMORPHIC_CONFIG.text;
 
   const radius = shape === 'pill' ? NEUMORPHIC_CONFIG.radiusPill : NEUMORPHIC_CONFIG.radiusButton;
 
@@ -64,28 +71,19 @@ export function NeumorphicButton({
       className={`
         inline-flex items-center justify-center
         font-semibold tracking-wider uppercase
-        transition-all duration-200
+        transition-colors duration-200
         ${sizeClasses[size]}
-        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:translate-y-[1px]'}
+        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:opacity-90'}
         ${className}
       `}
       style={{
         background,
         color,
-        boxShadow: disabled ? 'none' : shadow,
+        boxShadow: 'none',
+        border: isAccent || isPink || isCyan
+          ? 'none'
+          : '1px solid #E6DCCB',
         borderRadius: `${radius}px`,
-        // Subtle inner highlight for accent to feel glossy
-        ...(isAccent && {
-          backgroundImage: `linear-gradient(135deg, ${NEUMORPHIC_CONFIG.accentLight} 0%, ${NEUMORPHIC_CONFIG.accent} 50%, ${NEUMORPHIC_CONFIG.accentDark} 100%)`,
-        }),
-        // Pink gradient with lighter top
-        ...(isPink && {
-          backgroundImage: `linear-gradient(135deg, #FFB8BA 0%, ${NEUMORPHIC_CONFIG.accentPink} 50%, #FF8A8E 100%)`,
-        }),
-        // Barley white with subtle warm gradient
-        ...(isCyan && {
-          backgroundImage: `linear-gradient(135deg, #FFFDF5 0%, ${NEUMORPHIC_CONFIG.accentCyan} 50%, #FFF9E6 100%)`,
-        }),
       }}
     >
       {children}

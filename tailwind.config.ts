@@ -44,18 +44,31 @@ module.exports = {
         // (e.g. bg-brand-v2-gold/25, text-brand-v2-success/70).
         // Solid color = rgb(N N N / 1) which equals the hex form.
         // ============================================
-        'brand-v2': {
-          gold:       'rgb(212 162 76 / <alpha-value>)',   // #D4A24C Sparkle Gold
-          navy:       'rgb(27 58 92 / <alpha-value>)',     // #1B3A5C Deep Navy
-          success:    'rgb(46 125 50 / <alpha-value>)',    // #2E7D32 Forest Green
-          warning:    'rgb(230 126 34 / <alpha-value>)',   // #E67E22 Warm Orange
-          error:      'rgb(198 40 40 / <alpha-value>)',    // #C62828 Deep Red
-          info:       'rgb(10 102 194 / <alpha-value>)',   // #0A66C2 LinkedIn Blue
-          'bg-page':    'rgb(250 246 238 / <alpha-value>)',   // #FAF6EE Warm Off-White
-          'bg-section': 'rgb(240 232 214 / <alpha-value>)',   // #F0E8D6 Cream Alt
-          'bg-hero':    'rgb(245 230 200 / <alpha-value>)',   // #F5E6C8 Warm Cream
+        'brand-v3': {
+          cream:      'rgb(250 246 238 / <alpha-value>)',   // #FAF6EE 奶油白 - canvas
+          surface:    'rgb(255 255 255 / <alpha-value>)',   // #FFFFFF 卡片面
+          navy:       'rgb(27 58 92 / <alpha-value>)',      // #1B3A5C 藏蓝 - 主色 ~72%
+          gold:       'rgb(226 188 111 / <alpha-value>)',   // #E2BC6E 金刚金 - 辅助 ~20%
+          ink:        'rgb(26 23 20 / <alpha-value>)',      // #1A1714 近黑 - 仪式与重心
+          terracotta: 'rgb(201 123 90 / <alpha-value>)',    // #C97B5A 暖陶橙 - 点缀 <=8%
+          success:    'rgb(34 197 94 / <alpha-value>)',     // #22C55E 成功绿
+          warning:    'rgb(245 158 11 / <alpha-value>)',    // #F59E0B 警告橙
+          error:      'rgb(239 68 68 / <alpha-value>)',     // #EF4444 错误红
+          info:       'rgb(37 99 235 / <alpha-value>)',     // #2563EB 链接蓝
         },
 
+        // DEPRECATED ALIAS -> v3 values. Keep for one release only.
+        'brand-v2': {
+          gold:       'rgb(226 188 111 / <alpha-value>)',
+          navy:       'rgb(27 58 92 / <alpha-value>)',
+          success:    'rgb(34 197 94 / <alpha-value>)',
+          warning:    'rgb(245 158 11 / <alpha-value>)',
+          error:      'rgb(239 68 68 / <alpha-value>)',
+          info:       'rgb(37 99 235 / <alpha-value>)',
+          'bg-page':    'rgb(250 246 238 / <alpha-value>)',
+          'bg-section': 'rgb(255 255 255 / <alpha-value>)',
+          'bg-hero':    'rgb(27 58 92 / <alpha-value>)',
+        },
         // ============================================
         // NEUMORPHIC BARLEY WHITE THEME (YellowWhite Testpage)
         // Two variants: Light (浅色) and Rich (深色)
@@ -146,14 +159,14 @@ module.exports = {
         // ------------------------------------------------
         
         // Raised (凸起/浮出) - 模拟从表面凸出
-        'neumo-raised-sm': '4px 4px 8px rgba(240,220,180,0.3), -4px -4px 8px rgba(255,255,255,0.9)',
-        'neumo-raised-md': '8px 8px 16px rgba(240,220,180,0.35), -8px -8px 16px rgba(255,255,255,0.9)',
-        'neumo-raised-lg': '12px 12px 24px rgba(240,220,180,0.4), -12px -12px 24px rgba(255,255,255,0.9)',
+        'neumo-raised-sm': '0 0 0 1px #E6DCCB',
+        'neumo-raised-md': '0 0 0 1px #E6DCCB',
+        'neumo-raised-lg': '0 0 0 1px #E6DCCB',
         
         // Pressed (按压/凹陷) - 模拟按入表面
-        'neumo-pressed-sm': 'inset 3px 3px 6px rgba(240,220,180,0.35), inset -3px -3px 6px rgba(255,255,255,0.85)',
-        'neumo-pressed-md': 'inset 5px 5px 10px rgba(240,220,180,0.4), inset -5px -5px 10px rgba(255,255,255,0.9)',
-        'neumo-pressed-lg': 'inset 7px 7px 14px rgba(240,220,180,0.45), inset -7px -7px 14px rgba(255,255,255,0.9)',
+        'neumo-pressed-sm': 'inset 0 0 0 1px #E6DCCB',
+        'neumo-pressed-md': 'inset 0 0 0 1px #E6DCCB',
+        'neumo-pressed-lg': 'inset 0 0 0 1px #E6DCCB',
 
         // ------------------------------------------------
         // RICH THEME (neumo-rich-*)
@@ -178,19 +191,19 @@ module.exports = {
         // ------------------------------------------------
         
         // Light Raised
-        'neumo-light-raised-sm': '4px 4px 8px rgba(0,0,0,0.1), -2px -2px 5px rgba(255,255,255,0.95), inset 1px 1px 2px rgba(255,255,255,0.98)',
-        'neumo-light-raised-md': '5px 5px 10px rgba(0,0,0,0.15), -3px -3px 8px rgba(255,255,255,0.9), inset 1px 1px 3px rgba(255,255,255,0.7)',
-        'neumo-light-raised-lg': '6px 6px 16px rgba(0,0,0,0.12), -4px -4px 12px rgba(255,255,255,0.9), inset 1px 1px 3px rgba(255,255,255,0.7)',
+        'neumo-light-raised-sm': '0 0 0 1px rgba(0,0,0,0.06)',
+        'neumo-light-raised-md': '0 0 0 1px rgba(0,0,0,0.06)',
+        'neumo-light-raised-lg': '0 0 0 1px rgba(0,0,0,0.06)',
         
         // Light Pressed
-        'neumo-light-pressed-sm': 'inset 2px 2px 4px rgba(0,0,0,0.08), inset -1px -1px 3px rgba(255,255,255,0.9)',
-        'neumo-light-pressed-md': 'inset 3px 3px 6px rgba(0,0,0,0.1), inset -2px -2px 4px rgba(255,255,255,0.95)',
-        'neumo-light-pressed-lg': 'inset 4px 4px 8px rgba(0,0,0,0.12), inset -3px -3px 6px rgba(255,255,255,0.9)',
+        'neumo-light-pressed-sm': 'inset 0 0 0 1px rgba(0,0,0,0.06)',
+        'neumo-light-pressed-md': 'inset 0 0 0 1px rgba(0,0,0,0.06)',
+        'neumo-light-pressed-lg': 'inset 0 0 0 1px rgba(0,0,0,0.06)',
       },
 
       borderRadius: {
-        'neumo-card': '18px',
-        'neumo-button': '12px',
+        'neumo-card': '12px',
+        'neumo-button': '10px',
         'neumo-pill': '999px',
       },
     },

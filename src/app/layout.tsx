@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import './globals.css';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 
@@ -22,7 +22,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="bg-neumo-light min-h-screen pb-20">
+      <body className="bg-brand-v3-cream min-h-screen pb-20">
         <DarkModeToggle />
 
         {children}

@@ -1,70 +1,71 @@
 /**
- * Neumorphic Design System Tokens
- * 
- * Barley White reference background analysis:
- * - Background: Soft barley white ~#FFF4CC
- * - Card surface: Lighter barley white ~#FFF9E6 (slightly lighter than background)
- * - Card border: Subtle yellow-beige outline ~rgba(240,220,180,0.2)
- * - Light shadow: White ~rgba(255,255,255,0.9)
- * - Dark shadow: Yellow-beige-tinged ~rgba(240,220,180,0.35)
- * - Accent colors: Pink (#FF9A9E), Amber (#FFA500), Barley White (#FFF4CC)
+ * Neumorphic Design System Tokens — DEPRECATED as of Brand v3 (2026-11-02)
+ *
+ * Brand v3 replaces neumorphism with a FLAT system:
+ *   white surface on cream canvas, hairline borders, no extruded shadows.
+ * This file is kept as the shared surface/colour config so every
+ * `Neumorphic*` component renders flat without touching call sites.
+ *
+ * Authoritative colour source: src/lib/design-tokens.ts
+ * The values below mirror it — do not introduce new colours here.
  */
 
 export const NEUMORPHIC_CONFIG = {
-  // Barley white canvas — the surface everything sits on
-  surface: '#FFF4CC',
-  surfaceAlt: '#FFF9E6',
+  // Card surface — white on the cream canvas (v3 flat)
+  surface: '#FFFFFF',
+  surfaceAlt: '#FAF6EE',
 
-  // Subtle yellow-beige border color for cards
-  border: 'rgba(240, 220, 180, 0.2)',
+  // Hairline border instead of an extruded shadow
+  border: '1px solid #E6DCCB',
+  borderDark: '1px solid rgba(226,188,110,0.28)',
 
-  // Paired shadows that create the 3D extrusion illusion
-  lightShadow: 'rgba(255, 255, 255, 0.9)',
-  darkShadow: 'rgba(240, 220, 180, 0.35)',
+  // Flat means no cast shadow — kept for API compatibility
+  lightShadow: 'none',
+  darkShadow: 'none',
 
-  // Multi-color accents from the barley white design
-  accent: '#FFA500', // Amber - primary action
-  accentDark: '#E89000',
-  accentLight: '#FFB733',
-  accentCyan: '#FFF4CC', // Barley white - tertiary
-  accentPink: '#FF9A9E', // Pink - secondary accent emphasis
-  accentPinkLight: '#FFB8BA',
-  accentPinkDark: '#FF7A7E',
-  accentAmber: '#FFC966',
+  // Accents — brand v3
+  accent: '#E2BC6E',        // 金刚金 — primary action
+  accentDark: '#C9A254',
+  accentLight: '#F0D69A',
+  accentCyan: '#1B3A5C',    // 藏蓝 — secondary action
+  accentPink: '#C97B5A',    // 暖陶橙 — was pink in v2, now the warm accent
+  accentPinkLight: '#DDA184',
+  accentPinkDark: '#B26A4A',
+  accentAmber: '#F59E0B',   // 警告橙
 
   // Typography
-  text: '#5C5C5C',
-  textMuted: '#9A9A9A',
-  textOnAccent: '#FFFFFF',
+  text: '#1B3A5C',          // 藏蓝
+  textMuted: '#6B6157',
+  textOnAccent: '#FAF6EE',  // 奶油白
 
-  // Sizing
-  radiusCard: 18,
-  radiusButton: 12,
+  // Sizing — v3 is tighter than the old 18/12/999
+  radiusCard: 12,
+  radiusButton: 10,
   radiusPill: 999,
 
-  // Shadow recipes — yellow-beige-tinged shadows for barley white theme
+  // Flat elevation: no shadow, just a hairline edge
   raised: {
-    sm: '4px 4px 8px rgba(240,220,180,0.3), -4px -4px 8px rgba(255,255,255,0.9)',
-    md: '8px 8px 16px rgba(240,220,180,0.35), -8px -8px 16px rgba(255,255,255,0.9)',
-    lg: '12px 12px 24px rgba(240,220,180,0.4), -12px -12px 24px rgba(255,255,255,0.9)',
+    sm: '0 0 0 1px #E6DCCB',
+    md: '0 0 0 1px #E6DCCB',
+    lg: '0 0 0 1px #E6DCCB',
   },
   pressed: {
-    sm: 'inset 3px 3px 6px rgba(240,220,180,0.35), inset -3px -3px 6px rgba(255,255,255,0.85)',
-    md: 'inset 5px 5px 10px rgba(240,220,180,0.4), inset -5px -5px 10px rgba(255,255,255,0.9)',
-    lg: 'inset 7px 7px 14px rgba(240,220,180,0.45), inset -7px -7px 14px rgba(255,255,255,0.9)',
+    sm: 'inset 0 0 0 1px #E6DCCB',
+    md: 'inset 0 0 0 1px #E6DCCB',
+    lg: 'inset 0 0 0 1px #E6DCCB',
   },
 };
 
 export type NeumorphicSize = 'sm' | 'md' | 'lg';
 
-// Barley White design color palette (for reference)
+/** Brand v3 colour reference for reference/tools that still look this up */
 export const BARLEY_WHITE_PALETTE = {
-  background: '#FFF4CC',
-  cardSurface: '#FFF9E6',
-  cardBorder: 'rgba(240,220,180,0.2)',
-  lightShadow: 'rgba(255, 255, 255, 0.9)',
-  darkShadow: 'rgba(240, 220, 180, 0.35)',
-  accentPink: '#FF9A9E',
-  accentAmber: '#FFA500',
-  accentBarleyWhite: '#FFF4CC',
+  background: '#FAF6EE',
+  cardSurface: '#FFFFFF',
+  cardBorder: '#E6DCCB',
+  lightShadow: 'none',
+  darkShadow: 'none',
+  accentPink: '#C97B5A',
+  accentAmber: '#F59E0B',
+  accentBarleyWhite: '#FAF6EE',
 };

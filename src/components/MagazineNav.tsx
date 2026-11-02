@@ -53,11 +53,11 @@ export function MagazineNav({
   // Tone-aware colors
   const inactiveText = tone === 'dark'
     ? 'text-white/70 hover:text-white'
-    : 'text-gray-500 hover:text-brand-v2-gold';
+    : 'text-gray-500 hover:text-brand-v3-gold';
 
   const activeText = tone === 'dark'
     ? 'text-white'
-    : 'text-brand-v2-gold';
+    : 'text-brand-v3-gold';
 
   return (
     <nav
@@ -82,10 +82,10 @@ export function MagazineNav({
         }
 
         const lineColor = isActive
-          ? 'bg-brand-v2-gold'
+          ? 'bg-brand-v3-gold'
           : tone === 'dark'
             ? 'bg-white/70 group-hover:bg-white'
-            : 'bg-gray-400 group-hover:bg-brand-v2-gold';
+            : 'bg-gray-400 group-hover:bg-brand-v3-gold';
 
         const Tag = (item.href ? 'a' : 'button') as 'a';
 
@@ -104,7 +104,7 @@ export function MagazineNav({
             <span className="font-serif-sc whitespace-nowrap text-[10px] lg:text-[11px]">{item.label}</span>
             {item.caption && (
               <span
-                className={`font-mono text-[9px] lg:text-[10px] tracking-[0.22em] hidden lg:inline ${isActive ? 'text-brand-v2-gold' : 'text-gray-400'}`}
+                className={`font-mono text-[9px] lg:text-[10px] tracking-[0.22em] hidden lg:inline ${isActive ? 'text-brand-v3-gold' : 'text-gray-400'}`}
               >
                 · {item.caption}
               </span>

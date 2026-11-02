@@ -12,8 +12,10 @@ interface NeumorphicInputProps {
 }
 
 /**
- * NeumorphicInput — an inset (pressed-in) text field.
- * The field is part of the same canvas, visually carved into the surface.
+ * NeumorphicInput — Brand v3 FLAT text field.
+ *
+ * v3: a white field with a hairline border. Focus is expressed with a
+ * brand-colour ring, not an inset shadow.
  */
 export function NeumorphicInput({
   value,
@@ -26,28 +28,27 @@ export function NeumorphicInput({
 }: NeumorphicInputProps) {
   const [isFocused, setIsFocused] = React.useState(false);
 
-  const accent = accentColor === 'cyan' 
-    ? NEUMORPHIC_CONFIG.accentCyan 
+  const accent = accentColor === 'cyan'
+    ? NEUMORPHIC_CONFIG.accentCyan
     : NEUMORPHIC_CONFIG.accent;
+
   return (
     <div
       className={`
         flex items-center gap-3
         h-12 px-4
+        bg-brand-v3-surface
         rounded-[${NEUMORPHIC_CONFIG.radiusButton}px]
-        transition-all duration-200
+        transition-colors duration-200
         ${className}
       `}
       style={{
-        background: NEUMORPHIC_CONFIG.surface,
-        boxShadow: isFocused 
-          ? `inset 3px 3px 6px rgba(240,180,190,0.35), inset -3px -3px 6px rgba(255,255,255,0.85), 0 0 0 2px ${accent}40`
-          : NEUMORPHIC_CONFIG.pressed.md,
+        border: isFocused ? `2px solid ${accent}` : '1px solid #E6DCCB',
       }}
     >
       {icon && (
-        <span 
-          className="shrink-0 transition-colors duration-200" 
+        <span
+          className="shrink-0 transition-colors duration-200"
           style={{ color: isFocused ? accent : NEUMORPHIC_CONFIG.textMuted }}
         >
           {icon}
@@ -62,7 +63,7 @@ export function NeumorphicInput({
         placeholder={placeholder}
         className="flex-1 bg-transparent outline-none text-sm tracking-wide transition-colors duration-200"
         style={{
-          color: isFocused ? accent : NEUMORPHIC_CONFIG.text,
+          color: NEUMORPHIC_CONFIG.text,
         }}
       />
     </div>
