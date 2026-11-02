@@ -14,7 +14,8 @@ description: "Knowledge base for 金刚宠 pet grooming shop. Invoke when workin
 ## 💰 Financial Model
 - **Monthly Fixed Costs**: ¥14,226 (rent, electricity, salary, insurance)
 - **Break-even**: 104 grooming services/month (currently ~70, gap: 34)
-- **Service Pricing**: 精致洗 ¥80 (85% margin) | 标准洗 ¥80 (85% margin) | 美容 ¥150 (80% margin) | 寄养 ¥100/day (90% margin)
+- **Service Pricing** (by weight): 标准洗 ¥68 / ¥88 / ¥108 · 精致洗 ¥98 / ¥118 / ¥138 · 美容 ¥180+ / ¥200+ / ¥220+ (5kg以下 / 5-10kg / 10kg+) · 寄养 ¥100/day (90% margin)
+- **Contribution per service**: 标准洗 ¥68 · 美容 ¥120 · 寄养 ¥90/day · weighted avg ¥78.25
 - **Target**: 9-12 new weekly regular customers needed to break even
 
 ## 🎯 Current Campaign: Pet DIY Free Market
@@ -69,48 +70,83 @@ description: "Knowledge base for 金刚宠 pet grooming shop. Invoke when workin
 
 ---
 
-## 🎨 Design System
+## 🎨 Design System — Brand v3 · 暖陶橙 (2026-11-02)
 
-### Color Palette
-| Token | Value | Usage |
+> **Brand v3 supersedes v2.** v3 is a **flat** system: neumorphism, gradients-as-decoration, glow and drop shadows are retired. Elevation is now a 1px hairline on a white surface over a cream canvas.
+> Authoritative token source: `src/lib/design-tokens.ts` + `src/lib/design-tokens.json`. CSS vars live in `src/app/globals.css`. Tailwind namespace: `brand-v3-*`.
+
+### Colour Palette
+| Token | Value | Role |
 |---|---|---|
-| Primary/Gold | `#FF9500`, `#FFA500`, `#E8A020` | Brand, primary buttons |
-| Blue | `#5AC8FA`, `#007AFF` | Info, secondary actions |
-| Green | `#4CD964`, `#34C759` | Success, active states |
-| Red | `#FF3B30` | Errors, alerts |
-| Background | `#F2F2F7`, `#F5F0EB` | Page backgrounds |
-| Barley White | `#FFF4CC`, `#FFF9E6` | Card surfaces |
-| Text Primary | `#5C5C5C`, `#1a1a1a` | Main text |
-| Text Secondary | `#9A9A9A` | Descriptions, hints |
+| 奶油白 Cream | `#FAF6EE` | Light canvas |
+| 藏蓝 Navy | `#1B3A5C` | **Primary ~72%** |
+| 金刚金 Gold | `#E2BC6E` | **Secondary ~20%** |
+| 近黑 Ink | `#1A1714` | Ceremony, weight, body text |
+| 暖陶橙 Terracotta | `#C97B5A` | **Accent ≤8%** (10-12% for 会员升级 / 限定活动) |
+| Surface | `#FFFFFF` | Cards on cream canvas |
+| 成功绿 Success | `#22C55E` | Functional |
+| 警告橙 Warning | `#F59E0B` | Functional |
+| 错误红 Error | `#EF4444` | Functional |
+| 链接蓝 Info | `#2563EB` | Functional |
+
+Tailwind: `bg-brand-v3-cream`, `text-brand-v3-navy`, `border-brand-v3-gold`, `bg-brand-v3-terracotta`, `text-brand-v3-success`, …
+`brand-v2-*` is a **deprecated alias** pointing at the v3 values; keep for one release only, then delete.
 
 ### Dark Mode
-- Background: `#1C1C1E` / `#2C2C2E`
-- Card: `#3D3D40`
-- Text: `#FFFFFF` / `#8E8E93`
-- Logo: Gold gradient `#FFD700` → `#FF8C00`
+- Canvas: **藏蓝 `#1B3A5C`** (v2 used iOS grey `#1C1C1E`)
+- Surface: `#1B3A5C` → slightly lifted navy; text `#FAF6EE` / `#C9BFB2`
+- Functional colours stay identical to light mode so status recognition never changes
+- Light and dark are the same identity with only the canvas flipping
 
-### Liquid Glass Card Spec
-- `backdrop-blur: 24px`, `saturate: 180%`
-- Background: `linear-gradient(white/70 → white/50 → white/40)`
-- Border: `white/50`
-- Shadow: `0 12px 40px rgba(0,0,0,0.08)`
-- Rounded: `24px`
-- Inner top gradient: `rgba(255,255,255,0.4)` → transparent
+### Flat Design Rules (non-negotiable, from the VI manual)
+- 不得添加阴影、描边或特效 — no drop shadows, no glow, no gradient fills as decoration
+- 不得使用非品牌色彩 — only the 9 tokens above
+- 不得随意改变图形比例 — auxiliary graphics keep their published sizes
+- 不得在复杂背景上使用 — brand graphics need plain cream/navy/white ground
+- Elevation = 1px hairline border (`#E6DCCB` on cream, rgba navy on navy)
 
-### Button Specs
-- **Primary (Orange)**: `linear-gradient(rgba(255,165,24,0.95) → rgba(255,122,0,0.92))`
-- **Secondary (Glass)**: `linear-gradient(white/70 → white/50 → white/40)` + `backdrop-blur: 16px`
-- **Blue**: `linear-gradient(rgba(90,200,250,0.98) → rgba(50,180,240,0.95))`
-- **Green**: `linear-gradient(rgba(76,217,100,0.95) → rgba(52,199,89,0.92))`
-- **Radius**: 16px (buttons), 12px (inputs), 20px (cards)
-- **Min Height**: 48px (primary), 40px (small)
+### Logo Assets (`public/`)
+| File | Use |
+|---|---|
+| `logo-v3.svg` | Primary mark — navy dog head, flat, single-path silhouette |
+| `logo-v3-horizontal.svg` | Mark + 金刚宠 wordmark + gold rule/爪 + JINGANGCHONG + tagline |
+| `logo-v3-horizontal-reversed.svg` | Reversed lockup for the navy canvas |
+| `logo.svg`, `logo-dark.svg` | Canonical path aliases serving the v3 mark |
 
-### Animation & Interaction
-- Transition: `cubic-bezier(0.34, 1.56, 0.64, 1)` (spring)
-- Hover: `translateY(-1px)`, `brightness(1.05)`
-- Active: `scale(0.985)`, `brightness(0.97)`
-- Letter-spacing: `0.01em`
-- Font: SF Pro / PingFang SC (never Inter)
+> The old amber gradient paw (`amberlogo.png`, `amberlogo.svg`) is **deleted**. Never reintroduce amber gradients or the `#FF9500 / #5AC8FA / #4CD964 / #FFF4CC` family.
+
+### Auxiliary Graphics System (`src/components/BookingUI.tsx`)
+- `GoldenPaw` — 金刚爪超级符号. Sizes `128 / 64 / 48 / 32 / 24 / 16` (`PAW_SIZES`), rotations `0 / 15 / -15 / 30 / 45°` (`PAW_ROTATIONS`)
+- `BrandIcon` — 藏蓝圆环 + 金色线稿 icons: 宠物 / 星星 / 爱心 / 勋章 / 日历 / 美容护理 / 宠物店 / 购物
+- `BrandTag` — 会员专享 (navy) · 小游戏 (gold) · 活动 (navy) · 限定活动 (terracotta)
+- `CornerFrame` — navy L-corner + paw decoration
+- CSS primitives in `globals.css`: `.surface-card` `.paw-symbol` `.icon-ring` `.divider-navy` `.divider-gold` `.divider-dotted` `.corner-frame` `.font-label` `.font-serif-cn`
+
+### Booking UI Component Tokens
+| Component | Size |
+|---|---|
+| `AvatarCard` | 120×120 |
+| `SlotCard` | 280×96 |
+| `TimeBar` | 360×48 |
+| `MemberBadge` | 160×56 |
+| `ProgressRing` | 100×100 |
+| `TaskCapsule` | 220×56 |
+
+### IP Characters
+- 理容师 / Groomer · 生活方式 / Lifestyle · 守护者 / Guardian
+- 服装语言: 眼罩 = 职业符号 · 围裙 = 服务场景 · 衬衫 = 生活方式 · 披风 = 限定仪式
+- The navy eye-mask band on the logo mark is the signature taken from the 理容师 character
+
+### Typography
+- Serif display for brand moments (`.font-serif-cn`, 金刚宠 wordmark)
+- `.font-label` for tracking-wide small caps labels
+- Body: PingFang SC / Noto Sans SC (never Inter)
+
+### Retired v2 Specs (do not restore)
+- ~~Liquid Glass Card~~ (`backdrop-blur: 24px`, gradient overlays, `0 12px 40px` shadow) — retired
+- ~~Neumorphism~~ (`shadow-neumo-raised/pressed`, `neumo-light-*`) — flattened to hairlines at the Tailwind layer
+- ~~Amber / iOS gradients~~ on buttons, badges, status colours — retired
+- `/yellowwhite` route and `useBackgroundTheme` are **legacy v2 demo only**, not part of the product surface
 
 ### Prohibited Elements
 - No em-dash (—) in visible text
@@ -118,6 +154,7 @@ description: "Knowledge base for 金刚宠 pet grooming shop. Invoke when workin
 - No decorative shadows beyond functional ones
 - No Inter as default font
 - No button label wrapping
+- No amber / iOS colour family
 
 ---
 
@@ -197,8 +234,8 @@ All above +:
 | `logout` | ⭐ | Close browser session |
 | `get_status` | ⭐⭐ | Check login state, server version, browser mode |
 
-### 🔗 Shared MCP Config (for ALL 4 Agents)
-All 4 agents (analytics, retention, social, content) share the **same exact MCP config**. Copy-paste this block into each agent's mcp.json — no per-agent changes needed.
+### 🔗 Shared MCP Config
+All agents share the **same exact MCP config**. Copy-paste this block into each agent's mcp.json — no per-agent changes needed.
 
 ```json
 {
@@ -266,31 +303,32 @@ async function setInputValue(page, selector, value) {
 
 ---
 
-## 🤖 Agent Definitions
+## 🤖 Agent Roster (2026-09-07 consolidation)
 
-### 1. Content Agent (内容代理)
-- **Role**: Create pet care content, grooming tips, social media posts
-- **Trigger**: User needs Xiaohongshu posts, Douyin scripts, WeChat moments, pet care articles
-- **Key Knowledge**: Zhongshan pet market, seasonal grooming needs, customer pain points
-- **Output**: Post copy, hashtags, campaign content calendars
+The four original agents were consolidated into **one** agent: `jingangchong-analytics`, display name **金刚宠 / jingangchong**, covering analytics + content + social + retention + branding + market research.
 
-### 2. Social Media Agent (社交媒体代理)
-- **Role**: Manage Xiaohongshu, Douyin, Dianping presence
-- **Trigger**: User needs social media strategy, posting schedule, engagement plan
-- **Channel Priority**: WeChat (highest conversion) > Xiaohongshu (organic) > Dianping (validation) > Douyin (awareness)
-- **Key Insight**: 大众点评 prohibits direct review-for-benefit exchanges; use genuine service quality
+| Agent | Status |
+|---|---|
+| `jingangchong-analytics` (displayName 金刚宠) | **ACTIVE** — the only agent to invoke |
+| `jingangchong-content` | RETIRED — do not invoke |
+| `jingangchong-social` | RETIRED — do not invoke |
+| `jingangchong-retention` | RETIRED — do not invoke |
 
-### 3. Customer Retention Agent (客户留存代理)
-- **Role**: WeChat follow-ups, loyalty programs, re-engagement campaigns
-- **Trigger**: User needs customer journey mapping, loyalty design, churn reduction
-- **Strategy**: RFM segmentation, personalized WeChat sequences, referral incentives
-- **Key Insight**: Existing customer referral retention rate is 3x higher than new acquisition
+Single-agent setup is sufficient at the shop's current volume (~3-5 posts/week, ~10-20 WeChat follow-ups/day). Split again if volume grows or different humans own different streams.
 
-### 4. Analytics Agent (分析代理)
-- **Role**: Track event ROI, conversion funnels, break-even progress
-- **Trigger**: User needs performance review, funnel analysis, budget optimization
-- **Data Source**: 宠老板 MCP server (get_dashboard, get_revenue_report)
-- **Key Metrics**: Monthly services, new customer rate, repeat purchase rate, event conversion
+### Role coverage inside the one agent
+
+**Content (内容)** — Xiaohongshu posts, Douyin scripts, WeChat moments, grooming tips, pet-care articles. Key knowledge: Zhongshan pet market, seasonal grooming needs, customer pain points. Output: post copy, hashtags, content calendars.
+
+**Social (社交媒体)** — Xiaohongshu / Douyin / Dianping channel strategy and posting schedule. Channel priority: WeChat (highest conversion) > Xiaohongshu (organic) > Dianping (validation) > Douyin (awareness). 大众点评 prohibits direct review-for-benefit exchanges — use genuine service quality.
+
+**Retention (客户留存)** — WeChat follow-ups, loyalty programs, re-engagement. RFM segmentation, personalised WeChat sequences, referral incentives. Existing-customer referral retention is 3x higher than new acquisition.
+
+**Analytics (分析)** — event ROI, conversion funnels, break-even progress, budget optimisation. Data source: 宠老板 MCP server. Key metrics: monthly services, new-customer rate, repeat-purchase rate, event conversion.
+
+**Branding (品牌)** — Brand v3 system, IP characters, VI boards, Lovart briefs.
+
+Cross-agent info sharing happens via (a) duplicated system prompts, (b) the shared `C:\Users\coolj\.minimax\memory\user.md`, (c) `PROJECT-RULES.md` in this workspace. There is **no real-time bus** between agents — the user routes work via session send.
 
 ---
 

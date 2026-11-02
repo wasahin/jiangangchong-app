@@ -100,36 +100,58 @@
 - **Step Rotation**: Timer starts only when staff clicks "Start". Auto-advances. Staff controls: Start / Pause / Finish (3 buttons only).
 - **Customer page**: Updates dynamically (polling or WebSocket).
 
-## 🎨 Design System
+## 🎨 Design System — Brand v3 暖陶橙 (2026-11-02)
+
+> **Brand v3 supersedes v2.** v3 is a **flat** system: neumorphism, decorative gradients, glow and drop shadows are retired. Elevation is a 1px hairline on a white surface over a cream canvas.
+> Authoritative tokens: `src/lib/design-tokens.ts` + `src/lib/design-tokens.json`. CSS vars: `src/app/globals.css`. Tailwind namespace: `brand-v3-*`. `brand-v2-*` is a deprecated alias.
 
 ### Color Tokens
 | Token | Value | Use |
 |---|---|---|
-| Primary/Gold | `#FF9500`, `#FFA500`, `#E8A020` | Brand, primary buttons |
-| Blue | `#5AC8FA`, `#007AFF` | Info, secondary |
-| Green | `#4CD964`, `#34C759` | Success, active |
-| Red | `#FF3B30` | Errors, alerts |
-| Background | `#F2F2F7`, `#F5F0EB` | Page bg |
-| Barley White | `#FFF4CC`, `#FFF9E6` | Card surfaces |
-| Text Primary | `#5C5C5C`, `#1a1a1a` | Main text |
-| Text Secondary | `#9A9A9A` | Hints |
+| 奶油白 Cream | `#FAF6EE` | Light canvas |
+| 藏蓝 Navy | `#1B3A5C` | **Primary ~72%** |
+| 金刚金 Gold | `#E2BC6E` | **Secondary ~20%** |
+| 近黑 Ink | `#1A1714` | Ceremony, weight, body text |
+| 暖陶橙 Terracotta | `#C97B5A` | **Accent ≤8%** (10-12% 会员升级 / 限定活动) |
+| Surface | `#FFFFFF` | Card surfaces |
+| 成功绿 Success | `#22C55E` | Functional |
+| 警告橙 Warning | `#F59E0B` | Functional |
+| 错误红 Error | `#EF4444` | Functional |
+| 链接蓝 Info | `#2563EB` | Functional |
 
 ### Dark Mode
-- Background `#1C1C1E` / `#2C2C2E`; Card `#3D3D40`; Text `#FFFFFF` / `#8E8E93`
-- Logo: Gold gradient `#FFD700` → `#FF8C00`
+- Background **藏蓝 `#1B3A5C`** (v2 used iOS grey `#1C1C1E`); Text `#FAF6EE` / `#C9BFB2`
+- Functional colours identical to light mode, so status recognition never changes
 
-### Liquid Glass Card
-- `backdrop-blur: 24px`, `saturate: 180%`
-- BG: `linear-gradient(white/70 → white/50 → white/40)`
-- Border: `white/50`; Shadow: `0 12px 40px rgba(0,0,0,0.08)`; Radius: 24px
-- Inner top gradient: `rgba(255,255,255,0.4)` → transparent
+### Flat Design Rules (from the VI manual — non-negotiable)
+- 不得添加阴影、描边或特效 — no drop shadows, no glow, no gradient fills as decoration
+- 不得使用非品牌色彩 — only the tokens above
+- 不得随意改变图形比例 — auxiliary graphics keep their published sizes
+- 不得在复杂背景上使用 — brand graphics need a plain cream / navy / white ground
+
+### Cards
+- White `#FFFFFF` surface on the cream canvas, `1px solid #E6DCCB` hairline (the only "elevation")
+- Radius: 12px (card) / 10px (button, input)
+- No shadow, no backdrop-blur, no gradient overlay
+
+### Live Cover
+- Solid navy `#1B3A5C` block, flat — no gradient
 
 ### Buttons
-- **Primary (Orange)**: `linear-gradient(rgba(255,165,24,0.95) → rgba(255,122,0,0.92))`
-- **Secondary (Glass)**: `linear-gradient(white/70 → white/50 → white/40)` + `backdrop-blur: 16px`
-- **Blue**: `linear-gradient(rgba(90,200,250,0.98) → rgba(50,180,240,0.95))`
-- **Green**: `linear-gradient(rgba(76,217,100,0.95) → rgba(52,199,89,0.92))`
-- Radius: 16px (btn) / 12px (input) / 20px (card); Min height 48px primary, 40px small
+- **Primary**: solid navy fill, cream text, flat
+- **Accent**: solid terracotta `#C97B5A` fill (limited use only)
+- Min height: 48px (primary), 40px (small)
+
+### Logo
+- `public/logo-v3.svg` (mark) · `public/logo-v3-horizontal.svg` (lockup) · `public/logo-v3-horizontal-reversed.svg` (navy canvas)
+- `public/logo.svg` and `public/logo-dark.svg` serve the same mark at canonical paths
+- The old amber gradient paw is **deleted** — never reintroduce amber or the `#FF9500 / #5AC8FA / #4CD964 / #FFF4CC` family
+
+### Auxiliary Graphics
+- 金刚爪 paw symbol: 128 / 64 / 48 / 32 / 24 / 16, rotations 0 / 15 / -15 / 30 / 45°
+- Brand icons: 藏蓝圆环 + 金色线稿 (宠物 / 星星 / 爱心 / 勋章 / 日历 / 美容护理 / 宠物店 / 购物)
+- Tags: 会员专享 (navy) · 小游戏 (gold) · 活动 (navy) · 限定活动 (terracotta)
+- Ready-made components: `src/components/BookingUI.tsx` (`AvatarCard` `SlotCard` `TimeBar` `MemberBadge` `ProgressRing` `TaskCapsule` `GoldenPaw` `BrandIcon` `BrandTag` `CornerFrame`)
 
 ### Animation & Interaction
 - Transition: `cubic-bezier(0.34, 1.56, 0.64, 1)` (spring)
@@ -137,6 +159,12 @@
 - Active: `scale(0.985)`, `brightness(0.97)`
 - Letter-spacing: `0.01em`
 - Font: SF Pro / PingFang SC (never Inter)
+
+### Retired (do not restore)
+- ~~Liquid Glass Card~~ (`backdrop-blur: 24px`, `linear-gradient(white/70 → white/40)`, `0 12px 40px` shadow)
+- ~~Neumorphism~~ (`shadow-neumo-raised/pressed`) — flattened to hairlines at the Tailwind layer
+- ~~Amber / iOS gradients~~ on buttons, badges, status colours
+- ~~`/yellowwhite` route + `useBackgroundTheme`~~ — legacy v2 demo only, not part of the product surface
 
 ### Prohibited
 - No em-dash (—) in visible text
@@ -222,16 +250,54 @@ All above + 11. 剪毛 (60 min) + 12. 完成出品
 - Data is 100% cloud-stored (Shanghai servers), no public API → Puppeteer only
 - Use headless mode for production (faster)
 
-## 🤖 Local Mavis Agents (4 specialists)
+## 🤖 Local Mavis Agents (consolidated 2026-09-07)
 
-| Agent | Stable name | Role |
+| Agent | Stable name | Status |
 |---|---|---|
-| Analytics | `jingangchong-analytics` | KPIs, ROI, 宠老板 data, recommendations |
-| Customer Retention | `jingangchong-retention` | WeChat sequences, loyalty, re-engagement |
-| Social Media | `jingangchong-social` | Channel strategy, posting schedule, event playbook |
-| Content | `jingangchong-content` | Platform-specific copy, content calendar |
+| 金刚宠 (all roles) | `jingangchong-analytics` | **ACTIVE** — the only agent to invoke |
 
-All agents in `C:\Users\coolj\.minimax\agents\jingangchong-*/`. Default workspace = this dir. Use MiniMax Code's built-in MCP tooling to call chonglaoban tools (no CLI).
+The four original specialists were consolidated into one agent (`jingangchong-analytics`, display name 金刚宠) covering analytics + content + social + retention + branding + market research. `jingangchong-retention`, `jingangchong-social` and `jingangchong-content` are **RETIRED — do not invoke**. Split again only if volume grows or different humans own different streams.
+
+Agent home: `C:\Users\coolj\.minimax\agents\jingangchong-analytics\`. Default workspace = this dir (`D:\金刚宠\jingangchong-app\`, as of 2026-09-01). Use MiniMax Code's built-in MCP tooling to call chonglaoban tools (no CLI).
+
+## 📬 Handoff Protocol (inter-agent file drops)
+
+Cross-agent coordination uses **file-based handoffs** — no real-time bus, no message broker. Each agent reads inputs from its own subfolder and writes outputs to its own subfolder. Coordination across agents is the orchestrator's (Mavis) job, not the agents'.
+
+### Folder layout
+```
+handoffs/
+├── content/      # legacy (agent retired) — jingangchong-content wrote here
+├── social/       # legacy (agent retired) — jingangchong-social wrote here
+├── retention/    # legacy (agent retired) — jingangchong-retention wrote here
+└── analytics/    # jingangchong-analytics writes here; others read
+```
+
+### File naming convention
+- **Date-based ISO week**: `YYYY-Www-{type}.{ext}` — e.g. `2026-W37-drafts.json`
+- **Ad-hoc / one-off**: `YYYY-MM-DD-{topic}.{ext}` — e.g. `2026-09-15-event-summary.md`
+- Per-domain `README.md` documents the input/output contract for that subfolder (read it first)
+
+### Data formats
+- **JSON** for structured data (drafts, schedules, metrics)
+- **Markdown** for human-readable summaries (strategies, retrospectives)
+- **Avoid** binary files in `handoffs/` — images belong in `public/` or `D:\金刚宠\Promotion\`
+
+### On startup
+Each jingangchong agent should:
+1. Read `handoffs/<your-domain>/README.md` to understand the contract
+2. Check `handoffs/<other-domains>/` for upstream input
+3. Write outputs to `handoffs/<your-domain>/YYYY-Www-{type}.{ext}`
+4. Reply to the orchestrator with the file path
+
+### On cross-agent workflow
+The orchestrator (Mavis root session) routes work via `session send`. Each agent completes its slice, writes the handoff file, and replies. The orchestrator reads the handoff file and dispatches the next agent. No agent-to-agent direct calls.
+
+### Why no real-time bus
+- Each `session send` is its own HTTP call with full agent context loaded — a "bus" of N agents calling each other would multiply the cost
+- File handoffs survive process restarts; in-memory buses don't
+- Per-step handoffs are auditable on disk
+- The 4 agents already share this `PROJECT-RULES.md` — same context, no need for additional sync layer
 
 ## 📊 Channel Strategy
 

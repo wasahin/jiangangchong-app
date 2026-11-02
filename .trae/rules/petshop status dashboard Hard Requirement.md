@@ -19,65 +19,76 @@ description: Rules for the Jingangchong Petshop Status Dashboard project
 4. **Public Dashboard**: Real-time service status
 
 ## Design Guidelines
-- **Theme**: Warm beige background (#f5f0eb) with golden accents (#e8a020)
+- **Theme**: Brand v3 暖陶橙 — cream canvas `#FAF6EE`, navy `#1B3A5C` primary, gold `#E2BC6E` secondary, terracotta `#C97B5A` accent (≤8%)
 - **Mobile-first responsive design**
-- **Logo**: Use actual logo image from `/public/logo.jpg`
+- **Logo**: Use the v3 mark from `/public/logo-v3.svg` (square) or `/public/logo-v3-horizontal.svg` (lockup). `/public/logo.svg` and `/public/logo-dark.svg` serve the same mark at canonical paths.
 - **Chinese language interface** (primary), English for technical terms
 
-## UI Design System - Liquid Glass (iOS Style)
-Use these specs for all UI components to achieve iOS-style liquid glass effect:
+## UI Design System — Brand v3 暖陶橙 (FLAT)
 
-### LiquidGlassCard Component
-```tsx
-// Props: intensity = 'light' | 'medium' | 'heavy'
-// Default: medium intensity
-
-// Medium intensity (default):
-- backdrop-blur: 24px
-- saturate: 180%
-- background: linear-gradient from-white/70 via-white/50 to-white/40
-- border: white/50
-- shadow: 0_12px_40px_rgba(0,0,0,0.08)
-- rounded: 24px
-- Inner top gradient: rgba(255,255,255,0.4) to transparent
-- Padding: p-5
-```
-
-### Button Component
-```tsx
-// Primary (Orange/Gold):
-- bg: linear-gradient from-[rgba(255,165,24,0.95)] to-[rgba(255,122,0,0.92)]
-- text: white
-- shadow with inner highlight
-- hover: lift up 1px, increase shadow
-
-// Secondary (Liquid Glass):
-- bg: linear-gradient from-white/70 via-white/50 to-white/40
-- backdrop-blur: 16px, saturate: 180%
-- border: white/50
-- text: gray-700
-- inner top highlight
-
-// Blue:
-- bg: linear-gradient from-[rgba(90,200,250,0.98)] to-[rgba(50,180,240,0.95)]
-
-// Green:
-- bg: linear-gradient from-[rgba(76,217,100,0.95)] to-[rgba(52,199,89,0.92)]
-```
+> Brand v3 supersedes the Liquid Glass / iOS system. v3 is **flat**: neumorphism, decorative gradients, glow and drop shadows are retired. Elevation is a 1px hairline on a white surface over a cream canvas.
+> Authoritative tokens: `src/lib/design-tokens.ts` + `src/lib/design-tokens.json`. CSS vars: `src/app/globals.css`. Tailwind namespace: `brand-v3-*`.
 
 ### Color Palette
-- **Primary/Gold**: #FF9500, #FFA500, #E8A020
-- **Blue**: #5AC8FA, #007AFF
-- **Green**: #4CD964, #34C759
-- **Red**: #FF3B30
-- **Background**: #F2F2F7, #F5F0EB
-- **Text**: #1a1a1a (black outline for logo)
+| Token | Value | Role |
+|---|---|---|
+| 奶油白 Cream | `#FAF6EE` | Light canvas |
+| 藏蓝 Navy | `#1B3A5C` | **Primary ~72%** |
+| 金刚金 Gold | `#E2BC6E` | **Secondary ~20%** |
+| 近黑 Ink | `#1A1714` | Ceremony, weight, body text |
+| 暖陶橙 Terracotta | `#C97B5A` | **Accent ≤8%** (10-12% for 会员升级 / 限定活动) |
+| Surface | `#FFFFFF` | Cards on cream canvas |
+| 成功绿 Success | `#22C55E` | Functional |
+| 警告橙 Warning | `#F59E0B` | Functional |
+| 错误红 Error | `#EF4444` | Functional |
+| 链接蓝 Info | `#2563EB` | Functional |
+
+### Dark Mode
+- Canvas: **藏蓝 `#1B3A5C`** (not iOS grey `#1C1C1E`)
+- Text: `#FAF6EE` / `#C9BFB2`
+- Functional colours identical to light mode, so status recognition never changes
+
+### Flat Design Rules (from the VI manual — non-negotiable)
+- 不得添加阴影、描边或特效 — no drop shadows, no glow, no gradient fills as decoration
+- 不得使用非品牌色彩 — only the tokens above
+- 不得随意改变图形比例 — auxiliary graphics keep their published sizes
+- 不得在复杂背景上使用 — brand graphics need a plain cream / navy / white ground
+
+### Card & Component Specs
+```tsx
+// Surface card
+- bg: #FFFFFF on a #FAF6EE canvas
+- border: 1px solid #E6DCCB (hairline = the only "elevation")
+- rounded: 12px cards / 10px inputs & buttons
+- NO shadow, NO backdrop-blur, NO gradient overlay
+
+// Live cover (services header)
+- solid navy #1B3A5C block, flat — no gradient
+
+// Buttons
+- Primary: solid navy fill, cream text, flat, no shadow
+- Accent: solid terracotta #C97B5A fill (limited use only)
+- min-height: 48px (primary), 40px (small)
+```
+
+### Auxiliary Graphics
+- 金刚爪 paw symbol: sizes 128 / 64 / 48 / 32 / 24 / 16, rotations 0 / 15 / -15 / 30 / 45°
+- Brand icons: 藏蓝圆环 + 金色线稿 (宠物 / 星星 / 爱心 / 勋章 / 日历 / 美容护理 / 宠物店 / 购物)
+- Tags: 会员专享 (navy) · 小游戏 (gold) · 活动 (navy) · 限定活动 (terracotta)
+- Dividers: `.divider-navy` `.divider-gold` `.divider-dotted`
+- Ready-made components: `src/components/BookingUI.tsx` (`AvatarCard` `SlotCard` `TimeBar` `MemberBadge` `ProgressRing` `TaskCapsule` `GoldenPaw` `BrandIcon` `BrandTag` `CornerFrame`)
 
 ### Animation & Interaction
-- Transition timing: cubic-bezier(0.34, 1.56, 0.64, 1)
+- Transition timing: cubic-bezier(0.34, 1.56, 0.64, 1) (spring)
 - Hover lift: -translate-y-[1px]
 - Active scale: scale-[0.985]
-- Border radius: 16px-24px for cards, 16px for buttons
+- Border radius: 12px cards, 10px buttons/inputs
+
+### Retired (do not restore)
+- ~~Liquid Glass Card~~ (`backdrop-blur: 24px`, `linear-gradient(white/70 → white/40)`, `0 12px 40px` shadow)
+- ~~Neumorphism~~ (`shadow-neumo-raised/pressed`) — flattened to hairlines at the Tailwind layer
+- ~~Amber / iOS gradients~~ on buttons, badges, status colours
+- ~~`/yellowwhite` route + `useBackgroundTheme`~~ — legacy v2 demo only, not part of the product surface
 
 ## Data Structure Rules
 - **Storage**: LocalStorage with key `jingangchong_h5_v2`
