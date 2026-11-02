@@ -2,20 +2,24 @@ interface BrandHeaderProps {
   className?: string;
 }
 
+/**
+ * BrandHeader — Brand v3.
+ *
+ * Uses the v3 navy dog-head mark. The old amber gradient paw
+ * (amberlogo.png) is deprecated: v3 is flat, so the mark sits on
+ * the cream canvas with a hairline edge and no drop shadow.
+ */
 export function BrandHeader({ className = '' }: BrandHeaderProps) {
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <div
-        className="relative w-16 h-16 flex-shrink-0 rounded-full overflow-hidden"
-        style={{
-          // Brand v2: gold-toned shadow (Sparkle Gold #D4A24C, lighter gold #E8C572)
-          boxShadow: '6px 6px 12px rgba(212,162,76,0.35), -3px -3px 8px rgba(232,197,114,0.7), inset 1px 1px 3px rgba(255,255,255,0.5)'
-        }}
+        className="relative w-14 h-14 flex-shrink-0 rounded-full overflow-hidden bg-brand-v3-cream"
+        style={{ border: '1px solid #E6DCCB' }}
       >
-        <img 
-          src="/amberlogo.png" 
-          alt="金刚宠 Logo" 
-          className="w-full h-full object-cover"
+        <img
+          src="/logo-v3.svg"
+          alt="金刚宠 Logo"
+          className="w-full h-full object-contain p-[6px]"
         />
       </div>
     </div>

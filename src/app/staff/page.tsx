@@ -350,19 +350,19 @@ export default function StaffPage() {
                         
                         {/* Info Grid */}
                         <div className="grid grid-cols-3 gap-2 mb-5 text-xs">
-                          <div className="bg-gray-50 rounded-lg p-2 text-center">
-                            <p className="text-gray-400">预计剩余</p>
-                            <p className="font-semibold text-[#FF9500]">{eta}分钟</p>
+                          <div className="bg-brand-v3-cream rounded-lg p-2 text-center">
+                            <p className="text-gray-500">预计剩余</p>
+                            <p className="font-semibold text-brand-v3-navy">{eta}分钟</p>
                           </div>
-                          <div className="bg-gray-50 rounded-lg p-2 text-center">
-                            <p className="text-gray-400">微信通知</p>
-                            <p className={`font-semibold ${booking.wechatNoticeSent ? 'text-green-500' : 'text-gray-400'}`}>
+                          <div className="bg-brand-v3-cream rounded-lg p-2 text-center">
+                            <p className="text-gray-500">微信通知</p>
+                            <p className={`font-semibold ${booking.wechatNoticeSent ? 'text-brand-v3-success' : 'text-gray-400'}`}>
                               {booking.wechatNoticeSent ? '已发送' : '未发送'}
                             </p>
                           </div>
-                          <div className="bg-gray-50 rounded-lg p-2 text-center">
-                            <p className="text-gray-400">状态</p>
-                            <p className="font-semibold text-gray-700">
+                          <div className="bg-brand-v3-cream rounded-lg p-2 text-center">
+                            <p className="text-gray-500">状态</p>
+                            <p className="font-semibold text-brand-v3-navy">
                               {booking.isPaused ? '已暂停' : isInService ? '服务中' : '待开始'}
                             </p>
                           </div>

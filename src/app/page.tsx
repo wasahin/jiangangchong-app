@@ -458,15 +458,15 @@ export default function CustomerPage() {
         >
           <div className="flex items-start gap-4 mb-4">
             <div
-              className="relative w-14 h-14 flex-shrink-0 rounded-full overflow-hidden"
+              className="relative w-14 h-14 flex-shrink-0 rounded-full overflow-hidden bg-brand-v3-cream"
               style={{
                 boxShadow: '0 0 0 1px #E6DCCB'
               }}
             >
               <img
-                src="/amberlogo.png"
+                src="/logo-v3.svg"
                 alt="金刚宠 Logo"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain p-[6px]"
               />
             </div>
             <div className="flex-1">
