@@ -231,6 +231,7 @@ export default function CustomerPage() {
         <MagazineNav
           orientation="vertical"
           tone="light"
+          hideLineOnMobile
           className="gap-2 lg:gap-3"
           items={[
             {

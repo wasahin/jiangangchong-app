@@ -25,6 +25,12 @@ export interface MagazineNavProps {
   tone?: 'light' | 'dark';
   /** Extra classes for the wrapping nav */
   className?: string;
+  /**
+   * Hide the leading dash line below the `sm` breakpoint.
+   * Used by the fixed vertical rail on mobile, where the line plus label is
+   * wider than the page's right gutter and overlaps the content.
+   */
+  hideLineOnMobile?: boolean;
 }
 
 /**
@@ -39,6 +45,7 @@ export function MagazineNav({
   orientation = 'horizontal',
   tone = 'light',
   className = '',
+  hideLineOnMobile = false,
 }: MagazineNavProps) {
   const isHorizontal = orientation === 'horizontal';
 
@@ -98,7 +105,7 @@ export function MagazineNav({
             <span
               className={`h-px transition-all duration-300 ${lineColor} ${
                 isActive ? 'w-7' : 'w-4 group-hover:w-7'
-              }`}
+              } ${hideLineOnMobile ? 'hidden sm:block' : ''}`}
               aria-hidden="true"
             />
             <span className="font-serif-sc whitespace-nowrap text-[10px] lg:text-[11px]">{item.label}</span>
