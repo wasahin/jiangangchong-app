@@ -7,6 +7,7 @@ import { Navigation } from '@/components/Navigation';
 import { BrandHeader } from '@/components/BrandHeader';
 import { StatusBadge } from '@/components/StatusBadge';
 import { HouseIcon } from '@/components/HouseIcon';
+import { GoldenPaw, WarningGlyph } from '@/components/BookingUI';
 import { MagazineNav } from '@/components/MagazineNav';
 import { useBookings } from '@/hooks/useBookings';
 import { ServiceType, BookingStatus } from '@/types/booking';
@@ -188,7 +189,10 @@ export default function CustomerPage() {
               门店确认后会通过微信通知您
             </p>
             <div className="bg-brand-v3-warning/10 rounded-neumo-button p-4 text-sm text-brand-v3-warning shadow-neumo-pressed-sm mb-4">
-              <p>📌 注意：最终服务适宜性由美容师现场评估后确定</p>
+              <p className="flex items-start gap-2">
+                <WarningGlyph size={16} className="mt-0.5" />
+                <span>注意：最终服务适宜性由美容师现场评估后确定</span>
+              </p>
             </div>
             
             <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
@@ -347,8 +351,8 @@ export default function CustomerPage() {
 
           {activeBookings.length === 0 ? (
             <div className="text-center py-8 text-gray-400">
-              <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-brand-v3-cream flex items-center justify-center shadow-neumo-pressed-md">
-                <span className="text-3xl">🐾</span>
+              <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-brand-v3-cream flex items-center justify-center">
+                <GoldenPaw size={40} color="var(--brand-navy)" />
               </div>
               <p className="text-sm">暂无正在进行的服务</p>
             </div>
@@ -486,7 +490,7 @@ export default function CustomerPage() {
 
           <div className="bg-brand-v3-warning/10 rounded-neumo-button p-3 mb-4 shadow-neumo-pressed-sm">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-brand-v3-warning/25 text-brand-v3-warning rounded-neumo-pill text-xs font-medium">
-              <span>⚠️</span>
+              <WarningGlyph size={12} />
               预约需门店审核
             </span>
             <p className="text-xs text-brand-v3-warning/90 mt-2">
@@ -642,7 +646,10 @@ export default function CustomerPage() {
             </div>
             
             <div className="bg-brand-v3-warning/10 rounded-neumo-button p-3 text-sm text-brand-v3-warning shadow-neumo-pressed-sm">
-              <p>⚠️ 提交预约后需要门店审核确认，最终服务时间以门店确认为准。最终服务适宜性由美容师现场评估后确定。</p>
+              <p className="flex items-start gap-2">
+                <WarningGlyph size={16} className="mt-0.5" />
+                <span>提交预约后需要门店审核确认，最终服务时间以门店确认为准。最终服务适宜性由美容师现场评估后确定。</span>
+              </p>
             </div>
             
             <div className="flex gap-3 pt-2">

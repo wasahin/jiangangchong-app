@@ -59,6 +59,43 @@ export function GoldenPaw({
 }
 
 /* ------------------------------------------------------------------ */
+/* 功能性提示符号 — Functional glyphs                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * WarningGlyph — flat triangle-and-exclamation mark.
+ * Replaces the v2 emoji (⚠️ / 📌) so notice chips carry brand colour
+ * instead of a system-coloured emoji glyph.
+ */
+export function WarningGlyph({
+  size = 14,
+  className = '',
+}: {
+  size?: number;
+  className?: string;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+      style={{ flexShrink: 0 }}
+    >
+      <path d="M12 3.6L22 20.4H2L12 3.6z" />
+      <path d="M12 10v4.3" />
+      <circle cx="12" cy="17.1" r="0.95" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* 品牌线性图标 — Brand line icons (navy ring + gold line)             */
 /* ------------------------------------------------------------------ */
 

@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { NeumorphicCard } from '@/components/NeumorphicCard';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Navigation } from '@/components/Navigation';
+import { GoldenPaw } from '@/components/BookingUI';
 import { BookingStatus, ServiceType } from '@/types/booking';
 import { GROOMING_STAGES, WEIGHT_RANGES } from '@/lib/constants';
 
@@ -94,7 +95,9 @@ function StatusPageContent() {
         <div className="max-w-lg mx-auto pt-20">
           <NeumorphicCard>
             <div className="text-center py-8">
-              <span className="text-4xl mb-4 block">🐾</span>
+              <span className="mb-4 block flex justify-center">
+                <GoldenPaw size={48} color="var(--brand-gold)" />
+              </span>
               <h2 className="text-lg font-semibold text-gray-900 mb-2">加载中...</h2>
               <p className="text-sm text-gray-500">正在获取预约信息...</p>
             </div>
@@ -111,7 +114,9 @@ function StatusPageContent() {
         <div className="max-w-lg mx-auto pt-20">
           <NeumorphicCard>
             <div className="text-center py-8">
-              <span className="text-4xl mb-4 block">🐾</span>
+              <span className="mb-4 block flex justify-center">
+                <GoldenPaw size={48} color="var(--brand-gold)" />
+              </span>
               <h2 className="text-lg font-semibold text-gray-900 mb-2">{error || '未找到该预约'}</h2>
               <p className="text-sm text-gray-500">请使用有效的预约链接</p>
             </div>

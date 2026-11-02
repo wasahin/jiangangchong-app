@@ -7,6 +7,7 @@ import { Navigation } from '@/components/Navigation';
 import { BrandHeader } from '@/components/BrandHeader';
 import { StatusBadge } from '@/components/StatusBadge';
 import { MagazineNav } from '@/components/MagazineNav';
+import { BrandIcon, GoldenPaw } from '@/components/BookingUI';
 import { useBookings } from '@/hooks/useBookings';
 import { BookingStatus } from '@/types/booking';
 
@@ -39,8 +40,14 @@ function StaffLogin({ onSuccess }: { onSuccess: () => void }) {
       <div className="max-w-sm w-full">
         <NeumorphicCard>
           <div className="text-center py-8">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-brand-v3-gold/20 flex items-center justify-center shadow-neumo-pressed-md">
-              <span className="text-4xl">🔐</span>
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-brand-v3-gold/20 flex items-center justify-center">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none"
+                   stroke="var(--brand-navy)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                   role="img" aria-label="员工登录">
+                <rect x="4" y="10.5" width="16" height="10.5" rx="2.5" fill="var(--brand-gold)" fillOpacity="0.35" />
+                <path d="M8 10.5V7.5a4 4 0 018 0v3" />
+                <circle cx="12" cy="15.5" r="1.4" fill="var(--brand-navy)" stroke="none" />
+              </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">员工登录</h3>
             <p className="text-sm text-gray-500 mb-6">请输入密码访问员工后台</p>
@@ -151,8 +158,8 @@ export default function StaffPage() {
               
               {pendingBookings.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
-                  <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-                    <span className="text-3xl">📋</span>
+                  <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-brand-v3-cream flex items-center justify-center">
+                    <BrandIcon name="calendar" size={40} />
                   </div>
                   <p className="text-sm">暂无待审核预约</p>
                 </div>
@@ -281,8 +288,8 @@ export default function StaffPage() {
               
               {activeBookings.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
-                  <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-                    <span className="text-3xl">🐾</span>
+                  <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-brand-v3-cream flex items-center justify-center">
+                    <GoldenPaw size={36} color="var(--brand-navy)" />
                   </div>
                   <p className="text-sm">暂无正在进行的服务</p>
                 </div>
