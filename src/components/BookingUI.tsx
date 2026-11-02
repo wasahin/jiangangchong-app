@@ -18,43 +18,38 @@ import React from 'react';
 export const PAW_SIZES = [128, 64, 48, 32, 24, 16] as const;
 export const PAW_ROTATIONS = [0, 15, -15, 30, 45] as const;
 
-export function GoldenPaw({
+/**
+ * BrandPaw — the official 金刚宠 paw mark.
+ *
+ * Source artwork: public/logo-jingangchong-mark.png, derived from
+ * `D:\金刚宠\pet business logo\金刚宠 final\金刚宠 final jpg.jpg`.
+ * Never substitute a different paw or a drawn stand-in — the shop's logo is
+ * a fixed asset and only this artwork may stand in for it.
+ */
+export function BrandPaw({
   size = 32,
   rotation = 0,
-  color = 'var(--brand-gold)',
   className = '',
   title,
 }: {
   size?: number;
   rotation?: number;
-  color?: string;
   className?: string;
   title?: string;
 }) {
   return (
-    <svg
+    <img
+      src="/logo-jingangchong-mark.png"
+      alt={title || ''}
+      aria-hidden={title ? undefined : true}
       width={size}
       height={size}
-      viewBox="0 0 100 100"
-      role={title ? 'img' : 'presentation'}
-      aria-label={title}
       className={`paw-symbol ${className}`}
       style={{
         transform: `rotate(${rotation}deg)`,
-        color,
         display: 'inline-block',
       }}
-    >
-      <g fill="currentColor">
-        {/* main pad */}
-        <path d="M50 52c-13 0-24 9-24 20 0 9 7 14 15 14 4 0 6-2 9-2s5 2 9 2c8 0 15-5 15-14 0-11-11-20-24-20z" />
-        {/* toes */}
-        <ellipse cx="20" cy="42" rx="9" ry="11" transform="rotate(-18 20 42)" />
-        <ellipse cx="40" cy="26" rx="9" ry="11.5" />
-        <ellipse cx="60" cy="26" rx="9" ry="11.5" />
-        <ellipse cx="80" cy="42" rx="9" ry="11" transform="rotate(18 80 42)" />
-      </g>
-    </svg>
+    />
   );
 }
 
@@ -201,7 +196,7 @@ export function BrandTag({ label, className = '' }: { label: BrandTagName; class
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${className}`}
       style={{ background: s.bg, color: s.fg }}
     >
-      <GoldenPaw size={14} color={s.fg} />
+      <BrandPaw size={14} />
       {label}
     </span>
   );
@@ -236,7 +231,7 @@ export function AvatarCard({
         {src ? (
           <img src={src} alt={alt ?? name} className="w-full h-full object-cover" />
         ) : (
-          <GoldenPaw size={40} />
+          <BrandPaw size={40} />
         )}
       </div>
       <p className="mt-2 text-sm font-semibold text-brand-v3-navy truncate w-full">{name}</p>
@@ -359,7 +354,7 @@ export function MemberBadge({
         className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
         style={{ background: tierUp ? '#FAF6EE' : '#1B3A5C' }}
       >
-        <GoldenPaw size={18} color={tierUp ? '#C97B5A' : '#E2BC6E'} />
+        <BrandPaw size={18} />
       </span>
       <div className="min-w-0">
         <p
@@ -453,7 +448,7 @@ export function TaskCapsule({
             <path d="M20 6L9 17l-5-5" />
           </svg>
         ) : (
-          <GoldenPaw size={15} color="#E2BC6E" />
+          <BrandPaw size={15} />
         )}
       </span>
       <div className="min-w-0 flex-1">
@@ -481,8 +476,8 @@ export function CornerFrame({ children, className = '' }: { children: React.Reac
   return (
     <div className={`corner-frame relative ${className}`}>
       {children}
-      <GoldenPaw size={14} rotation={-15} className="absolute top-2 left-2" />
-      <GoldenPaw size={14} rotation={30} className="absolute bottom-2 right-2" />
+      <BrandPaw size={14} rotation={-15} className="absolute top-2 left-2" />
+      <BrandPaw size={14} rotation={30} className="absolute bottom-2 right-2" />
     </div>
   );
 }

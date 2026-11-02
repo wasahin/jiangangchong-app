@@ -7,7 +7,7 @@ import { Navigation } from '@/components/Navigation';
 import { BrandHeader } from '@/components/BrandHeader';
 import { StatusBadge } from '@/components/StatusBadge';
 import { HouseIcon } from '@/components/HouseIcon';
-import { GoldenPaw, WarningGlyph } from '@/components/BookingUI';
+import { BrandPaw, WarningGlyph } from '@/components/BookingUI';
 import { MagazineNav } from '@/components/MagazineNav';
 import { useBookings } from '@/hooks/useBookings';
 import { ServiceType, BookingStatus } from '@/types/booking';
@@ -353,7 +353,7 @@ export default function CustomerPage() {
           {activeBookings.length === 0 ? (
             <div className="text-center py-8 text-gray-400">
               <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-brand-v3-cream flex items-center justify-center">
-                <GoldenPaw size={40} color="var(--brand-navy)" />
+                <BrandPaw size={40} />
               </div>
               <p className="text-sm">暂无正在进行的服务</p>
             </div>
@@ -462,18 +462,12 @@ export default function CustomerPage() {
           
         >
           <div className="flex items-start gap-4 mb-4">
-            <div
-              className="relative w-14 h-14 flex-shrink-0 rounded-full overflow-hidden bg-brand-v3-cream"
-              style={{
-                boxShadow: '0 0 0 1px #E6DCCB'
-              }}
-            >
-              <img
-                src="/logo-v3.svg"
-                alt="金刚宠 Logo"
-                className="w-full h-full object-contain p-[6px]"
-              />
-            </div>
+            <img
+              src="/logo-jingangchong.png"
+              alt="金刚宠"
+              className="h-[52px] w-auto flex-shrink-0 select-none"
+              draggable={false}
+            />
             <div className="flex-1">
               <h3 className="font-display-italic text-2xl text-gray-900">金刚宠宠物美容</h3>
               <p className="text-sm text-gray-500 mt-0.5">专业宠物美容护理服务</p>

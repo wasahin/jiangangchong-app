@@ -142,16 +142,19 @@
 - **Accent**: solid terracotta `#C97B5A` fill (limited use only)
 - Min height: 48px (primary), 40px (small)
 
-### Logo
-- `public/logo-v3.svg` (mark) · `public/logo-v3-horizontal.svg` (lockup) · `public/logo-v3-horizontal-reversed.svg` (navy canvas)
-- `public/logo.svg` and `public/logo-dark.svg` serve the same mark at canonical paths
-- The old amber gradient paw is **deleted** — never reintroduce amber or the `#FF9500 / #5AC8FA / #4CD964 / #FFF4CC` family
+### Logo — fixed asset, never redraw
+- `public/logo-jingangchong.png` — **the official logo** (full lockup, transparent)
+- `public/logo-jingangchong-mark.png` — the paw mark alone (small slots, watermarks)
+- `public/logo.jpg` — byte-faithful copy of the source JPG
+- Source of truth: `D:\金刚宠\pet business logo\金刚宠 final\金刚宠 final jpg.jpg`
+- **Never substitute, redraw or "improve" the logo** — in code, in mockups, in generated art or in placeholders. Replace the source file and re-derive instead.
+- The amber gradient paw and the v3 dog-head SVGs are **deleted**
 
 ### Auxiliary Graphics
 - 金刚爪 paw symbol: 128 / 64 / 48 / 32 / 24 / 16, rotations 0 / 15 / -15 / 30 / 45°
 - Brand icons: 藏蓝圆环 + 金色线稿 (宠物 / 星星 / 爱心 / 勋章 / 日历 / 美容护理 / 宠物店 / 购物)
 - Tags: 会员专享 (navy) · 小游戏 (gold) · 活动 (navy) · 限定活动 (terracotta)
-- Ready-made components: `src/components/BookingUI.tsx` (`AvatarCard` `SlotCard` `TimeBar` `MemberBadge` `ProgressRing` `TaskCapsule` `GoldenPaw` `BrandIcon` `BrandTag` `CornerFrame`)
+- Ready-made components: `src/components/BookingUI.tsx` (`AvatarCard` `SlotCard` `TimeBar` `MemberBadge` `ProgressRing` `TaskCapsule` `BrandPaw` `BrandIcon` `BrandTag` `CornerFrame`)
 
 ### Animation & Interaction
 - Transition: `cubic-bezier(0.34, 1.56, 0.64, 1)` (spring)

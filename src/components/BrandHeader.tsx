@@ -3,25 +3,24 @@ interface BrandHeaderProps {
 }
 
 /**
- * BrandHeader — Brand v3.
+ * BrandHeader — the official 金刚宠 logo.
  *
- * Uses the v3 navy dog-head mark. The old amber gradient paw
- * (amberlogo.png) is deprecated: v3 is flat, so the mark sits on
- * the cream canvas with a hairline edge and no drop shadow.
+ * Source artwork: public/logo-jingangchong.png, derived from
+ * `D:\金刚宠\pet business logo\金刚宠 final\金刚宠 final jpg.jpg`.
+ *
+ * This is the shop's fixed brand asset. Never substitute a drawn stand-in,
+ * a different paw, or any other mark — if the artwork changes, replace the
+ * source file and re-derive the PNG rather than redrawing the logo.
  */
 export function BrandHeader({ className = '' }: BrandHeaderProps) {
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      <div
-        className="relative w-14 h-14 flex-shrink-0 rounded-full overflow-hidden bg-brand-v3-cream"
-        style={{ border: '1px solid #E6DCCB' }}
-      >
-        <img
-          src="/logo-v3.svg"
-          alt="金刚宠 Logo"
-          className="w-full h-full object-contain p-[6px]"
-        />
-      </div>
+      <img
+        src="/logo-jingangchong.png"
+        alt="金刚宠"
+        className="h-[72px] w-auto select-none"
+        draggable={false}
+      />
     </div>
   );
 }

@@ -21,7 +21,7 @@ description: Rules for the Jingangchong Petshop Status Dashboard project
 ## Design Guidelines
 - **Theme**: Brand v3 暖陶橙 — cream canvas `#FAF6EE`, navy `#1B3A5C` primary, gold `#E2BC6E` secondary, terracotta `#C97B5A` accent (≤8%)
 - **Mobile-first responsive design**
-- **Logo**: Use the v3 mark from `/public/logo-v3.svg` (square) or `/public/logo-v3-horizontal.svg` (lockup). `/public/logo.svg` and `/public/logo-dark.svg` serve the same mark at canonical paths.
+- **Logo**: Use `/public/logo-jingangchong.png` (official lockup) or `/public/logo-jingangchong-mark.png` (paw only). The logo is a fixed asset from `D:\金刚宠\pet business logo\金刚宠 final\金刚宠 final jpg.jpg` — never redraw or substitute it.
 - **Chinese language interface** (primary), English for technical terms
 
 ## UI Design System — Brand v3 暖陶橙 (FLAT)
@@ -76,7 +76,7 @@ description: Rules for the Jingangchong Petshop Status Dashboard project
 - Brand icons: 藏蓝圆环 + 金色线稿 (宠物 / 星星 / 爱心 / 勋章 / 日历 / 美容护理 / 宠物店 / 购物)
 - Tags: 会员专享 (navy) · 小游戏 (gold) · 活动 (navy) · 限定活动 (terracotta)
 - Dividers: `.divider-navy` `.divider-gold` `.divider-dotted`
-- Ready-made components: `src/components/BookingUI.tsx` (`AvatarCard` `SlotCard` `TimeBar` `MemberBadge` `ProgressRing` `TaskCapsule` `GoldenPaw` `BrandIcon` `BrandTag` `CornerFrame`)
+- Ready-made components: `src/components/BookingUI.tsx` (`AvatarCard` `SlotCard` `TimeBar` `MemberBadge` `ProgressRing` `TaskCapsule` `BrandPaw` `BrandIcon` `BrandTag` `CornerFrame`)
 
 ### Animation & Interaction
 - Transition timing: cubic-bezier(0.34, 1.56, 0.64, 1) (spring)

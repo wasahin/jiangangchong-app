@@ -7,7 +7,7 @@ import { Navigation } from '@/components/Navigation';
 import { BrandHeader } from '@/components/BrandHeader';
 import { StatusBadge } from '@/components/StatusBadge';
 import { MagazineNav } from '@/components/MagazineNav';
-import { BrandIcon, GoldenPaw } from '@/components/BookingUI';
+import { BrandIcon, BrandPaw } from '@/components/BookingUI';
 import { useBookings } from '@/hooks/useBookings';
 import { BookingStatus } from '@/types/booking';
 
@@ -289,7 +289,7 @@ export default function StaffPage() {
               {activeBookings.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
                   <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-brand-v3-cream flex items-center justify-center">
-                    <GoldenPaw size={36} color="var(--brand-navy)" />
+                    <BrandPaw size={36} />
                   </div>
                   <p className="text-sm">暂无正在进行的服务</p>
                 </div>

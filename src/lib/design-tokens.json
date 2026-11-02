@@ -56,12 +56,28 @@
     "dark":  { "canvas": "#1B3A5C", "surface": "#24476D", "text": "#FAF6EE", "textMuted": "#B6C4D4", "border": "rgba(226,188,110,0.28)" },
     "_note": "Same functional colours in both modes — status recognition never changes."
   },
+  "logo": {
+    "_note": "FIXED ASSET — never redraw, substitute or 'improve' the logo. Replace the source file and re-derive the PNGs instead.",
+    "source_of_truth": "D:\\金刚宠\\pet business logo\\金刚宠 final\\金刚宠 final jpg.jpg",
+    "source_dimensions": "1200x1200",
+    "assets": {
+      "logo-jingangchong.png": "Full lockup (paw + 金刚宠 + MODERN PET CARE SOLUTIONS), transparent background",
+      "logo-jingangchong-mark.png": "The paw mark alone, transparent — small slots and watermarks",
+      "logo.jpg": "Byte-faithful copy of the source JPG"
+    },
+    "tagline": "人和毛孩子，都在这儿松口气",
+    "retired": [
+      "amberlogo.png / amberlogo.svg — v2 amber gradient paw",
+      "logo-v3.svg / logo-v3-horizontal.svg / logo-v3-horizontal-reversed.svg / logo.svg / logo-dark.svg — v3 dog-head mark"
+    ]
+  },
   "auxiliary_graphics": {
     "golden_paw_super_symbol": {
       "name": "金刚爪超级符号",
       "sizes": ["128px", "64px", "48px", "32px", "24px", "16px"],
       "rotation_angles": ["0deg", "15deg", "-15deg", "30deg", "45deg"],
-      "rules": "不得添加阴影、描边或特效"
+      "rules": "不得添加阴影、描边或特效",
+      "_note": "Rendered from the official logo mark (logo-jingangchong-mark.png), not a drawn stand-in."
     },
     "brand_line_icons": {
       "style": "藏蓝圆环 + 金色线稿",

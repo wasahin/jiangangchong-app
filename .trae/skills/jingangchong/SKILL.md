@@ -10,6 +10,7 @@ description: "Knowledge base for 金刚宠 pet grooming shop. Invoke when workin
 - **Location**: Guangdong Zhongshan (广东中山)
 - **Business Type**: Pet grooming and care center
 - **Key Differentiator**: Premium grooming with real-time status tracking for pet owners
+- **Tagline**: 人和毛孩子，都在这儿松口气
 
 ## 💰 Financial Model
 - **Monthly Fixed Costs**: ¥14,226 (rent, electricity, salary, insurance)
@@ -108,15 +109,16 @@ Tailwind: `bg-brand-v3-cream`, `text-brand-v3-navy`, `border-brand-v3-gold`, `bg
 ### Logo Assets (`public/`)
 | File | Use |
 |---|---|
-| `logo-v3.svg` | Primary mark — navy dog head, flat, single-path silhouette |
-| `logo-v3-horizontal.svg` | Mark + 金刚宠 wordmark + gold rule/爪 + JINGANGCHONG + tagline |
-| `logo-v3-horizontal-reversed.svg` | Reversed lockup for the navy canvas |
-| `logo.svg`, `logo-dark.svg` | Canonical path aliases serving the v3 mark |
+| `logo-jingangchong.png` | **The official logo** — full lockup (paw + 金刚宠 + MODERN PET CARE SOLUTIONS), transparent |
+| `logo-jingangchong-mark.png` | The paw mark alone, transparent — small slots and watermarks |
+| `logo.jpg` | Byte-faithful copy of the source JPG |
 
-> The old amber gradient paw (`amberlogo.png`, `amberlogo.svg`) is **deleted**. Never reintroduce amber gradients or the `#FF9500 / #5AC8FA / #4CD964 / #FFF4CC` family.
+> **The logo is a fixed asset.** Source of truth: `D:\金刚宠\pet business logo\金刚宠 final\金刚宠 final jpg.jpg` (1200×1200).
+> Never redraw, substitute or "improve" it — including in generated artwork, mockups or placeholders. If the source file changes, replace it and re-derive the PNGs.
+> The amber gradient paw (`amberlogo.png`, `amberlogo.svg`) and the v3 dog-head SVGs are **deleted**.
 
 ### Auxiliary Graphics System (`src/components/BookingUI.tsx`)
-- `GoldenPaw` — 金刚爪超级符号. Sizes `128 / 64 / 48 / 32 / 24 / 16` (`PAW_SIZES`), rotations `0 / 15 / -15 / 30 / 45°` (`PAW_ROTATIONS`)
+- `BrandPaw` — the official paw mark at the published sizes `128 / 64 / 48 / 32 / 24 / 16` (`PAW_SIZES`), rotations `0 / 15 / -15 / 30 / 45°` (`PAW_ROTATIONS`)
 - `BrandIcon` — 藏蓝圆环 + 金色线稿 icons: 宠物 / 星星 / 爱心 / 勋章 / 日历 / 美容护理 / 宠物店 / 购物
 - `BrandTag` — 会员专享 (navy) · 小游戏 (gold) · 活动 (navy) · 限定活动 (terracotta)
 - `CornerFrame` — navy L-corner + paw decoration
