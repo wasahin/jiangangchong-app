@@ -389,6 +389,17 @@ export async function onRequestGet(context) {
     const auth = requireStaff(context);
     if (auth.error) return auth.error;
     try {
+      if (url.searchParams.get('debug') === 'schema') {
+        const schema = await getSchema(context.env);
+        return json({
+          base: context.env.NEXT_PUBLIC_FEISHU_BASE_ID,
+          table: context.env.NEXT_PUBLIC_FEISHU_TABLE_ID,
+          appId: (context.env.NEXT_PUBLIC_FEISHU_APP_ID || '').slice(0, 12),
+          fields: [...schema.names],
+          types: schema.types,
+          options: Object.fromEntries(Object.entries(schema.options).map(([k, v]) => [k, [...v]])),
+        });
+      }
       const records = await listAllRecords(context.env);
       const bookings = records
         .map((r) => mapFeishuToBooking(r))
@@ -509,7 +520,7 @@ export async function onRequestPost(context) {
       );
     }
 
-    return json(mapFeishuToBooking(verified), 201);
+    return json({ ...mapFeishuToBooking(verified), warnings: dropped }, 201);
   } catch (error) {
     console.error('create booking error:', error);
     return json(
