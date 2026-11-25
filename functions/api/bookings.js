@@ -156,18 +156,30 @@ async function getSchema(env) {
 
   const names = new Set();
   const options = {};
+  const types = {};
   for (const f of data.data?.items || []) {
     names.add(f.field_name);
+    types[f.field_name] = f.type;
     if (f.property?.options) {
       options[f.field_name] = new Set(f.property.options.map((o) => o.name));
     }
   }
-  const schema = { names, options, expireAt: Date.now() + 5 * 60 * 1000 };
+  const schema = { names, options, types, expireAt: Date.now() + 5 * 60 * 1000 };
   schemaCaches.set(key, schema);
   return schema;
 }
 
-/** 只保留表里存在的字段；单选字段还要校验取值合法。 */
+/** DateTime 字段（type=5）必须用毫秒时间戳；其余类型原样发送 */
+function coerceValue(key, value, schema) {
+  const type = schema.types ? schema.types[key] : undefined;
+  if (type === 5) return toFeishuTimestamp(value);
+  return value;
+}
+
+/**
+ * 只保留表里存在的字段；单选字段还要校验取值合法；
+ * DateTime 字段按 schema 的实际类型转成毫秒时间戳。
+ */
 function sanitizeFields(fields, schema) {
   const out = {};
   const dropped = [];
@@ -175,7 +187,8 @@ function sanitizeFields(fields, schema) {
     if (!schema.names.has(key)) { dropped.push(key); continue; }
     const allowed = schema.options[key];
     if (allowed && !allowed.has(value)) { dropped.push(`${key}=${value}`); continue; }
-    out[key] = value;
+    if (value === undefined) continue;
+    out[key] = coerceValue(key, value, schema);
   }
   return { fields: out, dropped };
 }
@@ -423,9 +436,8 @@ export async function onRequestPost(context) {
       [FIELD.NOTES]: body.notes || '',
       [FIELD.OUTSIDE]: body.outsideGroomed === 'Yes' ? 'Yes' : 'No',
       [FIELD.EMOTION]: body.emotionStable === 'No' ? 'No' : 'Yes',
+      [FIELD.VACCINE]: body.vaccineDate || '',
     };
-    const vaccineTs = toFeishuTimestamp(body.vaccineDate);
-    if (vaccineTs !== undefined) raw[FIELD.VACCINE] = vaccineTs;
     if (schema.names.has(FIELD.SITE_ID)) raw[FIELD.SITE_ID] = siteBookingId;
 
     const { fields, dropped } = sanitizeFields(raw, schema);
@@ -453,14 +465,23 @@ export async function onRequestPost(context) {
       );
     }
 
-    // 关键：确认记录真的建好了（读回验证），再返回 201
+    // 关键：按 record_id 读回记录做校验。
+    // 注意：AutoNumber 字段（booking_id）在 create 响应里不会回写，
+    // 必须再 GET 一次 records/{record_id} 才能拿到 booking_id。
     const created = data.data.record;
-    const createdId = parseText(created.fields?.[FIELD.SITE_ID])
-      || parseText(created.fields?.booking_id);
-    const verified = createdId ? await findRecordById(createdId, context.env) : null;
+    if (!created.record_id) {
+      console.error('feishu create returned no record_id:', JSON.stringify(data));
+      return json({ error: '写入飞书失败，预约未创建', code: 'FEISHU_WRITE_FAILED' }, 502);
+    }
+
+    const readBack = await fetch(`${apiBase(context.env)}/records/${created.record_id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const readBackData = await readBack.json();
+    const verified = readBackData.code === 0 ? readBackData.data?.record : null;
 
     if (!verified) {
-      console.error('feishu create not verifiable:', createdId, created.record_id);
+      console.error('feishu create not verifiable:', created.record_id, JSON.stringify(readBackData));
       return json(
         { error: '写入飞书后校验失败，预约未确认', code: 'FEISHU_VERIFY_FAILED' },
         502,
