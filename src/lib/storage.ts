@@ -164,6 +164,26 @@ export function shareToWeChat(link: string): Promise<boolean> {
     .catch(() => false);
 }
 
+/**
+ * 落地服务端确认过的预约到本机缓存。
+ * id 使用服务端（飞书）返回的唯一编号，不再由前端生成。
+ */
+export function persistBooking(booking: Booking): Booking {
+  const bookings = getBookings();
+  const index = bookings.findIndex(b => b.id === booking.id);
+  if (index >= 0) {
+    bookings[index] = booking;
+  } else {
+    bookings.push(booking);
+  }
+  saveBookings(bookings);
+  return booking;
+}
+
+/**
+ * @deprecated 旧的纯本机建单。预约必须经由 /api/bookings 写入飞书，
+ * 请改用 `persistBooking` + `submitBooking`（src/lib/booking-api.ts）。
+ */
 export function createBooking(data: {
   ownerName: string;
   phone: string;
@@ -209,8 +229,7 @@ export function createBooking(data: {
   return booking;
 }
 
-export function updateBooking(id: string, updates: Partial<Booking>): Booking | undefined {
-  const bookings = getBookings();
+export function updateBooking(id: string, updates: Partial<Booking>): Booking | undefined {  const bookings = getBookings();
   const index = bookings.findIndex(b => b.id === id);
   
   if (index === -1) return undefined;

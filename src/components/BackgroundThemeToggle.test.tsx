@@ -17,14 +17,15 @@ describe('BackgroundThemeToggle', () => {
     const lightLabel = screen.getByText('LIGHT');
     const richLabel = screen.getByText('RICH');
 
-    expect(lightLabel).toHaveStyle({ color: '#FFE8EC' });
+    // Brand v3 的浅色麦芽白主题（useBackgroundTheme 的 LIGHT_THEME.surface）
+    expect(lightLabel).toHaveStyle({ color: '#FFF4CC' });
     expect(richLabel).toHaveStyle({ color: '#9A9A9A' });
 
     fireEvent.click(toggleButton);
 
     await waitFor(() => {
       expect(lightLabel).toHaveStyle({ color: '#9A9A9A' });
-      expect(richLabel).toHaveStyle({ color: '#FFD4DA' });
+      expect(richLabel).toHaveStyle({ color: '#EFE0B0' });
     });
   });
 

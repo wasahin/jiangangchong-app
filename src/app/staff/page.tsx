@@ -10,29 +10,32 @@ import { MagazineNav } from '@/components/MagazineNav';
 import { BrandIcon, BrandPaw } from '@/components/BookingUI';
 import { useBookings } from '@/hooks/useBookings';
 import { BookingStatus } from '@/types/booking';
+import { loginStaff } from '@/lib/booking-api';
 
-const STAFF_PASSWORD = process.env.NEXT_PUBLIC_STAFF_PASSWORD || 'jingangchong';
+const STAFF_SESSION_KEY = 'jingangchong_staff_session';
 
-function StaffLogin({ onSuccess }: { onSuccess: () => void }) {
+function StaffLogin({ onSuccess }: { onSuccess: (token: string) => void }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setIsLoading(true);
-    
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    if (password === STAFF_PASSWORD) {
-      localStorage.setItem('jingangchong_staff_auth', 'true');
-      onSuccess();
-    } else {
-      setError('密码错误，请重试');
+
+    try {
+      // 密码由服务端校验，通过后签发带 HMAC 签名的会话 token。
+      // 前端的 localStorage 标记不再被当作后端授权依据。
+      const session = await loginStaff(password);
+      sessionStorage.setItem(STAFF_SESSION_KEY, session.token);
+      onSuccess(session.token);
+    } catch (err: any) {
+      setError(err?.message || '登录失败，请重试');
       setPassword('');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   return (
@@ -87,31 +90,40 @@ function StaffLogin({ onSuccess }: { onSuccess: () => void }) {
 }
 
 export default function StaffPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
+  // 会话 token 由服务端签发并校验；本地只保存 token 本身，
+  // 不再使用 localStorage 的「已登录」标记作为后端授权。
+  const [staffToken, setStaffToken] = useState<string | null>(null);
+
   useEffect(() => {
-    const auth = localStorage.getItem('jingangchong_staff_auth');
-    setIsAuthenticated(auth === 'true');
+    const token = sessionStorage.getItem(STAFF_SESSION_KEY);
+    if (token) setStaffToken(token);
   }, []);
-  
-  const { 
-    pendingBookings, 
+
+  const {
+    pendingBookings,
     acceptedBookings,
     activeBookings,
-    acceptBooking, 
-    pushToServiceBoard, 
-    startService, 
-    pauseService, 
+    acceptBooking,
+    pushToServiceBoard,
+    startService,
+    pauseService,
     finishService,
     sendOwnerLink,
     calculateProgress,
     getCurrentStepName,
     calculateETA,
-    getStepsWithStatus
-  } = useBookings();
+    getStepsWithStatus,
+    serverError,
+    reloadFromServer,
+  } = useBookings(staffToken);
 
-  if (!isAuthenticated) {
-    return <StaffLogin onSuccess={() => setIsAuthenticated(true)} />;
+  const handleLogout = () => {
+    sessionStorage.removeItem(STAFF_SESSION_KEY);
+    setStaffToken(null);
+  };
+
+  if (!staffToken) {
+    return <StaffLogin onSuccess={(token) => setStaffToken(token)} />;
   }
 
   return (
@@ -144,6 +156,26 @@ export default function StaffPage() {
           </div>
         </div>
       </div>
+      <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="small" onClick={() => reloadFromServer?.()}>
+            刷新
+          </Button>
+          <span className="text-xs text-gray-400">数据来自飞书多维表格，刷新可看到其他设备的最新预约</span>
+        </div>
+        <Button variant="secondary" size="small" onClick={handleLogout}>
+          退出登录
+        </Button>
+      </div>
+      {serverError && (
+        <div
+          role="alert"
+          className="mb-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
+          <p className="font-medium">读取预约失败</p>
+          <p className="mt-1 text-red-600">{serverError}</p>
+        </div>
+      )}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column - Pending & Accepted */}
           <div className="space-y-6">

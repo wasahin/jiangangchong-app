@@ -66,14 +66,8 @@ export default function CustomerPage() {
   
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasSubmittedToday, setHasSubmittedToday] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    const lastSubmit = localStorage.getItem('jingangchong_last_submit_date');
-    const today = new Date().toDateString();
-    setHasSubmittedToday(lastSubmit === today);
-  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -112,26 +106,24 @@ export default function CustomerPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (isSubmitting || hasSubmittedToday) {
-      if (hasSubmittedToday) {
-        alert('您今天已经提交过预约，请等待门店审核');
-      }
-      return;
-    }
-    
+
+    // 同一个浏览器可以提交多张预约（不同宠物 / 不同日期时段都可以）。
+    // 这里只保留提交期间的防连按，不再限制「每日一次」。
+    if (isSubmitting) return;
+
     setIsSubmitting(true);
-    
+    setSubmitError(null);
+
     try {
+      // 由服务端写入飞书并校验后才算成功；失败会抛错。
       const booking = await createBooking(formData);
       if (booking) {
         setLastBookingId(booking.id);
         setSubmitted(true);
-        setHasSubmittedToday(true);
-        localStorage.setItem('jingangchong_last_submit_date', new Date().toDateString());
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Submit error:', error);
+      setSubmitError(error?.message || '预约提交失败，请稍后再试');
     } finally {
       setIsSubmitting(false);
     }
@@ -153,6 +145,7 @@ export default function CustomerPage() {
     });
     setSubmitted(false);
     setLastBookingId('');
+    setSubmitError(null);
   };
 
   const handleScrollToForm = () => {
@@ -647,6 +640,19 @@ export default function CustomerPage() {
               </p>
             </div>
             
+            {submitError && (
+              <div
+                role="alert"
+                className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700"
+              >
+                <p className="font-medium">预约未提交</p>
+                <p className="mt-1 text-red-600">{submitError}</p>
+                <p className="mt-1 text-xs text-red-500">
+                  预约需要写入门店系统才算成功，请稍后再试或直接致电门店。
+                </p>
+              </div>
+            )}
+
             <div className="flex gap-3 pt-2">
               <Button variant="secondary" type="button" onClick={handleReset} className="flex-1">
                 重置

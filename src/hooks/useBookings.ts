@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Booking, BookingStatus, ServiceType } from '@/types/booking';
-import { 
-  getBookings, 
-  createBooking, 
-  updateBooking, 
-  calculateProgress, 
-  getCurrentStepName, 
+import {
+  getBookings,
+  persistBooking,
+  updateBooking,
+  calculateProgress,
+  getCurrentStepName,
   calculateETA,
   getStepsWithStatus,
   getBookingCounts,
@@ -15,73 +15,123 @@ import {
 } from '@/lib/storage';
 import { GROOMING_STAGES } from '@/lib/constants';
 import { sendWeChatNotification, sendStatusUpdate } from '@/lib/feishu';
+import {
+  submitBooking,
+  fetchStaffBookings,
+  updateBookingRemote,
+  SubmitBookingPayload,
+} from '@/lib/booking-api';
 
-export function useBookings() {
+export function useBookings(staffToken?: string | null) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [serverError, setServerError] = useState<string | null>(null);
   const [counts, setCounts] = useState({ pending: 0, accepted: 0, inService: 0 });
 
   // Start timer when hook mounts
   useEffect(() => {
     startStepRotationTimer();
-    
+
     // Listen for booking updates
     const handleUpdate = () => {
       setBookings(getBookings());
       setCounts(getBookingCounts());
     };
-    
+
     window.addEventListener('bookingsUpdated', handleUpdate);
-    
+
     // Initial load
     const data = getBookings();
     setBookings(data);
     setCounts(getBookingCounts());
     setLoading(false);
-    
+
     return () => {
       window.removeEventListener('bookingsUpdated', handleUpdate);
     };
   }, []);
 
-  const handleCreateBooking = useCallback(async (data: {
-    ownerName: string;
-    phone: string;
-    petName: string;
-    serviceType: ServiceType;
-    weightRange: string;
-    bookingDate: string;
-    bookingTime: string;
-    vaccineDate: string;
-    outsideGroomed: string;
-    emotionStable: string;
-    notes?: string;
-  }) => {
-    const booking = createBooking(data);
-    setBookings(prev => [...prev, booking]);
+  // 员工端：带 token 时从服务端拉取（跨浏览器/跨设备）
+  const loadStaffBookings = useCallback(async (token: string) => {
+    try {
+      setServerError(null);
+      const serverBookings = await fetchStaffBookings(token);
+      setBookings(serverBookings);
+      setCounts({
+        pending: serverBookings.filter(b => b.status === BookingStatus.PENDING).length,
+        accepted: serverBookings.filter(b => b.status === BookingStatus.ACCEPTED).length,
+        inService: serverBookings.filter(
+          b => b.status === BookingStatus.IN_SERVICE || b.displayInServiceList
+        ).length,
+      });
+    } catch (error: any) {
+      setServerError(error?.message || '读取预约失败');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!staffToken) return;
+    setLoading(true);
+    loadStaffBookings(staffToken).finally(() => setLoading(false));
+  }, [staffToken, loadStaffBookings]);
+
+  /**
+   * 顾客提交：先由服务端写入飞书并校验，确认成功后才落地本机并回传。
+   * 失败会抛错 —— 调用方必须显示错误提示，不得静默当作成功。
+   */
+  const handleCreateBooking = useCallback(async (data: SubmitBookingPayload) => {
+    const booking = await submitBooking(data);
+    persistBooking(booking);
+    setBookings(prev => [...prev.filter(b => b.id !== booking.id), booking]);
     setCounts(getBookingCounts());
     return booking;
   }, []);
 
   const handleUpdateBooking = useCallback(async (id: string, updates: Partial<Booking>) => {
+    if (staffToken) {
+      // 员工端：更新服务端同一笔记录
+      const updated = await updateBookingRemote(staffToken, id, updates);
+      // displayInServiceList / isPaused / serviceStartedAt 没有对应的飞书字段，
+      // 保留客户端的值，避免服务板与服务暂停状态被服务端响应覆盖。
+      const merged: Booking = {
+        ...updated,
+        displayInServiceList: updates.displayInServiceList ?? updated.displayInServiceList,
+        isPaused: updates.isPaused ?? updated.isPaused,
+        serviceStartedAt: updates.serviceStartedAt ?? updated.serviceStartedAt,
+        currentPhase: updates.currentPhase ?? updated.currentPhase,
+      };
+      persistBooking(merged);
+      setBookings(prev => {
+        const next = prev.map(b => b.id === id ? merged : b);
+        setCounts({
+          pending: next.filter(b => b.status === BookingStatus.PENDING).length,
+          accepted: next.filter(b => b.status === BookingStatus.ACCEPTED).length,
+          inService: next.filter(
+            b => b.status === BookingStatus.IN_SERVICE || b.displayInServiceList
+          ).length,
+        });
+        return next;
+      });
+      return merged;
+    }
+
     const updated = updateBooking(id, updates);
     if (updated) {
       setBookings(prev => prev.map(b => b.id === id ? updated! : b));
       setCounts(getBookingCounts());
     }
     return updated;
-  }, []);
+  }, [staffToken]);
 
   const handleAcceptBooking = useCallback(async (id: string) => {
     const updated = await handleUpdateBooking(id, {
       status: BookingStatus.ACCEPTED,
       currentPhase: '等待到店'
     });
-    
+
     // Send WeChat notification (simulated)
     if (updated) {
       await sendWeChatNotification(id, updated.phone || '');
-      await handleUpdateBooking(id, { wechatNoticeSent: true });
     }
   }, [handleUpdateBooking]);
 
@@ -121,7 +171,7 @@ export function useBookings() {
         currentPhase: '服务完成',
         currentStep: steps.length
       });
-      
+
       // Send completion notification
       await sendStatusUpdate(id, '服务已完成，欢迎来接您的宠物！', booking.phone || '');
     }
@@ -149,6 +199,7 @@ export function useBookings() {
     completedBookings,
     counts,
     loading,
+    serverError,
     createBooking: handleCreateBooking,
     updateBooking: handleUpdateBooking,
     acceptBooking: handleAcceptBooking,
@@ -163,7 +214,8 @@ export function useBookings() {
     getStepsWithStatus,
     getBookingCounts,
     getAllBookings: () => bookings,
-    refreshCounts: () => setCounts(getBookingCounts())
+    refreshCounts: () => setCounts(getBookingCounts()),
+    reloadFromServer: staffToken ? () => loadStaffBookings(staffToken) : undefined
   };
 }
 
@@ -192,11 +244,11 @@ export function useBooking(id: string) {
     const loadBooking = async () => {
       setLoading(true);
       let data = getBookingById(id);
-      
+
       if (!data) {
         data = await fetchBooking();
       }
-      
+
       if (data) {
         setBooking(data);
         setProgress(calculateProgress(data));
@@ -234,7 +286,7 @@ export function useBooking(id: string) {
         setSteps(getStepsWithStatus(data));
       }
     };
-    
+
     window.addEventListener('bookingsUpdated', handleUpdate);
     return () => {
       clearInterval(interval);

@@ -12,7 +12,9 @@ const config = {
   },
   globals: {
     'ts-jest': {
-      tsconfig: '<rootDir>/tsconfig.json',
+      // 用独立的 tsconfig：主 tsconfig 是给 Next.js 用的（jsx: preserve / module: esnext），
+      // ts-jest 需要 jsx: react-jsx + commonjs 才能编译 JSX 与 ESM import。
+      tsconfig: '<rootDir>/tsconfig.jest.json',
     },
   },
 };
