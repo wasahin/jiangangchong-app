@@ -13,6 +13,9 @@ import { useBookings } from '@/hooks/useBookings';
 import { ServiceType, BookingStatus } from '@/types/booking';
 import { WEIGHT_RANGES } from '@/lib/constants';
 
+const menus: [string, string[][]][] = [["狗狗洗护",[["5 KG以下","¥80","¥98"],["5–10 KG","¥100","¥118"],["10–15 KG","¥120","¥138"],["15–20 KG","¥140","¥158"],["20–25 KG","¥160","¥178"],["25–30 KG","¥180","¥198"],["30–35 KG","¥200","¥218"],["35–40 KG","¥220","¥238"]]],["猫咪洗护",[["2 KG以下","¥68","¥88"],["2–4 KG","¥88","¥128"],["4–7 KG","¥108","¥148"],["7–10 KG","¥128","¥168"],["10 KG以上","另行报价","另行报价"]]],["美容造型",[["2 KG以下","¥120","¥180"],["2–4 KG","¥150","¥210"],["4–7 KG","¥180","¥240"],["7–10 KG","¥210","¥270"],["20 KG以上","¥240","¥300"],["特别造型","另行报价","另行报价"]]],["寄养住宿",[["迷你房","¥80",""],["舒适房","¥100",""],["阳光房","¥120",""],["家庭房","¥160",""]]]];
+const notes = ["短毛／梗犬价；长毛／卷毛加收¥10/只；80斤以上及部分犬种另询。","长毛加收¥10/只；老年、术后或特殊护理请咨询。","部分中大型犬及特殊护理另询。","同房增加宠物加¥40/只。"];
+
 export default function CustomerPage() {
   const {
     activeBookings,
@@ -64,6 +67,7 @@ export default function CustomerPage() {
     notes: ''
   });
   
+  const [menu, setMenu] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -152,8 +156,15 @@ export default function CustomerPage() {
     document.getElementById('booking-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const selectService = (serviceType: ServiceType) => {
+    setFormData(previous => ({ ...previous, serviceType }));
+    handleScrollToForm();
+  };
+
   const handleScrollToSection = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault();
+    const details = document.querySelector<HTMLDetailsElement>('details#section-active');
+    if (id === 'section-active' && details) details.open = true;
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -228,13 +239,13 @@ export default function CustomerPage() {
           className="gap-2 lg:gap-3"
           items={[
             {
-              label: '状态',
+              label: '价目',
               caption: 'STATUS',
               onClick: handleScrollToSection('section-status'),
               active: activeSection === 'section-status',
             },
             {
-              label: '当前服务',
+              label: '实况',
               caption: 'ACTIVE',
               onClick: handleScrollToSection('section-active'),
               active: activeSection === 'section-active',
@@ -249,8 +260,24 @@ export default function CustomerPage() {
         />
       </div>
 
+      <section id="section-status" className="scroll-mt-20">
+        <div className="flex items-center gap-3 mb-4"><img src="/logo-jingangchong.png" alt="" className="h-12 w-auto" /><h1 className="font-display-italic text-3xl">金刚宠</h1></div>
+        <div aria-label="门店精选，左右滑动" className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3">
+          {['洗护会员 · 无需充值','专业洗护 · 按状态护理','寄养住宿 · 咨询档期'].map((title, i) => <button key={title} type="button" className="min-w-[85%] snap-start rounded-xl bg-brand-v3-navy p-5 text-left text-white" onClick={() => setMenu(i === 2 ? 3 : 0)}><span className="block font-mono text-xs tracking-widest mb-2">JINGANGCHONG / 0{i+1}</span><span className="font-display-italic text-xl">{title}</span></button>)}
+        </div>
+        <h2 className="font-display-italic text-2xl mt-4">服务与价目</h2><p className="font-mono text-xs tracking-widest mb-3">SERVICES & PRICES</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">{menus.map(([name],i) => <button key={name} type="button" aria-pressed={menu===i} onClick={() => setMenu(i)} className={`rounded-xl p-2 ${menu===i ? 'bg-brand-v3-navy text-white' : 'bg-brand-v3-surface'}`}>{name}</button>)}</div>
+        <NeumorphicCard className="mt-3">
+          <table className="w-full text-left text-sm"><thead><tr><th className="py-2">{menu===3?'房型':'体重'}</th><th className="py-2">{menu===3?'每日价格':'标准'}</th>{menu!==3 && <th className="py-2">精致</th>}</tr></thead><tbody>{menus[menu][1].map(([label,a,b]) => <tr key={label} className="border-t border-brand-v3-gold/25"><td className="py-2">{label}</td><td>{a}</td>{menu!==3 && <td>{b}</td>}</tr>)}</tbody></table>
+          <p className="my-3 text-sm">{notes[menu]} 春节假日期间价格另有调整。</p>
+          <div className="flex flex-wrap gap-2">{menu===0 ? <><Button onClick={() => selectService(ServiceType.STANDARD_WASH)}>预约标准洗</Button><Button onClick={() => selectService(ServiceType.PREMIUM_WASH)}>预约精致洗</Button></> : menu===2 ? <Button onClick={() => selectService(ServiceType.GROOMING)}>预约美容（请备注方案）</Button> : <Button onClick={handleCopyWeChat}>{copied?'已复制微信号':'咨询档期'}</Button>}</div>
+        </NeumorphicCard>
+      </section>
+      {/* Public Status Dashboard - Current Services */}
+      <details id="section-active" className="scroll-mt-20">
+        <summary className="cursor-pointer font-display-italic text-xl py-3">门店实况 · 查看详情</summary>
       {/* Live Store Status Board — Brand v2 functional colors */}
-      <div id="section-status" className="grid grid-cols-3 gap-3 scroll-mt-20">
+      <div className="grid grid-cols-3 gap-3 scroll-mt-20">
         <div className="bg-brand-v3-surface rounded-neumo-card p-4 text-center shadow-neumo-raised-md">
           <p className="text-[28px] font-bold text-brand-v3-warning">{counts.pending}</p>
           <p className="text-xs text-gray-400 mt-1">待审核</p>
@@ -265,37 +292,7 @@ export default function CustomerPage() {
         </div>
       </div>
       
-      {/* Advertisement Banner */}
-      <div className="space-y-3">
-        <div className="relative rounded-[12px] overflow-hidden border border-brand-v3-gold/25">
-          <img
-            src="/advert-1.jpg"
-            alt="狗狗洗护价目表（短毛 / 梳犬）"
-            className="w-full h-auto"
-          />
-        </div>
-        <div className="relative rounded-[12px] overflow-hidden border border-brand-v3-gold/25">
-          <img
-            src="/advert-2.jpg"
-            alt="美容造型价格表"
-            className="w-full h-auto"
-          />
-        </div>
-      </div>
 
-      {/* Pull-quote interlude between price menu and shop info */}
-      <div className="relative px-2 sm:px-8 py-8 sm:py-10 text-center border-t border-b border-dashed border-brand-v3-gold/25">
-        <p className="font-display-italic text-xl sm:text-2xl text-gray-900 leading-snug mb-3">
-          "毛孩子的第一杯水, 第一口饭,<br className="hidden sm:block" />
-          第一次出门, 都不该是被催促完成的."
-        </p>
-        <p className="text-xs text-gray-500 mt-2 font-mono tracking-wider uppercase">
-          — 我们慢一点, 它才安心
-        </p>
-      </div>
-
-      {/* Public Status Dashboard - Current Services */}
-      <div id="section-active" className="scroll-mt-20">
       <NeumorphicCard padding="p-0" className="overflow-hidden">
         {/* Magazine-style gradient cover — same palette as health card head */}
         <div
@@ -446,7 +443,7 @@ export default function CustomerPage() {
         )}
         </div>
       </NeumorphicCard>
-      </div>
+      </details>
       
       {/* Booking Form — header merged from former Shop Info Card */}
       <div id="booking-form" className="scroll-mt-20">
