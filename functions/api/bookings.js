@@ -118,23 +118,34 @@ async function getTenantToken(env) {
   const cached = tokenCaches.get(appId);
   if (cached && Date.now() < cached.expireAt) return cached.token;
 
-  const res = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      app_id: env.NEXT_PUBLIC_FEISHU_APP_ID,
-      app_secret: env.FEISHU_APP_SECRET,
-    }),
-  });
-  const data = await res.json();
-  if (!data.tenant_access_token) {
-    throw new Error(`飞书鉴权失败: ${data.msg || data.code || 'unknown'}`);
+  let lastError = null;
+  // 冷启动首次请求偶发失败，重试一次再放弃
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const res = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          app_id: env.NEXT_PUBLIC_FEISHU_APP_ID,
+          app_secret: env.FEISHU_APP_SECRET,
+        }),
+      });
+      const data = await res.json();
+      if (!data.tenant_access_token) {
+        throw new Error(`飞书鉴权失败: ${data.msg || data.code || 'unknown'}`);
+      }
+      tokenCaches.set(appId, {
+        token: data.tenant_access_token,
+        expireAt: Date.now() + Math.max(60, (data.expire || 7200) - 300) * 1000,
+      });
+      return data.tenant_access_token;
+    } catch (error) {
+      lastError = error;
+      console.warn(`tenant token attempt ${attempt + 1} failed:`, error.message);
+      if (attempt === 0) await new Promise((r) => setTimeout(r, 600));
+    }
   }
-  tokenCaches.set(appId, {
-    token: data.tenant_access_token,
-    expireAt: Date.now() + Math.max(60, (data.expire || 7200) - 300) * 1000,
-  });
-  return data.tenant_access_token;
+  throw lastError || new Error('飞书鉴权失败');
 }
 
 function apiBase(env) {
@@ -443,23 +454,33 @@ export async function onRequestPost(context) {
     const { fields, dropped } = sanitizeFields(raw, schema);
     if (dropped.length) console.warn('dropped fields:', dropped.join(', '));
 
-    const res = await fetch(`${apiBase(context.env)}/records`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ fields }),
-    });
-    const data = await res.json();
+    // 写入飞书。网络抖动时重试一次（冷启动首次请求较容易失败）。
+    let data = null;
+    let lastStatus = 0;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const res = await fetch(`${apiBase(context.env)}/records`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fields }),
+      });
+      lastStatus = res.status;
+      const txt = await res.text();
+      try { data = JSON.parse(txt); } catch (e) { data = { code: -1, msg: txt.slice(0, 200) }; }
+      if (data.code === 0 && data.data?.record?.record_id) break;
+      console.warn(`feishu create attempt ${attempt + 1} failed:`, data.code, data.msg);
+      if (attempt === 0) await new Promise((r) => setTimeout(r, 700));
+    }
 
-    if (data.code !== 0 || !data.data?.record?.record_id) {
+    if (!data || data.code !== 0 || !data.data?.record?.record_id) {
       console.error('feishu create failed:', data);
       return json(
         {
           error: '写入飞书失败，预约未创建',
           code: 'FEISHU_WRITE_FAILED',
-          detail: data.msg || String(data.code || res.status),
+          detail: (data && (data.msg || String(data.code))) || String(lastStatus),
         },
         502,
       );
