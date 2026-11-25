@@ -226,25 +226,49 @@ export default function CustomerPage() {
   const [menu, setMenu] = useState(0);
   const [promoIndex, setPromoIndex] = useState(0);
   const promoStripRef = useRef<HTMLDivElement | null>(null);
+  const promoIndexRef = useRef(0);
+  const lastManualScrollAt = useRef(0);
+  const autoScrollingRef = useRef(false);
   const current = SERVICE_MENUS[menu];
 
-  // 宣傳卡只跟手指掃動，冇自動輪播
+  const promoStep = (el: HTMLElement) => {
+    const first = el.firstElementChild as HTMLElement | null;
+    return first ? first.offsetWidth + 12 : el.clientWidth; // gap-3
+  };
+
+  // 宣傳卡：手指掃動時更新頁數點；自動輪播嘅 scroll 唔會當成手動
   const handlePromoScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const el = event.currentTarget;
     const first = el.firstElementChild as HTMLElement | null;
     if (!first) return;
-    const step = first.offsetWidth + 12; // gap-3
-    const index = Math.round(el.scrollLeft / step);
-    setPromoIndex(Math.max(0, Math.min(PROMOS.length - 1, index)));
+    const index = Math.round(el.scrollLeft / promoStep(el));
+    const next = Math.max(0, Math.min(PROMOS.length - 1, index));
+    setPromoIndex(next);
+    promoIndexRef.current = next;
+    if (!autoScrollingRef.current) lastManualScrollAt.current = Date.now();
   };
 
   const scrollToPromo = (index: number) => {
     const el = promoStripRef.current;
     if (!el) return;
-    const first = el.firstElementChild as HTMLElement | null;
-    const step = first ? first.offsetWidth + 12 : el.clientWidth;
-    el.scrollTo({ left: index * step, behavior: 'smooth' });
+    autoScrollingRef.current = true;
+    el.scrollTo({ left: index * promoStep(el), behavior: 'smooth' });
+    window.setTimeout(() => { autoScrollingRef.current = false; }, 800);
   };
+
+  // 自動輪播：每 4.5 秒換一張；用戶自己掃過之後停 9 秒先再自動播
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      const el = promoStripRef.current;
+      if (!el || document.hidden) return;
+      if (Date.now() - lastManualScrollAt.current < 9000) return;
+      const next = (promoIndexRef.current + 1) % PROMOS.length;
+      autoScrollingRef.current = true;
+      el.scrollTo({ left: next * promoStep(el), behavior: 'smooth' });
+      window.setTimeout(() => { autoScrollingRef.current = false; }, 800);
+    }, 4500);
+    return () => window.clearInterval(timer);
+  }, []);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -435,18 +459,21 @@ export default function CustomerPage() {
         />
       </div>
 
-      {/* ── 門頭 + 宣傳卡（橫向手動掃，保留頁數點） ── */}
+      {/* ── 門頭 + 宣傳卡（橫向自動輪播 + 頁數點） ── */}
       <section id="section-top" className="scroll-mt-20">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 sm:gap-4 mb-5">
           <img
             src="/logo-jingangchong-mark.png"
             alt=""
-            className="h-12 w-auto select-none"
+            className="h-16 sm:h-20 w-auto shrink-0 select-none"
             draggable={false}
           />
-          <div>
-            <h1 className="font-display-italic text-3xl leading-none text-brand-v3-ink">金刚宠</h1>
-            <p className="font-mono text-[10px] tracking-widest text-brand-v3-terracotta mt-1">MODERN PET CARE SOLUTIONS</p>
+          <div className="min-w-0">
+            <h1 className="font-display-italic text-[40px] sm:text-5xl leading-none text-brand-v3-ink">金刚宠</h1>
+            <p className="font-display-italic text-lg sm:text-xl leading-snug text-brand-v3-terracotta mt-1.5">
+              人和毛孩子，都在这儿松口气
+            </p>
+            <p className="font-mono text-[10px] sm:text-xs tracking-widest text-gray-400 mt-1.5">MODERN PET CARE SOLUTIONS</p>
           </div>
         </div>
 
@@ -464,25 +491,25 @@ export default function CustomerPage() {
                 setMenu(promo.menu);
                 document.getElementById('section-status')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }}
-              className="min-w-[86%] sm:min-w-[45%] snap-start overflow-hidden rounded-2xl bg-brand-v3-navy text-left text-white shadow-neumo-raised-md"
+              className="min-w-[92%] sm:min-w-[45%] snap-start overflow-hidden rounded-2xl bg-brand-v3-navy text-left text-white shadow-neumo-raised-md"
             >
               <img
                 src={promo.image}
                 alt={promo.title}
                 width={960}
-                height={540}
+                height={720}
                 loading={i === 0 ? 'eager' : 'lazy'}
-                className="aspect-[16/9] w-full object-cover"
+                className="aspect-[4/3] w-full object-cover object-top"
               />
-              <span className="block px-4 pt-3 font-mono text-[10px] tracking-widest text-brand-v3-gold">{promo.tag}</span>
-              <span className="block px-4 pt-1 font-display-italic text-xl leading-snug">{promo.title}</span>
-              <span className="block px-4 pb-4 pt-1 text-xs text-white/70">{promo.hint}</span>
+              <span className="block px-4 pt-3 font-mono text-[11px] tracking-widest text-brand-v3-gold">{promo.tag}</span>
+              <span className="block px-4 pt-1.5 font-display-italic text-[26px] sm:text-2xl leading-tight">{promo.title}</span>
+              <span className="block px-4 pb-4 pt-1.5 text-sm sm:text-[15px] text-white/80">{promo.hint}</span>
             </button>
           ))}
         </div>
 
-        {/* 頁數點：只跟手指掃動，唔會自動輪播 */}
-        <div className="mt-1 flex items-center justify-center gap-1" role="group" aria-label="切换推荐">
+        {/* 頁數點：跟自動輪播／手指掃動同步，右下角 */}
+        <div className="mt-2 flex items-center justify-end gap-1 pr-1" role="group" aria-label="切换推荐">
           {PROMOS.map((promo, i) => (
             <button
               key={promo.id}
@@ -490,12 +517,124 @@ export default function CustomerPage() {
               aria-label={`第${i + 1}张推荐`}
               aria-current={promoIndex === i}
               onClick={() => scrollToPromo(i)}
-              className="flex h-9 w-9 items-center justify-center"
+              className="flex h-10 w-10 items-center justify-center"
             >
-              <span className={`block h-2 w-2 rounded-full transition-colors ${promoIndex === i ? 'bg-brand-v3-terracotta' : 'bg-brand-v3-navy/25'}`} />
+              <span
+                className={`block h-1.5 rounded-full transition-all duration-300 ${
+                  promoIndex === i ? 'w-6 bg-brand-v3-terracotta' : 'w-1.5 bg-brand-v3-navy/25'
+                }`}
+              />
             </button>
           ))}
         </div>
+      </section>
+
+      {/* ── 服務捷徑 + 價目表 ── */}
+      <section id="section-status" className="scroll-mt-20">
+        <h2 className="font-display-italic text-[32px] sm:text-4xl leading-tight">服务与价目</h2>
+        <p className="font-mono text-xs sm:text-sm tracking-widest mb-4">SERVICES &amp; PRICES</p>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {SERVICE_MENUS.map((item, i) => (
+            <button
+              key={item.id}
+              type="button"
+              aria-pressed={menu === i}
+              onClick={() => setMenu(i)}
+              className={`min-h-12 rounded-xl px-2 py-2 text-[15px] font-semibold transition-colors ${menu === i ? 'bg-brand-v3-navy text-white shadow-neumo-pressed-sm' : 'bg-brand-v3-surface text-brand-v3-navy shadow-neumo-raised-sm'}`}
+            >
+              {item.title}
+            </button>
+          ))}
+        </div>
+
+        <NeumorphicCard className="mt-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h3 className="font-display-italic text-[28px] sm:text-3xl leading-tight text-brand-v3-ink">{current.title}</h3>
+            <span className="font-mono text-[10px] tracking-widest text-brand-v3-terracotta">{current.subtitle}</span>
+          </div>
+
+          {/* 用 grid 唔用 table：手機上面欄位唔會俾價錢欄壓到逐隻字斷行 */}
+          <div className="mt-4">
+            <div
+              className="grid gap-x-3 pb-2 border-b border-brand-v3-gold/30 items-baseline"
+              style={{ gridTemplateColumns: `minmax(0,1fr) repeat(${current.columns.length}, auto)` }}
+            >
+              <span className="text-[13px] sm:text-xs font-semibold text-gray-500 whitespace-nowrap">{current.labelHeader}</span>
+              {current.columns.map((col) => (
+                <span key={col} className="text-[13px] sm:text-xs font-semibold text-gray-500 text-right whitespace-nowrap">
+                  {col}
+                </span>
+              ))}
+            </div>
+
+            {current.rows.map((row) => (
+              <div
+                key={row.label}
+                className="grid gap-x-3 py-2.5 border-b border-brand-v3-gold/15 items-baseline"
+                style={{ gridTemplateColumns: `minmax(0,1fr) repeat(${current.columns.length}, auto)` }}
+              >
+                <span className="text-[16px] sm:text-[17px] leading-snug text-brand-v3-ink">
+                  {row.label}
+                  {row.sub && <span className="block text-[13px] text-gray-500">{row.sub}</span>}
+                </span>
+                {row.values.map((value, i) => (
+                  <span
+                    key={i}
+                    className={`text-[16px] sm:text-[17px] font-semibold text-right whitespace-nowrap ${
+                      row.accent ? 'text-brand-v3-terracotta' : 'text-brand-v3-navy'
+                    }`}
+                  >
+                    {value}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {current.extras && (
+            <div className="mt-5">
+              <h4 className="font-display-italic text-xl text-brand-v3-ink">{current.extras.title}</h4>
+              <div className="mt-2">
+                {current.extras.rows.map((row) => (
+                  <div
+                    key={row.label}
+                    className="grid gap-x-3 py-2 border-b border-brand-v3-gold/15 items-baseline"
+                    style={{ gridTemplateColumns: 'minmax(0,1fr) auto' }}
+                  >
+                    <span className="text-[16px] sm:text-[17px] leading-snug text-brand-v3-ink">{row.label}</span>
+                    {row.values.map((value, i) => (
+                      <span key={i} className="text-[16px] sm:text-[17px] font-semibold text-right whitespace-nowrap text-brand-v3-navy">
+                        {value}
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <ul className="mt-4 space-y-1.5 text-[13px] sm:text-sm leading-relaxed text-gray-500">
+            {current.notes.map((note) => (
+              <li key={note}>· {note}</li>
+            ))}
+          </ul>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {current.id === 'wash' && (
+              <>
+                <Button variant="pink" onClick={() => selectService(ServiceType.STANDARD_WASH)}>预约此服务 · 标准洗</Button>
+                <Button variant="pink" onClick={() => selectService(ServiceType.PREMIUM_WASH)}>预约此服务 · 精致洗</Button>
+              </>
+            )}
+            {current.id === 'grooming' && (
+              <Button variant="pink" onClick={() => selectService(ServiceType.GROOMING)}>预约此服务 · 美容</Button>
+            )}
+            {(current.id === 'cat' || current.id === 'boarding') && (
+              <Button onClick={handleCopyWeChat}>{copied ? '已复制微信号' : '咨询档期'}</Button>
+            )}
+          </div>
+        </NeumorphicCard>
       </section>
 
       {/* ── 服務捷徑 + 價目表 ── */}
