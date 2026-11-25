@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { NeumorphicCard } from '@/components/NeumorphicCard';
 import { Button } from '@/components/Button';
 import { Navigation } from '@/components/Navigation';
@@ -13,8 +13,164 @@ import { useBookings } from '@/hooks/useBookings';
 import { ServiceType, BookingStatus } from '@/types/booking';
 import { WEIGHT_RANGES } from '@/lib/constants';
 
-const menus: [string, string[][]][] = [["狗狗洗护",[["5 KG以下","¥80","¥98"],["5–10 KG","¥100","¥118"],["10–15 KG","¥120","¥138"],["15–20 KG","¥140","¥158"],["20–25 KG","¥160","¥178"],["25–30 KG","¥180","¥198"],["30–35 KG","¥200","¥218"],["35–40 KG","¥220","¥238"]]],["猫咪洗护",[["2 KG以下","¥68","¥88"],["2–4 KG","¥88","¥128"],["4–7 KG","¥108","¥148"],["7–10 KG","¥128","¥168"],["10 KG以上","另行报价","另行报价"]]],["美容造型",[["2 KG以下","¥120","¥180"],["2–4 KG","¥150","¥210"],["4–7 KG","¥180","¥240"],["7–10 KG","¥210","¥270"],["20 KG以上","¥240","¥300"],["特别造型","另行报价","另行报价"]]],["寄养住宿",[["迷你房","¥80",""],["舒适房","¥100",""],["阳光房","¥120",""],["家庭房","¥160",""]]]];
-const notes = ["短毛／梗犬价；长毛／卷毛加收¥10/只；80斤以上及部分犬种另询。","长毛加收¥10/只；老年、术后或特殊护理请咨询。","部分中大型犬及特殊护理另询。","同房增加宠物加¥40/只。"];
+type PriceRow = {
+  label: string;
+  sub?: string;
+  values: string[];
+  accent?: boolean;
+};
+
+type ServiceMenu = {
+  id: string;
+  title: string;
+  subtitle: string;
+  labelHeader: string;
+  columns: string[];
+  rows: PriceRow[];
+  notes: string[];
+  action: 'book' | 'consult';
+  extras?: { title: string; rows: PriceRow[] };
+};
+
+/**
+ * 价目数据来源：用户上传的价目原图（05/06/07/08/09.png），不是任何一方估算的数字。
+ *  - 狗狗洗护：05.png（5 KG以下 ¥80 / ¥98 … 35–40 KG ¥220 / ¥238，长毛／卷毛加收¥10/只）
+ *  - 猫咪洗护：07.png（2 KG以下 ¥68 / ¥88 … 10 KG以上 另行报价，长毛加收¥10/只）
+ *  - 美容造型：06.png（2 KG以下 ¥120 / ¥180 … 10 KG以上 ¥240 / ¥300，特别造型另行报价）
+ *  - 寄养住宿：09.png（迷你房 ¥80/天 … 家庭房 ¥160/天，同房加宠 +¥40/只）
+ *  - 单选项目：08.png（按洗护／造型分两组列在对应分页下）
+ */
+const SERVICE_MENUS: ServiceMenu[] = [
+  {
+    id: 'wash',
+    title: '狗狗洗护',
+    subtitle: 'DOG BATH & CARE',
+    labelHeader: '体重 / 项目',
+    columns: ['标准洗', '精致洗'],
+    rows: [
+      { label: '5 KG以下', values: ['¥80', '¥98'] },
+      { label: '5–10 KG', values: ['¥100', '¥118'] },
+      { label: '10–15 KG', values: ['¥120', '¥138'] },
+      { label: '15–20 KG', values: ['¥140', '¥158'] },
+      { label: '20–25 KG', values: ['¥160', '¥178'] },
+      { label: '25–30 KG', values: ['¥180', '¥198'] },
+      { label: '30–35 KG', values: ['¥200', '¥218'] },
+      { label: '35–40 KG', values: ['¥220', '¥238'] },
+      { label: '长毛／卷毛', values: ['加收¥10/只', '加收¥10/只'], accent: true },
+    ],
+    notes: [
+      '80斤以上犬只面议，阿拉斯加、萨摩、巨贵、哈士奇等中大型犬另行报价',
+      '老年猫犬、术后猫犬及需特殊护理的猫犬，请另行咨询报价',
+      '春节假期期间价格另有调整',
+    ],
+    action: 'book',
+    extras: {
+      title: '单选项目（洗护加项）',
+      rows: [
+        { label: '剪指甲', values: ['¥20'] },
+        { label: '刷牙', values: ['¥20'] },
+        { label: '剃脚底毛', values: ['¥20'] },
+        { label: '贵宾脚', values: ['¥20'] },
+        { label: '药浴', values: ['¥20'] },
+      ],
+    },
+  },
+  {
+    id: 'cat',
+    title: '猫咪洗护',
+    subtitle: 'CAT BATH & CARE',
+    labelHeader: '体重 / 项目',
+    columns: ['标准洗', '精致洗'],
+    rows: [
+      { label: '2 KG以下', values: ['¥68', '¥88'] },
+      { label: '2–4 KG', values: ['¥88', '¥128'] },
+      { label: '4–7 KG', values: ['¥108', '¥148'] },
+      { label: '7–10 KG', values: ['¥128', '¥168'] },
+      { label: '10 KG以上', values: ['另行报价', '另行报价'], accent: true },
+      { label: '长毛', values: ['加收¥10/只', '加收¥10/只'], accent: true },
+    ],
+    notes: [
+      '老年猫犬、术后猫犬及需特殊护理的猫犬，请另行咨询报价',
+      '春节假期期间价格另有调整',
+    ],
+    action: 'consult',
+  },
+  {
+    id: 'grooming',
+    title: '美容造型',
+    subtitle: 'GROOMING & STYLING',
+    labelHeader: '体重 / 项目',
+    columns: ['标准', '精致'],
+    rows: [
+      { label: '2 KG以下', values: ['¥120', '¥180'] },
+      { label: '2–4 KG', values: ['¥150', '¥210'] },
+      { label: '4–7 KG', values: ['¥180', '¥240'] },
+      { label: '7–10 KG', values: ['¥210', '¥270'] },
+      { label: '10 KG以上', values: ['¥240', '¥300'] },
+      { label: '特别造型', values: ['另行报价', '另行报价'], accent: true },
+    ],
+    notes: [
+      '80斤以上犬只面议，阿拉斯加、萨摩、巨贵、哈士奇等中大型犬另行报价',
+      '老年猫犬、术后猫犬及需特殊护理的猫犬，请另行咨询报价',
+      '春节假期期间价格另有调整',
+    ],
+    action: 'book',
+    extras: {
+      title: '单选项目（造型加项）',
+      rows: [
+        { label: '局部去油', values: ['¥50'] },
+        { label: '全身美白（30斤内）', values: ['¥50'] },
+        { label: 'SPA淋巴排毒', values: ['¥50'] },
+        { label: '开结', values: ['¥100/小时'] },
+        { label: '深层去毛', values: ['¥20–100'] },
+      ],
+    },
+  },
+  {
+    id: 'boarding',
+    title: '寄养住宿',
+    subtitle: 'PET BOARDING',
+    labelHeader: '房型 / 加项',
+    columns: ['价格'],
+    rows: [
+      { label: '迷你房', sub: '小型一只', values: ['¥80/天'] },
+      { label: '舒适房', sub: '小型犬1-2只', values: ['¥100/天'] },
+      { label: '阳光房', sub: '小型犬1-2只', values: ['¥120/天'] },
+      { label: '家庭房', sub: '小型犬1-3只', values: ['¥160/天'] },
+      { label: '同一房间增加宠物数量', values: ['加¥40/只'], accent: true },
+    ],
+    notes: ['春节假期期间价格另有调整'],
+    action: 'consult',
+  },
+];
+
+/** 宣傳卡：圖片由用戶上載原圖自行裁切（裁走左側品牌欄），存於 public/homepage-promo/ */
+const PROMOS = [
+  {
+    id: 'membership',
+    tag: 'MEMBERSHIP',
+    title: '洗护会员 · 无需充值',
+    hint: '累计到店，逐级升级，越洗越省',
+    image: '/homepage-promo/membership.webp',
+    menu: 0,
+  },
+  {
+    id: 'care',
+    tag: 'GROOMING',
+    title: '专业洗护 · 按状态护理',
+    hint: '造型不套模板，按状态做护理',
+    image: '/homepage-promo/care.webp',
+    menu: 2,
+  },
+  {
+    id: 'boarding',
+    tag: 'BOARDING',
+    title: '寄养住宿 · 咨询档期',
+    hint: '四款房型，先咨询再安排',
+    image: '/homepage-promo/boarding.webp',
+    menu: 3,
+  },
+];
 
 export default function CustomerPage() {
   const {
@@ -68,6 +224,27 @@ export default function CustomerPage() {
   });
   
   const [menu, setMenu] = useState(0);
+  const [promoIndex, setPromoIndex] = useState(0);
+  const promoStripRef = useRef<HTMLDivElement | null>(null);
+  const current = SERVICE_MENUS[menu];
+
+  // 宣傳卡只跟手指掃動，冇自動輪播
+  const handlePromoScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const el = event.currentTarget;
+    const first = el.firstElementChild as HTMLElement | null;
+    if (!first) return;
+    const step = first.offsetWidth + 12; // gap-3
+    const index = Math.round(el.scrollLeft / step);
+    setPromoIndex(Math.max(0, Math.min(PROMOS.length - 1, index)));
+  };
+
+  const scrollToPromo = (index: number) => {
+    const el = promoStripRef.current;
+    if (!el) return;
+    const first = el.firstElementChild as HTMLElement | null;
+    const step = first ? first.offsetWidth + 12 : el.clientWidth;
+    el.scrollTo({ left: index * step, behavior: 'smooth' });
+  };
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -228,8 +405,6 @@ export default function CustomerPage() {
 
   return (
     <div className="max-w-lg lg:max-w-5xl mx-auto px-4 lg:px-16 pr-14 lg:pr-32 py-6 space-y-6 relative">
-      <BrandHeader />
-
       {/* Magazine-style section TOC — fixed side rail, always visible */}
       <div className="fixed right-2 lg:right-6 top-1/2 -translate-y-1/2 z-30">
         <MagazineNav
@@ -260,17 +435,163 @@ export default function CustomerPage() {
         />
       </div>
 
-      <section id="section-status" className="scroll-mt-20">
-        <div className="flex items-center gap-3 mb-4"><img src="/logo-jingangchong.png" alt="" className="h-12 w-auto" /><h1 className="font-display-italic text-3xl">金刚宠</h1></div>
-        <div aria-label="门店精选，左右滑动" className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3">
-          {['洗护会员 · 无需充值','专业洗护 · 按状态护理','寄养住宿 · 咨询档期'].map((title, i) => <button key={title} type="button" className="min-w-[85%] snap-start rounded-xl bg-brand-v3-navy p-5 text-left text-white" onClick={() => setMenu(i === 2 ? 3 : 0)}><span className="block font-mono text-xs tracking-widest mb-2">JINGANGCHONG / 0{i+1}</span><span className="font-display-italic text-xl">{title}</span></button>)}
+      {/* ── 門頭 + 宣傳卡（橫向手動掃，保留頁數點） ── */}
+      <section id="section-top" className="scroll-mt-20">
+        <div className="flex items-center gap-3 mb-4">
+          <img
+            src="/logo-jingangchong-mark.png"
+            alt=""
+            className="h-12 w-auto select-none"
+            draggable={false}
+          />
+          <div>
+            <h1 className="font-display-italic text-3xl leading-none text-brand-v3-ink">金刚宠</h1>
+            <p className="font-mono text-[10px] tracking-widest text-brand-v3-terracotta mt-1">MODERN PET CARE SOLUTIONS</p>
+          </div>
         </div>
-        <h2 className="font-display-italic text-2xl mt-4">服务与价目</h2><p className="font-mono text-xs tracking-widest mb-3">SERVICES & PRICES</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">{menus.map(([name],i) => <button key={name} type="button" aria-pressed={menu===i} onClick={() => setMenu(i)} className={`rounded-xl p-2 ${menu===i ? 'bg-brand-v3-navy text-white' : 'bg-brand-v3-surface'}`}>{name}</button>)}</div>
+
+        <div
+          ref={promoStripRef}
+          onScroll={handlePromoScroll}
+          aria-label="门店精选，左右滑动"
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {PROMOS.map((promo, i) => (
+            <button
+              key={promo.id}
+              type="button"
+              onClick={() => {
+                setMenu(promo.menu);
+                document.getElementById('section-status')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+              className="min-w-[86%] sm:min-w-[45%] snap-start overflow-hidden rounded-2xl bg-brand-v3-navy text-left text-white shadow-neumo-raised-md"
+            >
+              <img
+                src={promo.image}
+                alt={promo.title}
+                width={960}
+                height={540}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                className="aspect-[16/9] w-full object-cover"
+              />
+              <span className="block px-4 pt-3 font-mono text-[10px] tracking-widest text-brand-v3-gold">{promo.tag}</span>
+              <span className="block px-4 pt-1 font-display-italic text-xl leading-snug">{promo.title}</span>
+              <span className="block px-4 pb-4 pt-1 text-xs text-white/70">{promo.hint}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* 頁數點：只跟手指掃動，唔會自動輪播 */}
+        <div className="mt-1 flex items-center justify-center gap-1" role="group" aria-label="切换推荐">
+          {PROMOS.map((promo, i) => (
+            <button
+              key={promo.id}
+              type="button"
+              aria-label={`第${i + 1}张推荐`}
+              aria-current={promoIndex === i}
+              onClick={() => scrollToPromo(i)}
+              className="flex h-9 w-9 items-center justify-center"
+            >
+              <span className={`block h-2 w-2 rounded-full transition-colors ${promoIndex === i ? 'bg-brand-v3-terracotta' : 'bg-brand-v3-navy/25'}`} />
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* ── 服務捷徑 + 價目表 ── */}
+      <section id="section-status" className="scroll-mt-20">
+        <h2 className="font-display-italic text-2xl">服务与价目</h2>
+        <p className="font-mono text-xs tracking-widest mb-3">SERVICES &amp; PRICES</p>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {SERVICE_MENUS.map((item, i) => (
+            <button
+              key={item.id}
+              type="button"
+              aria-pressed={menu === i}
+              onClick={() => setMenu(i)}
+              className={`min-h-12 rounded-xl px-2 py-2 text-sm font-semibold transition-colors ${menu === i ? 'bg-brand-v3-navy text-white shadow-neumo-pressed-sm' : 'bg-brand-v3-surface text-brand-v3-navy shadow-neumo-raised-sm'}`}
+            >
+              {item.title}
+            </button>
+          ))}
+        </div>
+
         <NeumorphicCard className="mt-3">
-          <table className="w-full text-left text-sm"><thead><tr><th className="py-2">{menu===3?'房型':'体重'}</th><th className="py-2">{menu===3?'每日价格':'标准'}</th>{menu!==3 && <th className="py-2">精致</th>}</tr></thead><tbody>{menus[menu][1].map(([label,a,b]) => <tr key={label} className="border-t border-brand-v3-gold/25"><td className="py-2">{label}</td><td>{a}</td>{menu!==3 && <td>{b}</td>}</tr>)}</tbody></table>
-          <p className="my-3 text-sm">{notes[menu]} 春节假日期间价格另有调整。</p>
-          <div className="flex flex-wrap gap-2">{menu===0 ? <><Button onClick={() => selectService(ServiceType.STANDARD_WASH)}>预约标准洗</Button><Button onClick={() => selectService(ServiceType.PREMIUM_WASH)}>预约精致洗</Button></> : menu===2 ? <Button onClick={() => selectService(ServiceType.GROOMING)}>预约美容（请备注方案）</Button> : <Button onClick={handleCopyWeChat}>{copied?'已复制微信号':'咨询档期'}</Button>}</div>
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h3 className="font-display-italic text-2xl text-brand-v3-ink">{current.title}</h3>
+            <span className="font-mono text-[10px] tracking-widest text-brand-v3-terracotta">{current.subtitle}</span>
+          </div>
+
+          <table className="mt-3 w-full text-left">
+            <thead>
+              <tr className="border-b border-brand-v3-gold/30">
+                <th className="py-2 pr-2 text-xs font-semibold text-gray-500">{current.labelHeader}</th>
+                {current.columns.map((col) => (
+                  <th key={col} className="py-2 pl-2 text-right text-xs font-semibold text-gray-500">{col}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {current.rows.map((row) => (
+                <tr key={row.label} className="border-b border-brand-v3-gold/15">
+                  <td className="py-2.5 pr-2 text-[15px] text-brand-v3-ink">
+                    {row.label}
+                    {row.sub && <span className="block text-xs text-gray-500">{row.sub}</span>}
+                  </td>
+                  {row.values.map((value, i) => (
+                    <td
+                      key={i}
+                      className={`py-2.5 pl-2 text-right text-[15px] font-semibold whitespace-nowrap ${row.accent ? 'text-brand-v3-terracotta' : 'text-brand-v3-navy'}`}
+                    >
+                      {value}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {current.extras && (
+            <div className="mt-4">
+              <h4 className="font-display-italic text-lg text-brand-v3-ink">{current.extras.title}</h4>
+              <table className="mt-1 w-full text-left">
+                <tbody>
+                  {current.extras.rows.map((row) => (
+                    <tr key={row.label} className="border-b border-brand-v3-gold/15">
+                      <td className="py-2 pr-2 text-[15px] text-brand-v3-ink">{row.label}</td>
+                      {row.values.map((value, i) => (
+                        <td key={i} className="py-2 pl-2 text-right text-[15px] font-semibold whitespace-nowrap text-brand-v3-navy">
+                          {value}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <ul className="mt-4 space-y-1 text-xs leading-relaxed text-gray-500">
+            {current.notes.map((note) => (
+              <li key={note}>· {note}</li>
+            ))}
+          </ul>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {current.id === 'wash' && (
+              <>
+                <Button variant="pink" onClick={() => selectService(ServiceType.STANDARD_WASH)}>预约此服务 · 标准洗</Button>
+                <Button variant="pink" onClick={() => selectService(ServiceType.PREMIUM_WASH)}>预约此服务 · 精致洗</Button>
+              </>
+            )}
+            {current.id === 'grooming' && (
+              <Button variant="pink" onClick={() => selectService(ServiceType.GROOMING)}>预约此服务 · 美容</Button>
+            )}
+            {(current.id === 'cat' || current.id === 'boarding') && (
+              <Button onClick={handleCopyWeChat}>{copied ? '已复制微信号' : '咨询档期'}</Button>
+            )}
+          </div>
         </NeumorphicCard>
       </section>
       {/* Public Status Dashboard - Current Services */}
