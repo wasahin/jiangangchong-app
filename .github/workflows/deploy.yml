@@ -149,22 +149,25 @@ jobs:
       - name: Deploy preview to Cloudflare Pages
         run: |
           echo "=== 部署预览环境 ==="
-          # 分支名里的 / 不能进主机名，统一换成 -
+          # 分支名里的 / 不能进主机名，统一换成 -（Cloudflare 还会按长度截断别名）
           BRANCH_ALIAS=$(echo "${{ github.ref_name }}" | tr '/' '-')
           echo "预览别名: $BRANCH_ALIAS"
           wrangler pages deploy out \
             --project-name jiangangchong-app \
             --branch "$BRANCH_ALIAS" \
             --commit-hash "${{ github.sha }}" \
-            --commit-message "${{ github.event.head_commit.message }}"
+            --commit-message "${{ github.event.head_commit.message }}" \
+            2>&1 | tee deploy.log
+          # 从 wrangler 输出里抓真实部署地址（别名会被 Cloudflare 截断，猜不出来）
+          DEPLOY_URL=$(grep -oE 'https://[a-zA-Z0-9.-]+\.pages\.dev' deploy.log | tail -1)
+          echo "DEPLOY_URL=$DEPLOY_URL" >> $GITHUB_ENV
+          echo "实际部署地址: $DEPLOY_URL"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Deployment summary
         run: |
-          BRANCH_ALIAS=$(echo "${{ github.ref_name }}" | tr '/' '-')
-          URL="https://${BRANCH_ALIAS}.jiangangchong-app.pages.dev"
           echo "## 🔍 Cloudflare Pages 预览部署" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 项目 | 值 |" >> $GITHUB_STEP_SUMMARY
@@ -174,6 +177,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### ✅ 预览部署成功" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "预览地址: $URL" >> $GITHUB_STEP_SUMMARY
+          echo "预览地址: ${{ env.DEPLOY_URL }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "正式地址: https://jiangangchong-app.pages.dev" >> $GITHUB_STEP_SUMMARY
