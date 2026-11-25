@@ -152,6 +152,32 @@ function apiBase(env) {
   return `https://open.feishu.cn/open-apis/bitable/v1/apps/${env.NEXT_PUBLIC_FEISHU_BASE_ID}/tables/${env.NEXT_PUBLIC_FEISHU_TABLE_ID}`;
 }
 
+/**
+ * 冷启动首次请求偶发失败（502/网络抖动/空响应），
+ * 统一重试一次再放弃，避免把偶发故障当成业务失败。
+ */
+async function fetchWithRetry(url, init = {}, attempts = 2) {
+  let lastError = null;
+  let lastData = null;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      const res = await fetch(url, init);
+      const txt = await res.text();
+      let data = null;
+      try { data = JSON.parse(txt); } catch (e) { data = { code: -1, msg: txt.slice(0, 200) }; }
+      if (res.ok && data.code === 0) return { ok: true, data, status: res.status };
+      lastData = data;
+      lastError = new Error(`请求失败 ${res.status}: ${data.msg || data.code}`);
+    } catch (error) {
+      lastError = error;
+      lastData = { code: -1, msg: error.message };
+    }
+    console.warn(`fetch attempt ${attempt + 1} failed:`, lastError.message);
+    if (attempt < attempts - 1) await new Promise((r) => setTimeout(r, 700));
+  }
+  return { ok: false, data: lastData, status: 0, error: lastError };
+}
+
 /** 读取表结构：字段名集合 + 单选字段的可选值。只发送表里真实存在的字段。 */
 async function getSchema(env) {
   const key = env.NEXT_PUBLIC_FEISHU_TABLE_ID || '';
@@ -159,10 +185,11 @@ async function getSchema(env) {
   if (cached && Date.now() < cached.expireAt) return cached;
 
   const token = await getTenantToken(env);
-  const res = await fetch(`${apiBase(env)}/fields?page_size=100`, {
+  const res = await fetchWithRetry(`${apiBase(env)}/fields?page_size=100`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  const data = await res.json();
+  if (!res.ok) throw new Error(`读取表结构失败: ${res.data?.msg || res.data?.code || res.error?.message}`);
+  const data = res.data;
   if (data.code !== 0) throw new Error(`读取表结构失败: ${data.msg || data.code}`);
 
   const names = new Set();
@@ -389,17 +416,6 @@ export async function onRequestGet(context) {
     const auth = requireStaff(context);
     if (auth.error) return auth.error;
     try {
-      if (url.searchParams.get('debug') === 'schema') {
-        const schema = await getSchema(context.env);
-        return json({
-          base: context.env.NEXT_PUBLIC_FEISHU_BASE_ID,
-          table: context.env.NEXT_PUBLIC_FEISHU_TABLE_ID,
-          appId: (context.env.NEXT_PUBLIC_FEISHU_APP_ID || '').slice(0, 12),
-          fields: [...schema.names],
-          types: schema.types,
-          options: Object.fromEntries(Object.entries(schema.options).map(([k, v]) => [k, [...v]])),
-        });
-      }
       const records = await listAllRecords(context.env);
       const bookings = records
         .map((r) => mapFeishuToBooking(r))
@@ -506,14 +522,13 @@ export async function onRequestPost(context) {
       return json({ error: '写入飞书失败，预约未创建', code: 'FEISHU_WRITE_FAILED' }, 502);
     }
 
-    const readBack = await fetch(`${apiBase(context.env)}/records/${created.record_id}`, {
+    const readBack = await fetchWithRetry(`${apiBase(context.env)}/records/${created.record_id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    const readBackData = await readBack.json();
-    const verified = readBackData.code === 0 ? readBackData.data?.record : null;
+    const verified = readBack.ok ? readBack.data?.data?.record : null;
 
     if (!verified) {
-      console.error('feishu create not verifiable:', created.record_id, JSON.stringify(readBackData));
+      console.error('feishu create not verifiable:', created.record_id, JSON.stringify(readBack.data));
       return json(
         { error: '写入飞书后校验失败，预约未确认', code: 'FEISHU_VERIFY_FAILED' },
         502,
