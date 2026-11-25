@@ -6,8 +6,8 @@
  *
  * 环境变量：
  *  - STAFF_PASSWORD         （推荐，服务端 secret，不下发到浏览器）
- *  - NEXT_PUBLIC_STAFF_PASSWORD （兼容旧部署；前端登录界面仍用它做本地比对）
- *  - STAFF_TOKEN_SECRET     （可选，HMAC 密钥；缺省回落到 FEISHU_APP_SECRET）
+ *  - NEXT_PUBLIC_STAFF_PASSWORD （兼容旧部署的回落值；前端已不再做本地比对）
+ *  - STAFF_TOKEN_SECRET     （推荐，HMAC 密钥；缺省回落到 FEISHU_APP_SECRET）
  */
 
 import crypto from 'node:crypto';
