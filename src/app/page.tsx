@@ -145,28 +145,33 @@ const SERVICE_MENUS: ServiceMenu[] = [
 ];
 
 /** 宣傳卡：圖片由用戶上載原圖自行裁切（裁走左側品牌欄），存於 public/homepage-promo/ */
+/**
+ * 標題刻意寫短（4 字），副句承載細節：
+ * 手機窄屏上面，長標題會斷成兩行，藍色文案區即刻膨脹到成張卡一半高，
+ * 令下面真正嘅內容（價目表）被推走。短標題 + 單行副句 = 高度固定。
+ */
 const PROMOS = [
   {
     id: 'membership',
     tag: 'MEMBERSHIP',
-    title: '洗护会员 · 无需充值',
-    hint: '累计到店，逐级升级，越洗越省',
+    title: '洗护会员',
+    hint: '无需充值 · 累计到店越洗越省',
     image: '/homepage-promo/membership.webp',
     menu: 0,
   },
   {
     id: 'care',
     tag: 'GROOMING',
-    title: '专业洗护 · 按状态护理',
-    hint: '造型不套模板，按状态做护理',
+    title: '专业洗护',
+    hint: '按状态护理 · 造型不套模板',
     image: '/homepage-promo/care.webp',
     menu: 2,
   },
   {
     id: 'boarding',
     tag: 'BOARDING',
-    title: '寄养住宿 · 咨询档期',
-    hint: '四款房型，先咨询再安排',
+    title: '寄养住宿',
+    hint: '四款房型 · 先咨询再安排',
     image: '/homepage-promo/boarding.webp',
     menu: 3,
   },
@@ -498,15 +503,22 @@ export default function CustomerPage() {
             >
               <img
                 src={promo.image}
-                alt={promo.title}
+                alt={`${promo.title} · ${promo.hint}`}
                 width={960}
                 height={720}
                 loading={i === 0 ? 'eager' : 'lazy'}
                 className="aspect-[4/3] w-full object-cover object-top"
               />
-              <span className="block px-4 pt-3 font-mono text-[11px] tracking-widest text-brand-v3-gold">{promo.tag}</span>
-              <span className="block px-4 pt-1.5 font-display-italic text-[26px] sm:text-2xl leading-tight">{promo.title}</span>
-              <span className="block px-4 pb-4 pt-1.5 text-sm sm:text-[15px] text-white/80">{promo.hint}</span>
+              {/* 文案區：標題 + 英文 tag 同一行，副句第二行；全部 nowrap/truncate，唔會斷行 */}
+              <div className="px-4 pt-2.5 pb-3">
+                <div className="flex items-baseline gap-3">
+                  <span className="min-w-0 flex-1 font-display-italic text-[22px] sm:text-[24px] leading-tight truncate">
+                    {promo.title}
+                  </span>
+                  <span className="shrink-0 font-mono text-[10px] tracking-widest text-brand-v3-gold">{promo.tag}</span>
+                </div>
+                <p className="mt-1 text-[12px] sm:text-[13px] leading-snug text-white/70 truncate">{promo.hint}</p>
+              </div>
             </button>
           ))}
         </div>
