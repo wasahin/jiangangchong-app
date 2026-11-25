@@ -461,20 +461,23 @@ export default function CustomerPage() {
 
       {/* ── 門頭 + 宣傳卡（橫向自動輪播 + 頁數點） ── */}
       <section id="section-top" className="scroll-mt-20">
-        <div className="flex items-center gap-3 sm:gap-4 mb-5">
-          <img
-            src="/logo-jingangchong-mark.png"
-            alt=""
-            className="h-16 sm:h-20 w-auto shrink-0 select-none"
-            draggable={false}
-          />
-          <div className="min-w-0">
-            <h1 className="font-display-italic text-[40px] sm:text-5xl leading-none text-brand-v3-ink">金刚宠</h1>
-            <p className="font-display-italic text-lg sm:text-xl leading-snug text-brand-v3-terracotta mt-1.5">
-              人和毛孩子，都在这儿松口气
-            </p>
-            <p className="font-mono text-[10px] sm:text-xs tracking-widest text-gray-400 mt-1.5">MODERN PET CARE SOLUTIONS</p>
+        <div className="mb-5">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <img
+              src="/logo-jingangchong-mark.png"
+              alt=""
+              className="h-16 sm:h-20 w-auto shrink-0 select-none"
+              draggable={false}
+            />
+            <div className="min-w-0">
+              <h1 className="font-display-italic text-[40px] sm:text-5xl leading-none text-brand-v3-ink">金刚宠</h1>
+              <p className="font-mono text-[11px] sm:text-xs tracking-widest text-gray-400 mt-2">MODERN PET CARE SOLUTIONS</p>
+            </div>
           </div>
+          {/* 標語獨立一行：跟爪印並排嗰陣淨返 228px，會令最後個「气」跌落去第二行 */}
+          <p className="font-display-italic text-[18px] sm:text-xl leading-snug text-brand-v3-terracotta mt-3">
+            人和毛孩子，都在这儿松口气
+          </p>
         </div>
 
         <div
