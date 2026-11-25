@@ -207,10 +207,15 @@ async function getSchema(env) {
   return schema;
 }
 
-/** DateTime 字段（type=5）必须用毫秒时间戳；其余类型原样发送 */
+/** DateTime 字段（type=5）必须用毫秒时间戳；Phone 字段（type=13）必须是非空字符串 */
 function coerceValue(key, value, schema) {
   const type = schema.types ? schema.types[key] : undefined;
   if (type === 5) return toFeishuTimestamp(value);
+  if (type === 13) {
+    // 飞书 Phone 字段：空字符串或数字都会让整条记录写入失败
+    if (value === null || value === undefined || value === '') return undefined;
+    return String(value);
+  }
   return value;
 }
 
@@ -226,7 +231,9 @@ function sanitizeFields(fields, schema) {
     const allowed = schema.options[key];
     if (allowed && !allowed.has(value)) { dropped.push(`${key}=${value}`); continue; }
     if (value === undefined) continue;
-    out[key] = coerceValue(key, value, schema);
+    const coerced = coerceValue(key, value, schema);
+    if (coerced === undefined) { dropped.push(`${key}=empty`); continue; }
+    out[key] = coerced;
   }
   return { fields: out, dropped };
 }
