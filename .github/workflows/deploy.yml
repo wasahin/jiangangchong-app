@@ -3,7 +3,8 @@ name: Deploy to Cloudflare Pages
 on:
   push:
     branches:
-      - main
+      # 所有分支都触发；由 job 级的 if 决定走正式环境还是预览环境
+      - '**'
   workflow_dispatch:
 
 jobs:
