@@ -294,6 +294,7 @@ const SERVICE_MENUS: ServiceMenu[] = [
  */
 import membershipPoster from '@/assets/membership-system.png.asset.json';
 import groomingPoster from '@/assets/grooming-why-us.png.asset.json';
+import washPlanPoster from '@/assets/wash-plan.png.asset.json';
 
 type Promo = {
   id: string;
@@ -325,6 +326,16 @@ const PROMOS: Promo[] = [
     // 卡面只放海报正文（左侧深蓝信息栏裁走）；点开放大时仍显示整张原图
     cardImage: '/homepage-promo/grooming-card.webp',
     menu: 2,
+  },
+  {
+    id: 'wash-plan',
+    tag: 'WASH PLAN',
+    title: '洗护方案',
+    hint: '标准洗 vs 精致洗 · 项目一次看清',
+    image: washPlanPoster.url,
+    // 卡面只放海报正文（左侧深蓝信息栏裁走）；点开放大时仍显示整张原图
+    cardImage: '/homepage-promo/wash-plan-card.webp',
+    menu: 0,
   },
   {
     id: 'boarding',
