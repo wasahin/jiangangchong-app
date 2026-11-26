@@ -1,0 +1,27 @@
+name: Sync to Existing Repo
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to existing repo
+        env:
+          PAT: ${{ secrets.SYNC_PAT }}
+        run: |
+          git remote add target https://x-access-token:${PAT}@github.com/wasahin/jiangangchong-app.git
+          git config user.name "lovable-sync"
+          git config user.email "lovable-sync@users.noreply.github.com"
+          # lovable-sync 分支系 Lovable 专用镜像，每次覆盖更新；main 唔会被动
+          git push target main:lovable-sync --force
