@@ -114,11 +114,13 @@ function RoomTile({ room, state }: { room: Omit<RoomInfo, 'occupied'>; state: Ro
 function RoomBoard({
   rooms,
   unknown,
+  failed,
   date,
   onDateChange,
 }: {
   rooms: RoomInfo[];
   unknown: boolean;
+  failed: boolean;
   date: string;
   onDateChange: (value: string) => void;
 }) {
@@ -140,7 +142,7 @@ function RoomBoard({
         <span className="inline-block h-2 w-2 rounded-full bg-brand-v3-error align-middle" /> 已占用
       </p>
 
-      {unknown && (
+      {failed && (
         <p className="mt-2 rounded-neumo-button bg-brand-v3-warning/10 px-3 py-2 text-[12px] text-brand-v3-warning shadow-neumo-pressed-sm">
           暂时读唔到实时房态，请以门店确认为准
         </p>
@@ -377,13 +379,25 @@ export default function CustomerPage() {
 
   // ── 房态（5 间房）──
   // 房态由 /api/rooms 提供：公开接口，只讲边间房被占，唔讲客人资料。
-  const [boardDate, setBoardDate] = useState(() => new Date().toISOString().slice(0, 10));
+  // 初始值唔可以用 new Date()：静态导出嘅 HTML 係 build 时生成嘅，
+  // 用 build 当日做初始值，customer 隔日开页面就会 hydration mismatch。
+  const [boardDate, setBoardDate] = useState('');
   const [boardLive, setBoardLive] = useState<RoomInfo[] | null>(null);
   const [boardLoaded, setBoardLoaded] = useState(false);
   const [formLive, setFormLive] = useState<RoomInfo[] | null>(null);
-  const [formLoaded, setFormLoaded] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState('');
   const [checkOutDate, setCheckOutDate] = useState('');
+
+  // 本地日期（唔用 toISOString，避免 UTC 跨日问题）
+  const todayLocal = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+
+  // 挂载之后先填今日（client only，唔会同 build 时嘅 HTML 打架）
+  useEffect(() => {
+    if (!boardDate) setBoardDate(todayLocal());
+  }, [boardDate]);
 
   const fetchRooms = async (date: string): Promise<RoomInfo[] | null> => {
     if (!date) return null;
@@ -400,6 +414,7 @@ export default function CustomerPage() {
 
   // 房态板：睇住嗰一日嘅占用
   useEffect(() => {
+    if (!boardDate) return;
     let cancelled = false;
     fetchRooms(boardDate).then((live) => {
       if (cancelled) return;
@@ -415,14 +430,12 @@ export default function CustomerPage() {
   useEffect(() => {
     if (formData.serviceType !== ServiceType.BOARDING || !formData.bookingDate) {
       setFormLive(null);
-      setFormLoaded(false);
       return;
     }
     let cancelled = false;
     fetchRooms(formData.bookingDate).then((live) => {
       if (cancelled) return;
       setFormLive(live);
-      setFormLoaded(true);
     });
     return () => {
       cancelled = true;
@@ -438,7 +451,7 @@ export default function CustomerPage() {
 
   // 预约表可拣嘅房间：占用了嘅会 disabled
   const formRoomOptions = mergeRooms(formLive);
-  const formRoomUnknown = formLoaded && formLive === null;
+  const formRoomUnknown = formLive === null;
 
   // 自动揀一间空房（客人可以自己改）
   useEffect(() => {
@@ -451,7 +464,7 @@ export default function CustomerPage() {
 
   // 退房日期最少要喺入住日期嘅第二日
   const minCheckOutDate = (() => {
-    const base = formData.bookingDate || new Date().toISOString().slice(0, 10);
+    const base = formData.bookingDate || todayLocal();
     const m = base.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (!m) return '';
     const t = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]) + 1);
@@ -872,7 +885,8 @@ export default function CustomerPage() {
           {current.id === 'boarding' && (
             <RoomBoard
               rooms={mergeRooms(boardLive)}
-              unknown={boardLoaded && boardLive === null}
+              unknown={boardLive === null}
+              failed={boardLoaded && boardLive === null}
               date={boardDate}
               onDateChange={setBoardDate}
             />
