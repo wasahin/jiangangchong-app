@@ -32,12 +32,150 @@ type ServiceMenu = {
   extras?: { title: string; rows: PriceRow[] };
 };
 
+/** 房态资料：由 /api/rooms 提供，公开接口、唔含任何客人资料 */
+type RoomInfo = {
+  name: string;
+  type: string;
+  capacity: string;
+  price: string;
+  occupied: boolean;
+};
+
+/** 房态灯：'free' 空房可订 · 'busy' 已占用 · 'unknown' 暂时查唔到 */
+type RoomState = 'free' | 'busy' | 'unknown';
+
+/**
+ * 寄养房型：价目表同房态板共用一份资料，唔会两边走样。
+ *  - 小房 × 3：小型一只，¥80/天
+ *  - 大房 × 2：小型三只／大型一只，¥120/天
+ */
+const BOARDING_ROOMS = [
+  { label: '小房', capacity: '小型一只', price: '¥80/天', count: 3 },
+  { label: '大房', capacity: '小型三只／大型一只', price: '¥120/天', count: 2 },
+];
+
+/** 5 间房嘅名册：小房1-3、大房1-2 */
+const ROOM_CATALOGUE = BOARDING_ROOMS.flatMap((group) =>
+  Array.from({ length: group.count }, (_, i) => ({
+    name: `${group.label}${i + 1}`,
+    type: group.label,
+    capacity: group.capacity,
+    price: group.price,
+  }))
+);
+
+/** 房态板分组：小房 3 间、大房 2 间 */
+const ROOM_GROUPS = BOARDING_ROOMS.map((group) => ({
+  ...group,
+  rooms: ROOM_CATALOGUE.filter((room) => room.type === group.label),
+}));
+
+/** 把接口返回嘅占用情况套到房名册上面；live = null 就当暂时查唔到 */
+function mergeRooms(live: RoomInfo[] | null): RoomInfo[] {
+  return ROOM_CATALOGUE.map((room) => ({
+    ...room,
+    occupied: live?.find((r) => r.name === room.name)?.occupied ?? false,
+  }));
+}
+
+/** 房态灯：绿色空房、红色占用、灰色查唔到 */
+function RoomLight({ state }: { state: RoomState }) {
+  const color =
+    state === 'busy' ? 'bg-brand-v3-error' : state === 'free' ? 'bg-brand-v3-success' : 'bg-gray-300';
+  return <span aria-hidden="true" className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${color}`} />;
+}
+
+/** 一间房嘅状态卡 */
+function RoomTile({ room, state }: { room: Omit<RoomInfo, 'occupied'>; state: RoomState }) {
+  const label = state === 'busy' ? '已占用' : state === 'free' ? '可订' : '状态未知';
+  const color =
+    state === 'busy' ? 'text-brand-v3-error' : state === 'free' ? 'text-brand-v3-success' : 'text-gray-400';
+  return (
+    <div
+      data-room={room.name}
+      data-room-state={state}
+      className={`rounded-neumo-button px-2.5 py-2.5 shadow-neumo-pressed-sm ${
+        state === 'busy' ? 'bg-brand-v3-error/5' : 'bg-brand-v3-surface'
+      }`}
+    >
+      <div className="flex items-center gap-1.5">
+        <RoomLight state={state} />
+        <span className="text-[15px] font-semibold text-brand-v3-ink">{room.name}</span>
+      </div>
+      <p className={`mt-1 text-[12px] leading-none ${color}`}>{label}</p>
+    </div>
+  );
+}
+
+/**
+ * 房态板：5 间房，绿色空房可订、红色已经有人住。
+ * 放喺寄养价目表下面 —— 客人睇到价，就即刻睇到仲有边间房得。
+ */
+function RoomBoard({
+  rooms,
+  unknown,
+  date,
+  onDateChange,
+}: {
+  rooms: RoomInfo[];
+  unknown: boolean;
+  date: string;
+  onDateChange: (value: string) => void;
+}) {
+  return (
+    <div className="mt-6 border-t border-dashed border-brand-v3-gold/25 pt-4" data-room-board="true">
+      <div className="flex items-center justify-between gap-3">
+        <h4 className="font-display-italic text-xl text-brand-v3-ink">房态</h4>
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => onDateChange(e.target.value)}
+          aria-label="查看房态嘅日期"
+          className="rounded-neumo-button bg-brand-v3-cream border border-white/50 px-2.5 py-1.5 text-[13px] text-gray-900 shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v3-gold"
+        />
+      </div>
+      <p className="mt-1.5 text-[12px] text-gray-500">
+        <span className="inline-block h-2 w-2 rounded-full bg-brand-v3-success align-middle" /> 空房可订
+        <span className="mx-1.5">·</span>
+        <span className="inline-block h-2 w-2 rounded-full bg-brand-v3-error align-middle" /> 已占用
+      </p>
+
+      {unknown && (
+        <p className="mt-2 rounded-neumo-button bg-brand-v3-warning/10 px-3 py-2 text-[12px] text-brand-v3-warning shadow-neumo-pressed-sm">
+          暂时读唔到实时房态，请以门店确认为准
+        </p>
+      )}
+
+      {ROOM_GROUPS.map((group) => (
+        <div key={group.label} className="mt-4">
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="text-[13px] font-semibold text-gray-700">
+              {group.label} · {group.capacity}
+            </p>
+            <p className="shrink-0 text-[13px] font-semibold text-brand-v3-navy">{group.price}</p>
+          </div>
+          <div
+            className="mt-2 grid gap-2"
+            style={{ gridTemplateColumns: `repeat(${group.count}, minmax(0, 1fr))` }}
+          >
+            {group.rooms.map((room) => {
+              const live = rooms.find((r) => r.name === room.name);
+              const state: RoomState = unknown ? 'unknown' : live?.occupied ? 'busy' : 'free';
+              return <RoomTile key={room.name} room={room} state={state} />;
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /**
  * 价目数据来源：用户上传的价目原图（05/06/07/08/09.png），不是任何一方估算的数字。
  *  - 狗狗洗护：05.png（5 KG以下 ¥80 / ¥98 … 35–40 KG ¥220 / ¥238，长毛／卷毛加收¥10/只）
  *  - 猫咪洗护：07.png（2 KG以下 ¥68 / ¥88 … 10 KG以上 另行报价，长毛加收¥10/只）
  *  - 美容造型：06.png（2 KG以下 ¥120 / ¥180 … 10 KG以上 ¥240 / ¥300，特别造型另行报价）
- *  - 寄养住宿：09.png（迷你房 ¥80/天 … 家庭房 ¥160/天，同房加宠 +¥40/只）
+ *  - 寄养住宿：新店 5 间房（小房 × 3 ¥80/天，大房 × 2 ¥120/天，同房加宠 +¥40/只）
  *  - 单选项目：08.png（按洗护／造型分两组列在对应分页下）
  */
 const SERVICE_MENUS: ServiceMenu[] = [
@@ -133,10 +271,11 @@ const SERVICE_MENUS: ServiceMenu[] = [
     labelHeader: '房型 / 加项',
     columns: ['价格'],
     rows: [
-      { label: '迷你房', sub: '小型一只', values: ['¥80/天'] },
-      { label: '舒适房', sub: '小型犬1-2只', values: ['¥100/天'] },
-      { label: '阳光房', sub: '小型犬1-2只', values: ['¥120/天'] },
-      { label: '家庭房', sub: '小型犬1-3只', values: ['¥160/天'] },
+      ...BOARDING_ROOMS.map((group) => ({
+        label: group.label,
+        sub: group.capacity,
+        values: [group.price],
+      })),
       { label: '同一房间增加宠物数量', values: ['加¥40/只'], accent: true },
     ],
     notes: ['春节假期期间价格另有调整'],
@@ -171,7 +310,7 @@ const PROMOS = [
     id: 'boarding',
     tag: 'BOARDING',
     title: '寄养住宿',
-    hint: '四款房型 · 先咨询再安排',
+    hint: '小房大房 · 实时房态可查',
     image: '/homepage-promo/boarding.webp',
     menu: 3,
   },
@@ -236,6 +375,89 @@ export default function CustomerPage() {
   const autoScrollingRef = useRef(false);
   const current = SERVICE_MENUS[menu];
 
+  // ── 房态（5 间房）──
+  // 房态由 /api/rooms 提供：公开接口，只讲边间房被占，唔讲客人资料。
+  const [boardDate, setBoardDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [boardLive, setBoardLive] = useState<RoomInfo[] | null>(null);
+  const [boardLoaded, setBoardLoaded] = useState(false);
+  const [formLive, setFormLive] = useState<RoomInfo[] | null>(null);
+  const [formLoaded, setFormLoaded] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState('');
+  const [checkOutDate, setCheckOutDate] = useState('');
+
+  const fetchRooms = async (date: string): Promise<RoomInfo[] | null> => {
+    if (!date) return null;
+    try {
+      const res = await fetch(`/api/rooms?date=${encodeURIComponent(date)}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (!Array.isArray(data?.rooms)) return null;
+      return data.rooms;
+    } catch {
+      return null;
+    }
+  };
+
+  // 房态板：睇住嗰一日嘅占用
+  useEffect(() => {
+    let cancelled = false;
+    fetchRooms(boardDate).then((live) => {
+      if (cancelled) return;
+      setBoardLive(live);
+      setBoardLoaded(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [boardDate]);
+
+  // 预约表：只有拣咗寄养先需要睇当日仲有边间房
+  useEffect(() => {
+    if (formData.serviceType !== ServiceType.BOARDING || !formData.bookingDate) {
+      setFormLive(null);
+      setFormLoaded(false);
+      return;
+    }
+    let cancelled = false;
+    fetchRooms(formData.bookingDate).then((live) => {
+      if (cancelled) return;
+      setFormLive(live);
+      setFormLoaded(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [formData.serviceType, formData.bookingDate]);
+
+  // 表单拣咗寄养日期 → 上面房态板跟住睇同一日
+  useEffect(() => {
+    if (formData.serviceType === ServiceType.BOARDING && formData.bookingDate) {
+      setBoardDate(formData.bookingDate);
+    }
+  }, [formData.serviceType, formData.bookingDate]);
+
+  // 预约表可拣嘅房间：占用了嘅会 disabled
+  const formRoomOptions = mergeRooms(formLive);
+  const formRoomUnknown = formLoaded && formLive === null;
+
+  // 自动揀一间空房（客人可以自己改）
+  useEffect(() => {
+    if (formData.serviceType !== ServiceType.BOARDING) return;
+    const current = formRoomOptions.find((r) => r.name === selectedRoom);
+    if (current && !current.occupied) return;
+    const free = formRoomOptions.find((r) => !r.occupied);
+    if (free) setSelectedRoom(free.name);
+  }, [formLive, formData.serviceType, selectedRoom]);
+
+  // 退房日期最少要喺入住日期嘅第二日
+  const minCheckOutDate = (() => {
+    const base = formData.bookingDate || new Date().toISOString().slice(0, 10);
+    const m = base.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return '';
+    const t = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]) + 1);
+    return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+  })();
+
   const promoStep = (el: HTMLElement) => {
     const first = el.firstElementChild as HTMLElement | null;
     return first ? first.offsetWidth + 12 : el.clientWidth; // gap-3
@@ -277,6 +499,32 @@ export default function CustomerPage() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  /**
+   * 提交成功之后：喺预约嘅备注补上房号同退房日期。
+   * 房态就由呢行推算，所以飞书永远只有一份真相，唔会有两套数据走样；
+   * 店员喺员工页睇备注就即刻知道边间房、几时退。
+   * 备注係自由文字，所以客人自己写嘅备注重唔会受到影响。
+   */
+  const roomPostedRef = useRef<string>('');
+  useEffect(() => {
+    if (!submitted || !lastBookingId) return;
+    if (formData.serviceType !== ServiceType.BOARDING || !selectedRoom) return;
+    if (roomPostedRef.current === lastBookingId) return;
+    roomPostedRef.current = lastBookingId;
+    fetch('/api/rooms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        bookingId: lastBookingId,
+        room: selectedRoom,
+        checkOutDate,
+      }),
+    }).catch((error) => {
+      console.error('房号写入失败:', error);
+      roomPostedRef.current = '';
+    });
+  }, [submitted, lastBookingId, formData.serviceType, selectedRoom, checkOutDate]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -355,6 +603,8 @@ export default function CustomerPage() {
     setSubmitted(false);
     setLastBookingId('');
     setSubmitError(null);
+    setSelectedRoom('');
+    setCheckOutDate('');
   };
 
   const handleScrollToForm = () => {
@@ -618,6 +868,15 @@ export default function CustomerPage() {
               </div>
             ))}
           </div>
+
+          {current.id === 'boarding' && (
+            <RoomBoard
+              rooms={mergeRooms(boardLive)}
+              unknown={boardLoaded && boardLive === null}
+              date={boardDate}
+              onDateChange={setBoardDate}
+            />
+          )}
 
           {current.extras && (
             <div className="mt-5">
@@ -980,6 +1239,46 @@ export default function CustomerPage() {
               </div>
             </div>
             
+            {/* ROOM-FIELDS-BEGIN 2026-11-27 用户确认新增：寄养拣房 + 退房日期 */}
+            {formData.serviceType === ServiceType.BOARDING && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">选择房间 *</label>
+                  <select
+                    value={selectedRoom}
+                    onChange={(e) => setSelectedRoom(e.target.value)}
+                    className="w-full px-4 py-3 bg-brand-v3-cream border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v3-gold transition-all text-gray-900"
+                  >
+                    <option value="">请选择房间</option>
+                    {formRoomOptions.map((room) => (
+                      <option key={room.name} value={room.name} disabled={room.occupied}>
+                        {room.name} · {room.price} · {room.occupied ? '已占用' : formRoomUnknown ? '状态未知' : '可订'}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1.5 text-[12px] text-gray-500">
+                    按 {formData.bookingDate || '所选日期'} 的房态显示，已经被占用的房间拣唔到。
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">退房日期 *</label>
+                  <input
+                    type="date"
+                    required
+                    min={minCheckOutDate}
+                    value={checkOutDate}
+                    onChange={(e) => setCheckOutDate(e.target.value)}
+                    className="w-full px-4 py-3 bg-brand-v3-cream border border-white/50 rounded-neumo-button shadow-neumo-pressed-sm focus:outline-none focus:ring-2 focus:ring-brand-v3-gold transition-all text-gray-900"
+                  />
+                  <p className="mt-1.5 text-[12px] text-gray-500">
+                    退房当日房间会自动放空，之后就可以再订。
+                  </p>
+                </div>
+              </>
+            )}
+            {/* ROOM-FIELDS-END */}
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">疫苗日期</label>
               <input
