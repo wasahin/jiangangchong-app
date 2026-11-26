@@ -277,7 +277,6 @@ export default function CustomerPage() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -367,17 +366,30 @@ export default function CustomerPage() {
     handleScrollToForm();
   };
 
+  /**
+   * 貓／寄養：唔再整「複製微信號」，直接跳去預約表單嘅日期欄，
+   * 俾客人自己揀日期、睇仲有邊啲時段夾到（時段已佔用嘅會喺下拉度消失）。
+   * 順手幫客人喺備註填返服務類型，俾店員一眼睇到係貓洗護定寄養。
+   */
+  const goToAvailableSlots = (serviceType: ServiceType | null, note: string) => {
+    setFormData(previous => ({
+      ...previous,
+      serviceType: serviceType ?? previous.serviceType,
+      notes: note,
+    }));
+    const dateInput = document.querySelector('#booking-form input[type="date"]');
+    if (dateInput) {
+      dateInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      handleScrollToForm();
+    }
+  };
+
   const handleScrollToSection = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault();
     const details = document.querySelector<HTMLDetailsElement>('details#section-active');
     if (id === 'section-active' && details) details.open = true;
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  const handleCopyWeChat = () => {
-    navigator.clipboard.writeText('jingangchong_pet');
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   if (submitted && lastBooking) {
@@ -646,108 +658,16 @@ export default function CustomerPage() {
               <Button variant="pink" onClick={() => selectService(ServiceType.GROOMING)}>预约此服务 · 美容</Button>
             )}
             {(current.id === 'cat' || current.id === 'boarding') && (
-              <Button onClick={handleCopyWeChat}>{copied ? '已复制微信号' : '咨询档期'}</Button>
+              current.id === 'cat' ? (
+                <Button onClick={() => goToAvailableSlots(ServiceType.PREMIUM_WASH, '猫咪洗护')}>查看可约档期</Button>
+              ) : (
+                <Button onClick={() => goToAvailableSlots(null, '寄养住宿')}>查看可约档期</Button>
+              )
             )}
           </div>
         </NeumorphicCard>
       </section>
 
-      {/* ── 服務捷徑 + 價目表 ── */}
-      <section id="section-status" className="scroll-mt-20">
-        <h2 className="font-display-italic text-2xl">服务与价目</h2>
-        <p className="font-mono text-xs tracking-widest mb-3">SERVICES &amp; PRICES</p>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {SERVICE_MENUS.map((item, i) => (
-            <button
-              key={item.id}
-              type="button"
-              aria-pressed={menu === i}
-              onClick={() => setMenu(i)}
-              className={`min-h-12 rounded-xl px-2 py-2 text-sm font-semibold transition-colors ${menu === i ? 'bg-brand-v3-navy text-white shadow-neumo-pressed-sm' : 'bg-brand-v3-surface text-brand-v3-navy shadow-neumo-raised-sm'}`}
-            >
-              {item.title}
-            </button>
-          ))}
-        </div>
-
-        <NeumorphicCard className="mt-3">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 className="font-display-italic text-2xl text-brand-v3-ink">{current.title}</h3>
-            <span className="font-mono text-[10px] tracking-widest text-brand-v3-terracotta">{current.subtitle}</span>
-          </div>
-
-          <table className="mt-3 w-full text-left">
-            <thead>
-              <tr className="border-b border-brand-v3-gold/30">
-                <th className="py-2 pr-2 text-xs font-semibold text-gray-500">{current.labelHeader}</th>
-                {current.columns.map((col) => (
-                  <th key={col} className="py-2 pl-2 text-right text-xs font-semibold text-gray-500">{col}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {current.rows.map((row) => (
-                <tr key={row.label} className="border-b border-brand-v3-gold/15">
-                  <td className="py-2.5 pr-2 text-[15px] text-brand-v3-ink">
-                    {row.label}
-                    {row.sub && <span className="block text-xs text-gray-500">{row.sub}</span>}
-                  </td>
-                  {row.values.map((value, i) => (
-                    <td
-                      key={i}
-                      className={`py-2.5 pl-2 text-right text-[15px] font-semibold whitespace-nowrap ${row.accent ? 'text-brand-v3-terracotta' : 'text-brand-v3-navy'}`}
-                    >
-                      {value}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {current.extras && (
-            <div className="mt-4">
-              <h4 className="font-display-italic text-lg text-brand-v3-ink">{current.extras.title}</h4>
-              <table className="mt-1 w-full text-left">
-                <tbody>
-                  {current.extras.rows.map((row) => (
-                    <tr key={row.label} className="border-b border-brand-v3-gold/15">
-                      <td className="py-2 pr-2 text-[15px] text-brand-v3-ink">{row.label}</td>
-                      {row.values.map((value, i) => (
-                        <td key={i} className="py-2 pl-2 text-right text-[15px] font-semibold whitespace-nowrap text-brand-v3-navy">
-                          {value}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          <ul className="mt-4 space-y-1 text-xs leading-relaxed text-gray-500">
-            {current.notes.map((note) => (
-              <li key={note}>· {note}</li>
-            ))}
-          </ul>
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            {current.id === 'wash' && (
-              <>
-                <Button variant="pink" onClick={() => selectService(ServiceType.STANDARD_WASH)}>预约此服务 · 标准洗</Button>
-                <Button variant="pink" onClick={() => selectService(ServiceType.PREMIUM_WASH)}>预约此服务 · 精致洗</Button>
-              </>
-            )}
-            {current.id === 'grooming' && (
-              <Button variant="pink" onClick={() => selectService(ServiceType.GROOMING)}>预约此服务 · 美容</Button>
-            )}
-            {(current.id === 'cat' || current.id === 'boarding') && (
-              <Button onClick={handleCopyWeChat}>{copied ? '已复制微信号' : '咨询档期'}</Button>
-            )}
-          </div>
-        </NeumorphicCard>
-      </section>
       {/* Public Status Dashboard - Current Services */}
       <details id="section-active" className="scroll-mt-20">
         <summary className="cursor-pointer font-display-italic text-xl py-3">门店实况 · 查看详情</summary>
@@ -940,12 +860,6 @@ export default function CustomerPage() {
                 Premier Pet Grooming Studio
               </p>
             </div>
-          </div>
-
-          <div className="flex gap-3 mb-4">
-            <Button variant="pink" size="medium" onClick={handleCopyWeChat} className="w-full">
-              {copied ? '已复制' : '联系微信'}
-            </Button>
           </div>
 
           <div className="bg-brand-v3-warning/10 rounded-neumo-button p-3 mb-4 shadow-neumo-pressed-sm">
