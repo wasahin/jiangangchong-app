@@ -68,7 +68,6 @@ function RoomAssign({
   }, [checkIn]);
 
   const save = async (nextRoom: string, nextCheckOut: string) => {
-    if (!nextRoom) return;
     setState('saving');
     try {
       const res = await fetch('/api/rooms', {

@@ -197,24 +197,21 @@ export async function onRequestGet(context) {
   }
 }
 
-/** 落房：喺预约备注补上房号同退房日期 */
+/** 落房：喺预约备注补上房号同退房日期（room = '' 即系放空房间） */
 export async function onRequestPost(context) {
   try {
-    // 两种身份都可以改房号：
-    //  1) 员工（Authorization: Bearer <staff token>）
-    //  2) 落单嘅客人 —— 佢要交返同一个手机号，证明佢就系落单嗰个
-    //     （顾客喺公开表单拣房，服务端自动写入嗰阵冇 token）
+    // 改预约要员工鉴权：顾客落单时房号已经随预约写入备注，
+    // 呢个接口係俾店员改房／放空房用。
     const auth = requireStaff(context);
-    const isStaff = !auth.error;
+    if (auth.error) return auth.error;
 
     const body = await context.request.json();
     const bookingId = String(body?.bookingId || '').trim();
     const room = String(body?.room || '').trim();
     const checkOut = String(body?.checkOutDate || '').trim();
-    const proofPhone = String(body?.phone || '').trim();
 
     if (!bookingId) return json({ error: '缺少预约ID' }, 400);
-    if (!ROOM_NAMES.includes(room)) return json({ error: '房间不存在' }, 400);
+    if (room && !ROOM_NAMES.includes(room)) return json({ error: '房间不存在' }, 400);
     if (checkOut && !/^\d{4}-\d{2}-\d{2}$/.test(checkOut)) return json({ error: '退房日期格式不对' }, 400);
 
     const records = await listAllRecords(context.env);
@@ -226,18 +223,13 @@ export async function onRequestPost(context) {
     );
     if (!record) return json({ error: '预约不存在' }, 404);
 
-    if (!isStaff) {
-      const recordPhone = parseText(record.fields?.[FIELD.PHONE]);
-      const customerOk = proofPhone && recordPhone && proofPhone === recordPhone;
-      if (!customerOk) {
-        return json({ error: '需要员工鉴权', code: 'STAFF_AUTH_REQUIRED' }, 401);
-      }
-    }
-
     const notes = parseText(record.fields?.[FIELD.NOTES]);
     const withoutOld = notes.replace(ROOM_LINE, '').trim();
-    const line = checkOut ? `【房号：${room}｜退房：${checkOut}】` : `【房号：${room}】`;
-    const next = withoutOld ? `${line}\n${withoutOld}` : line;
+    // room = '' → 放空房间（店员取消安排）
+    const line = room
+      ? (checkOut ? `【房号：${room}｜退房：${checkOut}】` : `【房号：${room}】`)
+      : '';
+    const next = line ? (withoutOld ? `${line}\n${withoutOld}` : line) : withoutOld;
 
     await updateNotes(record.record_id, next, context.env);
 

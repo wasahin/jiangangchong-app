@@ -515,34 +515,6 @@ export default function CustomerPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  /**
-   * 提交成功之后：喺预约嘅备注补上房号同退房日期。
-   * 房态就由呢行推算，所以飞书永远只有一份真相，唔会有两套数据走样；
-   * 店员喺员工页睇备注就即刻知道边间房、几时退。
-   * 备注係自由文字，所以客人自己写嘅备注重唔会受到影响。
-   * 呢个接口要身份：员工用 token，客人交返同一个手机号（落单嗰个先知）。
-   */
-  const roomPostedRef = useRef<string>('');
-  useEffect(() => {
-    if (!submitted || !lastBookingId) return;
-    if (formData.serviceType !== ServiceType.BOARDING || !selectedRoom) return;
-    if (roomPostedRef.current === lastBookingId) return;
-    roomPostedRef.current = lastBookingId;
-    fetch('/api/rooms', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        bookingId: lastBookingId,
-        room: selectedRoom,
-        checkOutDate,
-        phone: formData.phone,
-      }),
-    }).catch((error) => {
-      console.error('房号写入失败:', error);
-      roomPostedRef.current = '';
-    });
-  }, [submitted, lastBookingId, formData.serviceType, formData.phone, selectedRoom, checkOutDate]);
-
   useEffect(() => {
     const interval = setInterval(() => {
       refreshCounts();
@@ -599,6 +571,16 @@ export default function CustomerPage() {
 
   const bookedSlots = formData.bookingDate ? getBookedTimeSlots(formData.bookingDate) : new Set<string>();
 
+  /**
+   * 寄养嘅房号 + 退房日期（写喺备注）。
+   * 飞书表冇新字段（bookings.js 冻结，加唔到），备注係唯一自由文字通道；
+   * 房态就由呢行推算，所以顾客一落单，房间即刻变「寄养中」。
+   */
+  const roomNoteForBooking =
+    formData.serviceType === ServiceType.BOARDING && selectedRoom
+      ? `【房号：${selectedRoom}｜退房：${checkOutDate}】`
+      : '';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -611,7 +593,13 @@ export default function CustomerPage() {
 
     try {
       // 由服务端写入飞书并校验后才算成功；失败会抛错。
-      const booking = await createBooking(formData);
+      // 寄养嘅房号随预约一齐写入备注（顾客嘅备注明唔会受影响）。
+      const booking = await createBooking({
+        ...formData,
+        notes: roomNoteForBooking
+          ? `${roomNoteForBooking}\n${formData.notes}`.trim()
+          : formData.notes,
+      });
       if (booking) {
         setLastBookingId(booking.id);
         setSubmitted(true);
