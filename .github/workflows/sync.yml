@@ -15,11 +15,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # 关键：唔好留住 checkout 自己嘅 github-actions[bot] 凭证，
+          # 否则佢会盖过 URL 入面嘅 PAT，推送会以 bot 身份被拒。
+          persist-credentials: false
 
       - name: Push to existing repo
         env:
           PAT: ${{ secrets.SYNC_PAT }}
         run: |
+          echo "PAT 长度: ${#PAT}"
           git remote add target https://x-access-token:${PAT}@github.com/wasahin/jiangangchong-app.git
           git config user.name "lovable-sync"
           git config user.email "lovable-sync@users.noreply.github.com"
