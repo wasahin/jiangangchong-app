@@ -520,6 +520,7 @@ export default function CustomerPage() {
    * 房态就由呢行推算，所以飞书永远只有一份真相，唔会有两套数据走样；
    * 店员喺员工页睇备注就即刻知道边间房、几时退。
    * 备注係自由文字，所以客人自己写嘅备注重唔会受到影响。
+   * 呢个接口要身份：员工用 token，客人交返同一个手机号（落单嗰个先知）。
    */
   const roomPostedRef = useRef<string>('');
   useEffect(() => {
@@ -534,12 +535,13 @@ export default function CustomerPage() {
         bookingId: lastBookingId,
         room: selectedRoom,
         checkOutDate,
+        phone: formData.phone,
       }),
     }).catch((error) => {
       console.error('房号写入失败:', error);
       roomPostedRef.current = '';
     });
-  }, [submitted, lastBookingId, formData.serviceType, selectedRoom, checkOutDate]);
+  }, [submitted, lastBookingId, formData.serviceType, formData.phone, selectedRoom, checkOutDate]);
 
   useEffect(() => {
     const interval = setInterval(() => {

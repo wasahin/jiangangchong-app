@@ -7,6 +7,8 @@
  *
  * POST /api/rooms  { bookingId, room, checkOutDate }
  *      → 喺嗰笔预约嘅备注补上房号同退房日期，店员喺员工页即刻睇到。
+ *      需要员工鉴权（Authorization: Bearer <staff token>）：呢个接口会改预约，
+ *      唔应该俾客人自己调用（顾客系喺公开表单拣房，服务端自动写入）。
  *
  * 点解房号写喺备注：
  *   functions/api/bookings.js 係冻结嘅，加唔到新字段；而备注係唯一自由文字通道，
@@ -14,11 +16,14 @@
  *   房态就由呢行备注 + 预约日期推算，所以飞书表永远只有一份真相，唔会走样。
  */
 
+import crypto from 'node:crypto';
+
 const FIELD = {
   DATETIME: 'booking_datetime',
   NOTES: 'notes',
   SERVICE: 'service_type',
   STATUS: 'status',
+  PHONE: 'phone',
   SITE_ID: 'site_booking_id',
 };
 
@@ -33,6 +38,39 @@ const ROOMS = [
 
 const ROOM_NAMES = ROOMS.map((r) => r.name);
 const ROOM_LINE = /【房号：([^｜】\n]+)(?:[｜|]退房：(\d{4}-\d{2}-\d{2}))?】/;
+
+// ─────────────────────────── 员工鉴权（同 functions/api/bookings.js 一致） ───────────────────────────
+
+function staffSecret(env) {
+  return env.STAFF_TOKEN_SECRET || env.FEISHU_APP_SECRET || '';
+}
+
+function verifyStaffToken(token, secret) {
+  if (!token || !secret) return null;
+  const parts = String(token).split('.');
+  if (parts.length !== 2) return null;
+  const expected = crypto.createHmac('sha256', secret).update(parts[0]).digest('base64url');
+  const a = Buffer.from(parts[1]);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(parts[0], 'base64url').toString('utf8'));
+    if (!payload.exp || payload.exp < Date.now()) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+function requireStaff(context) {
+  const header = context.request.headers.get('authorization') || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+  const payload = verifyStaffToken(token, staffSecret(context.env));
+  if (!payload) {
+    return { error: json({ error: '需要员工鉴权', code: 'STAFF_AUTH_REQUIRED' }, 401) };
+  }
+  return { payload };
+}
 
 const json = (data, status = 200, headers = {}) =>
   new Response(JSON.stringify(data), {
@@ -162,10 +200,18 @@ export async function onRequestGet(context) {
 /** 落房：喺预约备注补上房号同退房日期 */
 export async function onRequestPost(context) {
   try {
+    // 两种身份都可以改房号：
+    //  1) 员工（Authorization: Bearer <staff token>）
+    //  2) 落单嘅客人 —— 佢要交返同一个手机号，证明佢就系落单嗰个
+    //     （顾客喺公开表单拣房，服务端自动写入嗰阵冇 token）
+    const auth = requireStaff(context);
+    const isStaff = !auth.error;
+
     const body = await context.request.json();
     const bookingId = String(body?.bookingId || '').trim();
     const room = String(body?.room || '').trim();
     const checkOut = String(body?.checkOutDate || '').trim();
+    const proofPhone = String(body?.phone || '').trim();
 
     if (!bookingId) return json({ error: '缺少预约ID' }, 400);
     if (!ROOM_NAMES.includes(room)) return json({ error: '房间不存在' }, 400);
@@ -179,6 +225,14 @@ export async function onRequestPost(context) {
         || String(it.record_id || '') === bookingId,
     );
     if (!record) return json({ error: '预约不存在' }, 404);
+
+    if (!isStaff) {
+      const recordPhone = parseText(record.fields?.[FIELD.PHONE]);
+      const customerOk = proofPhone && recordPhone && proofPhone === recordPhone;
+      if (!customerOk) {
+        return json({ error: '需要员工鉴权', code: 'STAFF_AUTH_REQUIRED' }, 401);
+      }
+    }
 
     const notes = parseText(record.fields?.[FIELD.NOTES]);
     const withoutOld = notes.replace(ROOM_LINE, '').trim();
