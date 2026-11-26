@@ -375,7 +375,7 @@ export default function CustomerPage() {
     setFormData(previous => ({
       ...previous,
       serviceType: serviceType ?? previous.serviceType,
-      notes: note,
+      notes: note || previous.notes,
     }));
     const dateInput = document.querySelector('#booking-form input[type="date"]');
     if (dateInput) {
@@ -661,7 +661,7 @@ export default function CustomerPage() {
               current.id === 'cat' ? (
                 <Button onClick={() => goToAvailableSlots(ServiceType.PREMIUM_WASH, '猫咪洗护')}>查看可约档期</Button>
               ) : (
-                <Button onClick={() => goToAvailableSlots(null, '寄养住宿')}>查看可约档期</Button>
+                <Button onClick={() => goToAvailableSlots(ServiceType.BOARDING, '')}>查看可约档期</Button>
               )
             )}
           </div>
@@ -819,10 +819,16 @@ export default function CustomerPage() {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <div className="text-xs">
-                      <span className="text-gray-400">预计剩余 </span>
-                      <span className="font-semibold text-brand-v3-gold">{eta}分钟</span>
-                    </div>
+                    {booking.serviceType === ServiceType.BOARDING ? (
+                      <div className="text-xs">
+                        <span className="text-gray-400">寄养时间按门店安排</span>
+                      </div>
+                    ) : (
+                      <div className="text-xs">
+                        <span className="text-gray-400">预计剩余 </span>
+                        <span className="font-semibold text-brand-v3-gold">{eta}分钟</span>
+                      </div>
+                    )}
                     <div className={`px-2.5 py-1 rounded-neumo-pill text-xs font-medium ${
                       booking.wechatNoticeSent
                         ? 'bg-brand-v3-success/20 text-brand-v3-success shadow-neumo-pressed-sm'
@@ -920,6 +926,7 @@ export default function CustomerPage() {
                 <option value={ServiceType.PREMIUM_WASH}>精致洗</option>
                 <option value={ServiceType.STANDARD_WASH}>标准洗</option>
                 <option value={ServiceType.GROOMING}>美容</option>
+                <option value={ServiceType.BOARDING}>寄养</option>
               </select>
             </div>
             
