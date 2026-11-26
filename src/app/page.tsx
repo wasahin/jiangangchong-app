@@ -29,7 +29,6 @@ type ServiceMenu = {
   rows: PriceRow[];
   notes: string[];
   action: 'book' | 'consult';
-  extras?: { title: string; rows: PriceRow[] };
 };
 
 /** 房态资料：由 /api/rooms 提供，公开接口、唔含任何客人资料 */
@@ -178,7 +177,7 @@ function RoomBoard({
  *  - 猫咪洗护：07.png（2 KG以下 ¥68 / ¥88 … 10 KG以上 另行报价，长毛加收¥10/只）
  *  - 美容造型：06.png（2 KG以下 ¥120 / ¥180 … 10 KG以上 ¥240 / ¥300，特别造型另行报价）
  *  - 寄养住宿：新店 5 间房（小房 × 3 ¥80/天，大房 × 2 ¥120/天，同房加宠 +¥40/只）
- *  - 单选项目：08.png（按洗护／造型分两组列在对应分页下）
+ *  - 单选项目：08.png（2026-11-27 用户决定：唔再分去洗护／造型分页，独立一个「单选项目」分页）
  */
 const SERVICE_MENUS: ServiceMenu[] = [
   {
@@ -204,16 +203,6 @@ const SERVICE_MENUS: ServiceMenu[] = [
       '春节假期期间价格另有调整',
     ],
     action: 'book',
-    extras: {
-      title: '单选项目（洗护加项）',
-      rows: [
-        { label: '剪指甲', values: ['¥20'] },
-        { label: '刷牙', values: ['¥20'] },
-        { label: '剃脚底毛', values: ['¥20'] },
-        { label: '贵宾脚', values: ['¥20'] },
-        { label: '药浴', values: ['¥20'] },
-      ],
-    },
   },
   {
     id: 'cat',
@@ -255,16 +244,6 @@ const SERVICE_MENUS: ServiceMenu[] = [
       '春节假期期间价格另有调整',
     ],
     action: 'book',
-    extras: {
-      title: '单选项目（造型加项）',
-      rows: [
-        { label: '局部去油', values: ['¥50'] },
-        { label: '全身美白（30斤内）', values: ['¥50'] },
-        { label: 'SPA淋巴排毒', values: ['¥50'] },
-        { label: '开结', values: ['¥100/小时'] },
-        { label: '深层去毛', values: ['¥20–100'] },
-      ],
-    },
   },
   {
     id: 'boarding',
@@ -281,6 +260,28 @@ const SERVICE_MENUS: ServiceMenu[] = [
       { label: '同一房间增加宠物数量', values: ['加¥40/只'], accent: true },
     ],
     notes: ['春节假期期间价格另有调整'],
+    action: 'consult',
+  },
+  {
+    // 2026-11-27 用户决定：单选项目唔再分去洗护／造型分页，独立一个分页（放喺最后）
+    id: 'extras',
+    title: '单选项目',
+    subtitle: 'ADD-ONS',
+    labelHeader: '项目 / 价格',
+    columns: ['价格'],
+    rows: [
+      { label: '剪指甲', values: ['¥20'] },
+      { label: '刷牙', values: ['¥20'] },
+      { label: '剃脚底毛', values: ['¥20'] },
+      { label: '贵宾脚', values: ['¥20'] },
+      { label: '药浴', values: ['¥20'] },
+      { label: '局部去油', values: ['¥50'] },
+      { label: '全身美白（30斤内）', values: ['¥50'] },
+      { label: 'SPA淋巴排毒', values: ['¥50'] },
+      { label: '开结', values: ['¥100/小时'] },
+      { label: '深层去毛', values: ['¥20–100'] },
+    ],
+    notes: ['单选项目系加项，要配合洗护或者造型一齐做'],
     action: 'consult',
   },
 ];
@@ -824,14 +825,17 @@ export default function CustomerPage() {
         <h2 className="font-display-italic text-[32px] sm:text-4xl leading-tight">服务与价目</h2>
         <p className="font-mono text-xs sm:text-sm tracking-widest mb-4">SERVICES &amp; PRICES</p>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {/* 5 个分页：4 个服务 + 1 个「单选项目」（手机上面单选项目独占一行） */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
           {SERVICE_MENUS.map((item, i) => (
             <button
               key={item.id}
               type="button"
               aria-pressed={menu === i}
               onClick={() => setMenu(i)}
-              className={`min-h-12 rounded-xl px-2 py-2 text-[15px] font-semibold transition-colors ${menu === i ? 'bg-brand-v3-navy text-white shadow-neumo-pressed-sm' : 'bg-brand-v3-surface text-brand-v3-navy shadow-neumo-raised-sm'}`}
+              className={`min-h-12 rounded-xl px-2 py-2 text-[15px] font-semibold transition-colors ${
+                item.id === 'extras' ? 'col-span-2 sm:col-span-1' : ''
+              } ${menu === i ? 'bg-brand-v3-navy text-white shadow-neumo-pressed-sm' : 'bg-brand-v3-surface text-brand-v3-navy shadow-neumo-raised-sm'}`}
             >
               {item.title}
             </button>
@@ -892,28 +896,6 @@ export default function CustomerPage() {
             />
           )}
 
-          {current.extras && (
-            <div className="mt-5">
-              <h4 className="font-display-italic text-xl text-brand-v3-ink">{current.extras.title}</h4>
-              <div className="mt-2">
-                {current.extras.rows.map((row) => (
-                  <div
-                    key={row.label}
-                    className="grid gap-x-3 py-2 border-b border-brand-v3-gold/15 items-baseline"
-                    style={{ gridTemplateColumns: 'minmax(0,1fr) auto' }}
-                  >
-                    <span className="text-[16px] sm:text-[17px] leading-snug text-brand-v3-ink">{row.label}</span>
-                    {row.values.map((value, i) => (
-                      <span key={i} className="text-[16px] sm:text-[17px] font-semibold text-right whitespace-nowrap text-brand-v3-navy">
-                        {value}
-                      </span>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           <ul className="mt-4 space-y-1.5 text-[13px] sm:text-sm leading-relaxed text-gray-500">
             {current.notes.map((note) => (
               <li key={note}>· {note}</li>
@@ -936,6 +918,9 @@ export default function CustomerPage() {
               ) : (
                 <Button onClick={() => goToAvailableSlots(ServiceType.BOARDING, '')}>查看可约档期</Button>
               )
+            )}
+            {current.id === 'extras' && (
+              <Button onClick={() => goToAvailableSlots(null, '')}>去预约洗护 / 造型</Button>
             )}
           </div>
         </NeumorphicCard>
