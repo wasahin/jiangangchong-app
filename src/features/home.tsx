@@ -292,13 +292,16 @@ const SERVICE_MENUS: ServiceMenu[] = [
  * 手機窄屏上面，長標題會斷成兩行，藍色文案區即刻膨脹到成張卡一半高，
  * 令下面真正嘅內容（價目表）被推走。短標題 + 單行副句 = 高度固定。
  */
+import membershipPoster from '@/assets/membership-system.png.asset.json';
+import groomingPoster from '@/assets/grooming-why-us.png.asset.json';
+
 const PROMOS = [
   {
     id: 'membership',
     tag: 'MEMBERSHIP',
     title: '洗护会员',
     hint: '无需充值 · 累计到店越洗越省',
-    image: '/homepage-promo/membership.webp',
+    image: membershipPoster.url,
     menu: 0,
   },
   {
@@ -306,7 +309,7 @@ const PROMOS = [
     tag: 'GROOMING',
     title: '专业洗护',
     hint: '按状态护理 · 造型不套模板',
-    image: '/homepage-promo/care.webp',
+    image: groomingPoster.url,
     menu: 2,
   },
   {
@@ -372,6 +375,7 @@ export default function CustomerPage() {
   
   const [menu, setMenu] = useState(0);
   const [promoIndex, setPromoIndex] = useState(0);
+  const [zoomPromo, setZoomPromo] = useState<string | null>(null);
   const promoStripRef = useRef<HTMLDivElement | null>(null);
   const promoIndexRef = useRef(0);
   const lastManualScrollAt = useRef(0);
@@ -789,23 +793,33 @@ export default function CustomerPage() {
           className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {PROMOS.map((promo, i) => (
-            <button
+            <div
               key={promo.id}
+              className="min-w-[92%] sm:min-w-[45%] snap-start overflow-hidden rounded-2xl bg-brand-v3-navy text-left text-white shadow-neumo-raised-md"
+            >
+              <button
+                type="button"
+                aria-label={`查看大图：${promo.title}`}
+                onClick={() => setZoomPromo(promo.image)}
+                className="block w-full bg-brand-v3-cream"
+              >
+              <img
+                src={promo.image}
+                alt={`${promo.title} · ${promo.hint}`}
+                width={1920}
+                height={1080}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                className="aspect-video w-full object-contain"
+              />
+              </button>
+            <button
               type="button"
               onClick={() => {
                 setMenu(promo.menu);
                 document.getElementById('section-status')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }}
-              className="min-w-[92%] sm:min-w-[45%] snap-start overflow-hidden rounded-2xl bg-brand-v3-navy text-left text-white shadow-neumo-raised-md"
+              className="block w-full text-left"
             >
-              <img
-                src={promo.image}
-                alt={`${promo.title} · ${promo.hint}`}
-                width={960}
-                height={720}
-                loading={i === 0 ? 'eager' : 'lazy'}
-                className="aspect-[4/3] w-full object-cover object-top"
-              />
               {/* 文案區：標題 + 英文 tag 同一行，副句第二行；全部 nowrap/truncate，唔會斷行 */}
               <div className="px-4 pt-2.5 pb-3">
                 <div className="flex items-baseline gap-3">
@@ -817,8 +831,29 @@ export default function CustomerPage() {
                 <p className="mt-1 text-[12px] sm:text-[13px] leading-snug text-white/70 truncate">{promo.hint}</p>
               </div>
             </button>
+            </div>
           ))}
         </div>
+
+        {zoomPromo && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="宣传图大图"
+            onClick={() => setZoomPromo(null)}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-3"
+          >
+            <img src={zoomPromo} alt="宣传图大图" className="max-h-full max-w-full object-contain" />
+            <button
+              type="button"
+              aria-label="关闭"
+              onClick={() => setZoomPromo(null)}
+              className="absolute right-4 top-4 h-10 w-10 rounded-full bg-white/90 text-xl text-brand-v3-ink"
+            >
+              ×
+            </button>
+          </div>
+        )}
 
         {/* 頁數點：跟自動輪播／手指掃動同步，右下角 */}
         <div className="mt-2 flex items-center justify-end gap-1 pr-1" role="group" aria-label="切换推荐">
