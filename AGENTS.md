@@ -28,3 +28,6 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Legacy Cloudflare Pages Functions live in `src/server/legacy/*` and are exposed via thin server routes under `src/routes/api/public/*`; they read config from `process.env` — keeps original Feishu/staff-token logic intact.
+- tsconfig strict-index flags are relaxed because the imported app code was written without them.

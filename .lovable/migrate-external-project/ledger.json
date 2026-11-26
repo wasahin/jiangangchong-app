@@ -1,0 +1,8 @@
+[
+ {"capability":"code & pages (/, /staff, /status, /yellowwhite)","source":"Next.js static export","outcome":"migrate","status":"verified","next_action":"none"},
+ {"capability":"booking/rooms/staff-session APIs","source":"Cloudflare Pages Functions","outcome":"migrate to /api/public/*","status":"implemented","next_action":"live test after secrets"},
+ {"capability":"database (Feishu Bitable)","source":"Feishu","outcome":"preserve (pending user decision)","status":"implemented","next_action":"await answer; add FEISHU secrets"},
+ {"capability":"auth (shared staff password + HMAC token)","source":"custom","outcome":"preserve","status":"implemented","next_action":"add STAFF_PASSWORD, STAFF_TOKEN_SECRET"},
+ {"capability":"user accounts","source":"none","outcome":"n/a","status":"verified","next_action":"none"},
+ {"capability":"assets","source":"public/","outcome":"migrate","status":"verified","next_action":"none"}
+]

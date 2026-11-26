@@ -10,33 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StaffRouteImport } from './routes/staff'
+import { Route as StatusRouteImport } from './routes/status'
+import { Route as YellowwhiteRouteImport } from './routes/yellowwhite'
+import { Route as ApiPublicBookingsRouteImport } from './routes/api/public/bookings'
+import { Route as ApiPublicRoomsRouteImport } from './routes/api/public/rooms'
+import { Route as ApiPublicStaffSessionRouteImport } from './routes/api/public/staff-session'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StaffRoute = StaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const YellowwhiteRoute = YellowwhiteRouteImport.update({
+  id: '/yellowwhite',
+  path: '/yellowwhite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBookingsRoute = ApiPublicBookingsRouteImport.update({
+  id: '/api/public/bookings',
+  path: '/api/public/bookings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicRoomsRoute = ApiPublicRoomsRouteImport.update({
+  id: '/api/public/rooms',
+  path: '/api/public/rooms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicStaffSessionRoute = ApiPublicStaffSessionRouteImport.update({
+  id: '/api/public/staff-session',
+  path: '/api/public/staff-session',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/staff': typeof StaffRoute
+  '/status': typeof StatusRoute
+  '/yellowwhite': typeof YellowwhiteRoute
+  '/api/public/bookings': typeof ApiPublicBookingsRoute
+  '/api/public/rooms': typeof ApiPublicRoomsRoute
+  '/api/public/staff-session': typeof ApiPublicStaffSessionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/staff': typeof StaffRoute
+  '/status': typeof StatusRoute
+  '/yellowwhite': typeof YellowwhiteRoute
+  '/api/public/bookings': typeof ApiPublicBookingsRoute
+  '/api/public/rooms': typeof ApiPublicRoomsRoute
+  '/api/public/staff-session': typeof ApiPublicStaffSessionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/staff': typeof StaffRoute
+  '/status': typeof StatusRoute
+  '/yellowwhite': typeof YellowwhiteRoute
+  '/api/public/bookings': typeof ApiPublicBookingsRoute
+  '/api/public/rooms': typeof ApiPublicRoomsRoute
+  '/api/public/staff-session': typeof ApiPublicStaffSessionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/staff'
+    | '/status'
+    | '/yellowwhite'
+    | '/api/public/bookings'
+    | '/api/public/rooms'
+    | '/api/public/staff-session'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/staff'
+    | '/status'
+    | '/yellowwhite'
+    | '/api/public/bookings'
+    | '/api/public/rooms'
+    | '/api/public/staff-session'
+  id:
+    | '__root__'
+    | '/'
+    | '/staff'
+    | '/status'
+    | '/yellowwhite'
+    | '/api/public/bookings'
+    | '/api/public/rooms'
+    | '/api/public/staff-session'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  StaffRoute: typeof StaffRoute
+  StatusRoute: typeof StatusRoute
+  YellowwhiteRoute: typeof YellowwhiteRoute
+  ApiPublicBookingsRoute: typeof ApiPublicBookingsRoute
+  ApiPublicRoomsRoute: typeof ApiPublicRoomsRoute
+  ApiPublicStaffSessionRoute: typeof ApiPublicStaffSessionRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/staff': {
+      id: '/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/yellowwhite': {
+      id: '/yellowwhite'
+      path: '/yellowwhite'
+      fullPath: '/yellowwhite'
+      preLoaderRoute: typeof YellowwhiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/bookings': {
+      id: '/api/public/bookings'
+      path: '/api/public/bookings'
+      fullPath: '/api/public/bookings'
+      preLoaderRoute: typeof ApiPublicBookingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/rooms': {
+      id: '/api/public/rooms'
+      path: '/api/public/rooms'
+      fullPath: '/api/public/rooms'
+      preLoaderRoute: typeof ApiPublicRoomsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/staff-session': {
+      id: '/api/public/staff-session'
+      path: '/api/public/staff-session'
+      fullPath: '/api/public/staff-session'
+      preLoaderRoute: typeof ApiPublicStaffSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  StaffRoute: StaffRoute,
+  StatusRoute: StatusRoute,
+  YellowwhiteRoute: YellowwhiteRoute,
+  ApiPublicBookingsRoute: ApiPublicBookingsRoute,
+  ApiPublicRoomsRoute: ApiPublicRoomsRoute,
+  ApiPublicStaffSessionRoute: ApiPublicStaffSessionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
