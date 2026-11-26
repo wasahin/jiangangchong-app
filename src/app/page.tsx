@@ -86,7 +86,8 @@ function RoomLight({ state }: { state: RoomState }) {
 
 /** 一间房嘅状态卡 */
 function RoomTile({ room, state }: { room: Omit<RoomInfo, 'occupied'>; state: RoomState }) {
-  const label = state === 'busy' ? '已占用' : state === 'free' ? '可订' : '状态未知';
+  // 用词跟门店口径：空房可订 / 寄养中（唔讲「已占用」，顾客睇唔出係咩服务）
+  const label = state === 'busy' ? '寄养中' : state === 'free' ? '空房可订' : '状态未知';
   const color =
     state === 'busy' ? 'text-brand-v3-error' : state === 'free' ? 'text-brand-v3-success' : 'text-gray-400';
   return (
@@ -138,7 +139,7 @@ function RoomBoard({
       <p className="mt-1.5 text-[12px] text-gray-500">
         <span className="inline-block h-2 w-2 rounded-full bg-brand-v3-success align-middle" /> 空房可订
         <span className="mx-1.5">·</span>
-        <span className="inline-block h-2 w-2 rounded-full bg-brand-v3-error align-middle" /> 已占用
+        <span className="inline-block h-2 w-2 rounded-full bg-brand-v3-error align-middle" /> 寄养中
       </p>
 
       {failed && (
@@ -548,6 +549,27 @@ export default function CustomerPage() {
   }, [refreshCounts]);
 
   const allBookings = getAllBookings ? getAllBookings() : activeBookings;
+
+  /**
+   * 寄养唔喺「门店实况」出现：寄养冇洗护／造型嘅步骤进度，
+   * 放喺 Live 板只会见到一个永远 0% 嘅进度条。寄养嘅状态由房态板讲
+   * （空房可订 / 寄养中），顾客睇房就得。
+   */
+  const liveBookings = activeBookings.filter((b) => b.serviceType !== ServiceType.BOARDING);
+  const liveCounts = {
+    pending: allBookings.filter(
+      (b) => b.status === BookingStatus.PENDING && b.serviceType !== ServiceType.BOARDING
+    ).length,
+    accepted: allBookings.filter(
+      (b) => b.status === BookingStatus.ACCEPTED && b.serviceType !== ServiceType.BOARDING
+    ).length,
+    inService: allBookings.filter(
+      (b) =>
+        b.displayInServiceList &&
+        b.status !== BookingStatus.COMPLETED &&
+        b.serviceType !== ServiceType.BOARDING
+    ).length,
+  };
   
   const getBookedTimeSlots = (date: string) => {
     const slots = new Set<string>();
@@ -932,15 +954,15 @@ export default function CustomerPage() {
       {/* Live Store Status Board — Brand v2 functional colors */}
       <div className="grid grid-cols-3 gap-3 scroll-mt-20">
         <div className="bg-brand-v3-surface rounded-neumo-card p-4 text-center shadow-neumo-raised-md">
-          <p className="text-[28px] font-bold text-brand-v3-warning">{counts.pending}</p>
+          <p className="text-[28px] font-bold text-brand-v3-warning">{liveCounts.pending}</p>
           <p className="text-xs text-gray-400 mt-1">待审核</p>
         </div>
         <div className="bg-brand-v3-surface rounded-neumo-card p-4 text-center shadow-neumo-raised-md">
-          <p className="text-[28px] font-bold text-brand-v3-success">{counts.accepted}</p>
+          <p className="text-[28px] font-bold text-brand-v3-success">{liveCounts.accepted}</p>
           <p className="text-xs text-gray-400 mt-1">已确认</p>
         </div>
         <div className="bg-brand-v3-surface rounded-neumo-card p-4 text-center shadow-neumo-raised-md">
-          <p className="text-[28px] font-bold text-brand-v3-info">{counts.inService}</p>
+          <p className="text-[28px] font-bold text-brand-v3-info">{liveCounts.inService}</p>
           <p className="text-xs text-gray-400 mt-1">服务中</p>
         </div>
       </div>
@@ -993,7 +1015,7 @@ export default function CustomerPage() {
             </div>
           </div>
 
-          {activeBookings.length === 0 ? (
+          {liveBookings.length === 0 ? (
             <div className="text-center py-8 text-gray-400">
               <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-brand-v3-cream flex items-center justify-center">
                 <BrandPaw size={40} />
@@ -1002,7 +1024,7 @@ export default function CustomerPage() {
             </div>
           ) : (
           <div className="space-y-4">
-            {activeBookings.map(booking => {
+            {liveBookings.map(booking => {
               const progress = calculateProgress(booking);
               const stepName = getCurrentStepName(booking);
               const eta = calculateETA(booking);
@@ -1251,7 +1273,7 @@ export default function CustomerPage() {
                     <option value="">请选择房间</option>
                     {formRoomOptions.map((room) => (
                       <option key={room.name} value={room.name} disabled={room.occupied}>
-                        {room.name} · {room.price} · {room.occupied ? '已占用' : formRoomUnknown ? '状态未知' : '可订'}
+                        {room.name} · {room.price} · {room.occupied ? '寄养中' : formRoomUnknown ? '状态未知' : '空房可订'}
                       </option>
                     ))}
                   </select>
