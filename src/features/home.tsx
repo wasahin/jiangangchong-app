@@ -295,7 +295,19 @@ const SERVICE_MENUS: ServiceMenu[] = [
 import membershipPoster from '@/assets/membership-system.png.asset.json';
 import groomingPoster from '@/assets/grooming-why-us.png.asset.json';
 
-const PROMOS = [
+type Promo = {
+  id: string;
+  tag: string;
+  title: string;
+  hint: string;
+  /** 整张原图：全屏预览用 */
+  image: string;
+  /** 卡面图：可选，缺省时用 image */
+  cardImage?: string;
+  menu: number;
+};
+
+const PROMOS: Promo[] = [
   {
     id: 'membership',
     tag: 'MEMBERSHIP',
@@ -310,6 +322,8 @@ const PROMOS = [
     title: '专业洗护',
     hint: '按状态护理 · 造型不套模板',
     image: groomingPoster.url,
+    // 卡面只放海报正文（左侧深蓝信息栏裁走）；点开放大时仍显示整张原图
+    cardImage: '/homepage-promo/grooming-card.webp',
     menu: 2,
   },
   {
@@ -804,7 +818,7 @@ export default function CustomerPage() {
                 className="block w-full bg-brand-v3-cream"
               >
               <img
-                src={promo.image}
+                src={promo.cardImage ?? promo.image}
                 alt={`${promo.title} · ${promo.hint}`}
                 width={1920}
                 height={1080}
