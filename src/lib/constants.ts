@@ -43,6 +43,12 @@ export const GROOMING_STAGES: Record<ServiceType, ServiceStep[]> = {
     { id: 9, name: '吹干毛发', durationMinutes: 20 },
     { id: 10, name: '剪毛', durationMinutes: 60 },
     { id: 11, name: '完成出品', durationMinutes: 0 }
+  ],
+  // 寄养唔系洗护流程，只有「寄养中」一个状态。
+  // durationMinutes 用 1440（一晚）而唔係 0：进度计算会除以呢个分钟数，
+  // 0 会令进度显示成 NaN%。进度条按 24 小时慢慢填满，当作「已经寄养咗几耐」。
+  [ServiceType.BOARDING]: [
+    { id: 1, name: '寄养中', durationMinutes: 1440 }
   ]
 };
 

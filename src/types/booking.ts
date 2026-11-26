@@ -9,7 +9,9 @@ export enum BookingStatus {
 export enum ServiceType {
   PREMIUM_WASH = '精致洗',
   STANDARD_WASH = '标准洗',
-  GROOMING = '美容'
+  GROOMING = '美容',
+  // 寄养：飞书「服务类型」本身就有这个选项；进度板只显示一个「寄养中」状态
+  BOARDING = '寄养'
 }
 
 export interface WeightRange {
