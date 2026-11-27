@@ -4,6 +4,10 @@
 > **§2 部署已经完成 —— 站点已经真系上线咗：https://jiangangchong-app-v2.pages.dev**
 > 全部验收（253 条断言）喺线上跑过，全绿。详情睇 §2.3 同 §6。
 > §3.1、§4.1、§4.2 亦都已经由店主那边搬过来咗，**唔好重做**。
+>
+> **📌 优先次序店主已经拍板（2026-11-27）：**
+> **① 真·微信通知 → ② 价目表／版面抛光 → ③ 员工端房态板。**
+> **唔好再问「下一步做边个」，直接睇 §7。**
 
 ---
 
@@ -186,23 +190,109 @@ npm run contract             # 静态，<5 秒，唔使网络
 
 ---
 
-## 7. 而家仲可以做嘅事（下一步）
+## 7. 下一步（店主 2026-11-27 已经拍板，唔好再问「下一步做边个」）
 
-1. **做生产版冇嘅嘢** —— 而家呢个版本已经同生产版平齐，可以开始超越：
-   - 价目表／文案／版面嘅进一步优化
-   - 客人通知（微信）真接通（而家 `src/lib/notifications.ts` 仲係 `console.log` 占位）
-   - 员工端房态板嘅可视化
-2. **每改一处就跑 `npm run contract`**，改完版面跑 `npm run mobile`。
-3. **唔好**改 §1 嘅硬性约束，**唔好**改飞书表结构。
-4. **唔好**改 `src/server/legacy/` 嘅飞书写入逻辑（除非店主明确批准）。
+**优先次序**：
+
+| 优先 | 功能 | 状态 | 点解 |
+|---|---|---|---|
+| 1 | **真·微信通知** | 未做 | 唯一一个客人感觉得到嘅缺口：客人落完单之后完全冇回应，`/status` 页面仲係「客人自己查」，唔係「通知客人」 |
+| 2 | **价目表／版面抛光** | 做咗一半 | 零风险、纯视觉 |
+| 3 | **员工端房态板可视化** | 未做 | 5 间房、每星期 3–5 单 → 唔急 |
+
+**通知拆成两件独立嘅嘢，唔好同一个 commit 打包做**：
+
+| | A. 员工提醒 | B. 客人消息 |
+|---|---|---|
+| 渠道 | 企业微信群机器人 | 微信公众号模板消息 |
+| 需唔需要店主俾资料 | 只需要 webhook URL | 需要 AppID / AppSecret / 模板 ID |
+| 阻塞 | 未收到 webhook URL | 未确认有冇认证服务号 |
+| 顺序 | **先做呢件** | 等资料齐先开 |
+
+> 下面 7.1 / 7.2 嘅代码落点係**建议做法**，你可以改；但 §1 嘅硬性约束、飞书表结构、
+> 「失败唔准影响落单」嘅原则唔可以改。
+
+### 7.1 员工提醒：企业微信群机器人（先做呢件）
+
+- 新建 `src/server/legacy/notify.ts`（同 `bookings.ts` 同一层，方便共用 `env`）。
+- webhook URL → Pages secret **`STAFF_WEBHOOK_URL`**。
+  **唔可以**入 `import.meta.env.VITE_*`、唔可以入前端 bundle、唔可以硬编码喺 source。
+  （`verify/contract-check.js` 已经有「浏览器 bundle 唔准有 secret」嘅检查，扩展佢去查呢个 URL。）
+- **两个触发点**（都喺 `src/server/legacy/bookings.ts`）：
+  - `onRequestPost` —— 飞书写入**成功之后**（唔好喺写之前发）
+  - `onRequestPut` —— 员工更新状态之后（接受／开始／完成全部经呢条 PUT）
+- 企业微信群机器人 API：
+  ```
+  POST https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=…
+  Content-Type: application/json
+  {"msgtype":"markdown","markdown":{"content":"**新预约**\n宠物：小花\n服务：精致洗\n日期：2026-12-02 10:00\n电话：138…\n房号：小房1（退房 2026-12-05）"}}
+  ```
+- **失败唔准影响落单**：try/catch 吞掉 + `console.error` 记低，飞书写入成功就照样返 201 / 200。
+  群机器人挂咗唔应该令客人见唔到自己嘅单。
+- 内容只放员工需要嘅嘢：宠物名、服务类型、预约日期、电话、房号／退房日期。
+  唔好放身份证、详细地址之类。
+- 验收：`npm run contract` 加一条静态断言（webhook URL 唔喺前端 bundle／唔喺 source），
+  `npm run live` 加一条「webhook 打唔通都唔影响落单」嘅断言。
+
+### 7.2 客人消息：微信公众号模板消息（**等店主俾资料先开工**）
+
+需要：认证服务号 **AppID + AppSecret** + **审核通过嘅模板 ID** + 模板字段名。
+
+**障碍**：预约表只收电话，冇 `openid`；飞书表结构冻结，唔可以加字段。
+
+建议做法（等店主确认咗先动手）：
+
+1. 顾客用微信打开页面 → 静默网页授权（`snsapi_base`）→ 拿到 `openid`，写入 **httpOnly cookie**；
+2. POST 落单时（飞书写入成功之后）即时发模板消息；
+3. **唔写入飞书**（表结构冻结）→ 代价係「进度更新」阶段发唔到客人，
+   客人只能自己开 `/status` 链接睇进度。
+
+Secret：`WECHAT_APP_SECRET`、`WECHAT_TEMPLATE_ID`（AppID 唔算 secret，可以入 `wrangler.jsonc` 嘅 `vars`）。
+
+⚠️ 如果冇认证服务号 → 做唔到，客人消息呢半只能维持现状（顾客自己查 status 链接）。
+
+### 7.3 抛光（第二）
+
+- 价目表逐格对用户上载嘅原图（`05/06/07/08/09.png`）；美容造型最顶档 = **10 KG以上 ¥240/¥300**。
+- 预约日期 input 喺 390px 只有 131px 阔、Chrome 日历图标盖住最后一个字 ——
+  **Lovable 已经喺 `d936ded5` 修咗**，验一下就够，唔好重做。
+- 唔好重画 logo（用 `public/logo-jingangchong*.png`）。
+- 视觉改动 = **Tier 0 验证**（build + typecheck + 390px 截图 + 2–3 条 smoke 断言），
+  唔好跑全套 253 条。
+
+### 7.4 员工端房态板（第三，唔急）
+
+- 5 间房、每星期 3–5 单 → 唔需要复杂 kanban。
+- 做「今日入住／今日退房」清单 + 一键改状态（复用现有 PUT）就够。
+- 唔好新增飞书字段。
 
 ---
 
 ## 8. 成功嘅定义（更新）
 
-呢个 app 已经喺 Cloudflare Pages 自己跑起来，员工登录得到，客人落预约真系写进
-飞书（测试表），房态灯真系会变红变绿，18 项验收 + 253 条断言全部通过。
+**已经达成**：Cloudflare Pages 自己跑得起来 · 员工登录得到 · 客人落预约真系写进飞书（测试表）·
+房态灯真系会变红变绿 · 18 项验收 + 253 条断言全绿 · 线上 v2 可访问。
 
-**下一步**：继续喺呢个基础上做生产版冇嘅功能；全部满意之后，同店主确认，
-先将 `NEXT_PUBLIC_FEISHU_BASE_ID` / `NEXT_PUBLIC_FEISHU_TABLE_ID` 切去生产表，
-并将 Pages 项目由 `jiangangchong-app-v2` 换成 `jiangangchong-app`。
+**下一个成功定义**（按次序）：
+
+1. 店主喺企业微信群收到**第一条真·新单提醒**（7.1）；
+2. 顾客喺微信收到**第一条模板消息**（7.2，视乎有冇认证服务号）；
+3. 抛光版过咗店主眼（7.3）。
+
+**切生产的条件**：店主明确话「切」→ 先跑 §9。唔好自己切。
+
+---
+
+## 9. 切生产 runbook（**店主批准之后**先做，唔好自己嚟）
+
+1. `wrangler.jsonc` 嘅 `vars` 由测试表换成生产表：
+   base `BvDWb88lHaPI55s6VBCccn4hnpd` / table `tbldcraKiZB6kBTK`
+2. 加 Pages secret：`STAFF_WEBHOOK_URL`（+ 公众号 secret，如果有）。
+3. ⚠️ **Pages 项目名唔可以改** —— v2 叫 `jiangangchong-app-v2`，生产叫 `jiangangchong-app`。
+   切 = 真系部署去 `jiangangchong-app` 项目（内容会被**整个替换**）。
+4. ⚠️ `jiangangchong-app` repo 入面 Next.js 嘅 `deploy.yml` trigger 係 `'**'` ——
+   切嘅时候要确保佢**唔会同时触发**，否则两个 workflow 会争同一个 Pages 项目。
+   （平时唔会撞，因为 `lovable-sync` 分支嘅树只有 `deploy-v2.yml` + `sync.yml`。）
+5. 部署后跑：`npm run live https://jiangangchong-app.pages.dev` + `npm run mobile` + `npm run e2e`。
+6. 回滚：Cloudflare Pages 有 deployment 历史，可以喺项目里退返上一个 deployment。
+7. 保留生产版 Next.js（`jiangangchong-app:main` = `3371c1eb09`）唔好删，作为回滚底。
