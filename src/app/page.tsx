@@ -300,6 +300,7 @@ const PROMOS = [
     title: '洗护会员',
     hint: '无需充值 · 累计到店越洗越省',
     image: '/homepage-promo/membership.webp',
+    full: '/homepage-promo/membership-full.webp',
     menu: 0,
   },
   {
@@ -308,6 +309,7 @@ const PROMOS = [
     title: '专业洗护',
     hint: '按状态护理 · 造型不套模板',
     image: '/homepage-promo/care.webp',
+    full: '/homepage-promo/care-full.webp',
     menu: 2,
   },
   {
@@ -316,6 +318,7 @@ const PROMOS = [
     title: '寄养住宿',
     hint: '小房大房 · 实时房态可查',
     image: '/homepage-promo/boarding.webp',
+    full: '/homepage-promo/boarding-full.webp',
     menu: 3,
   },
 ];
@@ -373,6 +376,8 @@ export default function CustomerPage() {
   
   const [menu, setMenu] = useState(0);
   const [promoIndex, setPromoIndex] = useState(0);
+  /** 宣传海报放大：null = 冇开；否则係完整海报嘅路径 */
+  const [zoomPromo, setZoomPromo] = useState<string | null>(null);
   const promoStripRef = useRef<HTMLDivElement | null>(null);
   const promoIndexRef = useRef(0);
   const lastManualScrollAt = useRef(0);
@@ -780,36 +785,75 @@ export default function CustomerPage() {
           className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {PROMOS.map((promo, i) => (
-            <button
+            <div
               key={promo.id}
-              type="button"
-              onClick={() => {
-                setMenu(promo.menu);
-                document.getElementById('section-status')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }}
               className="min-w-[92%] sm:min-w-[45%] snap-start overflow-hidden rounded-2xl bg-brand-v3-navy text-left text-white shadow-neumo-raised-md"
             >
-              <img
-                src={promo.image}
-                alt={`${promo.title} · ${promo.hint}`}
-                width={960}
-                height={720}
-                loading={i === 0 ? 'eager' : 'lazy'}
-                className="aspect-[4/3] w-full object-cover object-top"
-              />
-              {/* 文案區：標題 + 英文 tag 同一行，副句第二行；全部 nowrap/truncate，唔會斷行 */}
-              <div className="px-4 pt-2.5 pb-3">
-                <div className="flex items-baseline gap-3">
-                  <span className="min-w-0 flex-1 font-display-italic text-[22px] sm:text-[24px] leading-tight truncate">
-                    {promo.title}
-                  </span>
-                  <span className="shrink-0 font-mono text-[10px] tracking-widest text-brand-v3-gold">{promo.tag}</span>
+              {/* 卡面：点一下睇完整海报（卡面係裁走左側品牌欄嘅版本，完整版喺 lightbox） */}
+              <button
+                type="button"
+                aria-label={`查看大图：${promo.title}`}
+                onClick={() => setZoomPromo(promo.full || promo.image)}
+                className="relative block w-full bg-brand-v3-cream"
+              >
+                <img
+                  src={promo.image}
+                  alt={`${promo.title} · ${promo.hint}`}
+                  width={960}
+                  height={720}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  className="aspect-[4/3] w-full object-cover object-top"
+                />
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-brand-v3-ink/55 text-[15px] leading-none text-white backdrop-blur-sm"
+                >
+                  ⤢
+                </span>
+              </button>
+              {/* 文案區：撳呢度跳去对应服务嘅价目表；標題 + 英文 tag 同一行，副句第二行；全部 nowrap/truncate */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMenu(promo.menu);
+                  document.getElementById('section-status')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="block w-full text-left"
+              >
+                <div className="px-4 pt-2.5 pb-3">
+                  <div className="flex items-baseline gap-3">
+                    <span className="min-w-0 flex-1 font-display-italic text-[22px] sm:text-[24px] leading-tight truncate">
+                      {promo.title}
+                    </span>
+                    <span className="shrink-0 font-mono text-[10px] tracking-widest text-brand-v3-gold">{promo.tag}</span>
+                  </div>
+                  <p className="mt-1 text-[12px] sm:text-[13px] leading-snug text-white/70 truncate">{promo.hint}</p>
                 </div>
-                <p className="mt-1 text-[12px] sm:text-[13px] leading-snug text-white/70 truncate">{promo.hint}</p>
-              </div>
-            </button>
+              </button>
+            </div>
           ))}
         </div>
+
+        {/* 完整海报放大（点卡面或者右上角放大掣；点背景关闭） */}
+        {zoomPromo && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="宣传图大图"
+            onClick={() => setZoomPromo(null)}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-3"
+          >
+            <img src={zoomPromo} alt="宣传图大图" className="max-h-full max-w-full object-contain" />
+            <button
+              type="button"
+              aria-label="关闭"
+              onClick={() => setZoomPromo(null)}
+              className="absolute right-4 top-4 h-10 w-10 rounded-full bg-white/90 text-xl text-brand-v3-ink"
+            >
+              ×
+            </button>
+          </div>
+        )}
 
         {/* 頁數點：跟自動輪播／手指掃動同步，右下角 */}
         <div className="mt-2 flex items-center justify-end gap-1 pr-1" role="group" aria-label="切换推荐">
