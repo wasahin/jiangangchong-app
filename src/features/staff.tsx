@@ -8,10 +8,150 @@ import { StatusBadge } from '@/components/StatusBadge';
 import { MagazineNav } from '@/components/MagazineNav';
 import { BrandIcon, BrandPaw } from '@/components/BookingUI';
 import { useBookings } from '@/hooks/useBookings';
-import { BookingStatus } from '@/types/booking';
+import { Booking, BookingStatus, ServiceType } from '@/types/booking';
 import { loginStaff } from '@/lib/booking-api';
 
 const STAFF_SESSION_KEY = 'jingangchong_staff_session';
+
+/** 5 间房嘅名册（同 src/server/legacy/rooms.ts 一致） */
+const ROOM_NAMES = ['小房1', '小房2', '小房3', '大房1', '大房2'];
+
+/** 预约备注里嘅房号行：【房号：小房2｜退房：2026-12-05】 */
+const ROOM_LINE = /【房号：([^｜】\n]+)(?:[｜|]退房：(\d{4}-\d{2}-\d{2}))?】/;
+
+type RoomInfo = { name: string; type: string; capacity: string; price: string; occupied: boolean };
+
+/**
+ * 寄养房号安排 —— 店员可以直接改房号同退房日期。
+ * 写入走 POST /api/public/rooms（服务端把房号补落预约备注），所以顾客睇到嘅
+ * 房态板会即刻跟住变；顾客自己喺公开表单拣嘅房号，店员亦可以改。
+ */
+function RoomAssign({
+  booking,
+  token,
+  onSaved,
+}: {
+  booking: Booking;
+  token: string;
+  onSaved: () => void;
+}) {
+  const [rooms, setRooms] = useState<RoomInfo[]>([]);
+  const [room, setRoom] = useState('');
+  const [checkOut, setCheckOut] = useState('');
+  const [state, setState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+  const checkIn = (booking.bookingDateTime || '').split(' ')[0] || '';
+
+  // 由备注读出现有嘅房号同退房日期
+  useEffect(() => {
+    const m = (booking.notes || '').match(ROOM_LINE);
+    setRoom(m ? m[1].trim() : '');
+    setCheckOut(m && m[2] ? m[2] : '');
+  }, [booking.notes]);
+
+  // 拉当日房态，等店员睇到边间房仲有空
+  useEffect(() => {
+    if (!checkIn) return;
+    let cancelled = false;
+    fetch(`/api/public/rooms?date=${encodeURIComponent(checkIn)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled) setRooms(Array.isArray(d?.rooms) ? d.rooms : []);
+      })
+      .catch(() => {
+        if (!cancelled) setRooms([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [checkIn]);
+
+  const save = async (nextRoom: string, nextCheckOut: string) => {
+    if (!nextRoom) return;
+    setState('saving');
+    try {
+      const res = await fetch('/api/public/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          bookingId: booking.id,
+          room: nextRoom,
+          checkOutDate: nextCheckOut,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error || '保存失败');
+      }
+      setState('saved');
+      onSaved();
+      window.setTimeout(() => setState('idle'), 2500);
+    } catch (e: any) {
+      console.error('房号保存失败:', e);
+      setState('error');
+    }
+  };
+
+  const statusText =
+    state === 'saving' ? '保存中…' : state === 'saved' ? '已保存' : state === 'error' ? '保存失败' : '';
+
+  return (
+    <div className="bg-brand-v3-cream rounded-lg p-3 mb-3 text-xs">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-gray-500 font-medium">房间安排</p>
+        <span
+          className={`text-[11px] ${
+            state === 'error'
+              ? 'text-brand-v3-error'
+              : state === 'saved'
+                ? 'text-brand-v3-success'
+                : 'text-gray-400'
+          }`}
+        >
+          {statusText}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <label className="block min-w-0">
+          <span className="text-gray-400">房号</span>
+          <select
+            value={room}
+            onChange={(e) => {
+              setRoom(e.target.value);
+              save(e.target.value, checkOut);
+            }}
+            className="mt-1 w-full px-2 py-1.5 bg-white rounded-lg border border-white/60 text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-v3-gold"
+          >
+            <option value="">未安排</option>
+            {ROOM_NAMES.map((name) => {
+              const live = rooms.find((r) => r.name === name);
+              return (
+                <option key={name} value={name}>
+                  {name} · {live ? (live.occupied ? '寄养中' : '空房可订') : '—'}
+                </option>
+              );
+            })}
+          </select>
+        </label>
+        <label className="block min-w-0">
+          <span className="text-gray-400">退房日期</span>
+          <input
+            type="date"
+            value={checkOut}
+            onChange={(e) => {
+              setCheckOut(e.target.value);
+              save(room, e.target.value);
+            }}
+            className="mt-1 w-full px-2 py-1.5 bg-white rounded-lg border border-white/60 text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-v3-gold"
+          />
+        </label>
+      </div>
+      <p className="mt-2 text-[11px] text-gray-400">
+        改咗即刻生效，顾客睇到嘅房态板会跟住变。
+      </p>
+    </div>
+  );
+}
 
 function StaffLogin({ onSuccess }: { onSuccess: (token: string) => void }) {
   const [password, setPassword] = useState('');
@@ -248,7 +388,15 @@ export default function StaffPage() {
                           <p className="text-blue-700">{booking.notes}</p>
                         </div>
                       )}
-                      
+
+                      {booking.serviceType === ServiceType.BOARDING && (
+                        <RoomAssign
+                          booking={booking}
+                          token={staffToken}
+                          onSaved={() => reloadFromServer?.()}
+                        />
+                      )}
+
                       <div className="flex gap-2">
                         <Button 
                           variant="cyan" 
@@ -289,7 +437,15 @@ export default function StaffPage() {
                       <div className="bg-amber-50 rounded-lg p-3 mb-3 text-sm text-amber-700">
                         <p>等待宠物到店，推送到服务看板后开始服务</p>
                       </div>
-                      
+
+                      {booking.serviceType === ServiceType.BOARDING && (
+                        <RoomAssign
+                          booking={booking}
+                          token={staffToken}
+                          onSaved={() => reloadFromServer?.()}
+                        />
+                      )}
+
                       <div className="flex gap-2">
                         <Button 
                           size="small" 
@@ -343,54 +499,67 @@ export default function StaffPage() {
                           <StatusBadge status={booking.currentPhase} />
                         </div>
                         
-                        {/* Progress Section */}
-                        <div className="mb-5">
-                          <div className="flex justify-between items-end mb-3">
-                            <span className="text-sm font-medium text-gray-700">{stepName}</span>
-                            <span className="text-[32px] font-bold text-gray-900">{progress}%</span>
-                          </div>
-                          <div className="h-[12px] bg-gray-200 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full rounded-full transition-all duration-500"
-                              style={{ 
-                                width: `${progress}%`,
-                                background: '#22C55E',
-                                boxShadow: 'none'
-                              }}
-                            />
-                          </div>
-                        </div>
-                        
-                        {/* Current Step Display */}
-                        {stepName && (
-                          <div className="mb-5 bg-brand-v3-info/10 rounded-xl p-3">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="w-3 h-3 rounded-full bg-brand-v3-info animate-pulse"></span>
-                              <span className="text-sm font-medium text-brand-v3-info">当前步骤</span>
-                            </div>
-                            <p className="text-base font-semibold text-gray-900">{stepName}</p>
-                            <div className="flex items-center gap-3 mt-3">
-                              <div className="flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                <span className="text-xs text-gray-400">已完成</span>
+                        {/* 寄养：冇洗护／造型嘅步骤进度，改显示房间安排 */}
+                        {booking.serviceType === ServiceType.BOARDING ? (
+                          <RoomAssign
+                            booking={booking}
+                            token={staffToken}
+                            onSaved={() => reloadFromServer?.()}
+                          />
+                        ) : (
+                          <>
+                            {/* Progress Section */}
+                            <div className="mb-5">
+                              <div className="flex justify-between items-end mb-3">
+                                <span className="text-sm font-medium text-gray-700">{stepName}</span>
+                                <span className="text-[32px] font-bold text-gray-900">{progress}%</span>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-brand-v3-info animate-pulse"></span>
-                                <span className="text-xs text-gray-400">进行中</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <span className="w-2 h-2 rounded-full bg-gray-300"></span>
-                                <span className="text-xs text-gray-400">待处理</span>
+                              <div className="h-[12px] bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full transition-all duration-500"
+                                  style={{
+                                    width: `${progress}%`,
+                                    background: '#22C55E',
+                                    boxShadow: 'none'
+                                  }}
+                                />
                               </div>
                             </div>
-                          </div>
+
+                            {/* Current Step Display */}
+                            {stepName && (
+                              <div className="mb-5 bg-brand-v3-info/10 rounded-xl p-3">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="w-3 h-3 rounded-full bg-brand-v3-info animate-pulse"></span>
+                                  <span className="text-sm font-medium text-brand-v3-info">当前步骤</span>
+                                </div>
+                                <p className="text-base font-semibold text-gray-900">{stepName}</p>
+                                <div className="flex items-center gap-3 mt-3">
+                                  <div className="flex items-center gap-1">
+                                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                    <span className="text-xs text-gray-400">已完成</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <span className="w-2 h-2 rounded-full bg-brand-v3-info animate-pulse"></span>
+                                    <span className="text-xs text-gray-400">进行中</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <span className="w-2 h-2 rounded-full bg-gray-300"></span>
+                                    <span className="text-xs text-gray-400">待处理</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </>
                         )}
-                        
+
                         {/* Info Grid */}
                         <div className="grid grid-cols-3 gap-2 mb-5 text-xs">
                           <div className="bg-brand-v3-cream rounded-lg p-2 text-center">
-                            <p className="text-gray-500">预计剩余</p>
-                            <p className="font-semibold text-brand-v3-navy">{eta}分钟</p>
+                            <p className="text-gray-500">{booking.serviceType === ServiceType.BOARDING ? '寄养时长' : '预计剩余'}</p>
+                            <p className="font-semibold text-brand-v3-navy">
+                              {booking.serviceType === ServiceType.BOARDING ? '按门店安排' : `${eta}分钟`}
+                            </p>
                           </div>
                           <div className="bg-brand-v3-cream rounded-lg p-2 text-center">
                             <p className="text-gray-500">微信通知</p>

@@ -1,0 +1,12 @@
+  const getBookedTimeSlots = (date: string) => {
+    const slots = new Set<string>();
+    allBookings.forEach(booking => {
+      if (booking.bookingDateTime && booking.bookingDateTime.startsWith(date)) {
+        const time = booking.bookingDateTime.split(' ')[1];
+        if (time) {
+          slots.add(time);
+        }
+      }
+    });
+    return slots;
+  };

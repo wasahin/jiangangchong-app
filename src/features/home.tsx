@@ -292,10 +292,6 @@ const SERVICE_MENUS: ServiceMenu[] = [
  * 手機窄屏上面，長標題會斷成兩行，藍色文案區即刻膨脹到成張卡一半高，
  * 令下面真正嘅內容（價目表）被推走。短標題 + 單行副句 = 高度固定。
  */
-import membershipPoster from '@/assets/membership-system.png.asset.json';
-import groomingPoster from '@/assets/grooming-why-us.png.asset.json';
-import washPlanPoster from '@/assets/wash-plan.png.asset.json';
-
 type Promo = {
   id: string;
   tag: string;
@@ -314,7 +310,10 @@ const PROMOS: Promo[] = [
     tag: 'MEMBERSHIP',
     title: '洗护会员',
     hint: '无需充值 · 累计到店越洗越省',
-    image: membershipPoster.url,
+    // 完整海报放 public/，唔好改用 CDN 链接 —— 一 self-host 就断。
+    image: '/homepage-promo/membership-full.webp',
+    // 卡面只放海报正文（左侧深蓝信息栏裁走）；点开放大时仍显示整张原图
+    cardImage: '/homepage-promo/membership.webp',
     menu: 0,
   },
   {
@@ -322,9 +321,8 @@ const PROMOS: Promo[] = [
     tag: 'GROOMING',
     title: '专业洗护',
     hint: '按状态护理 · 造型不套模板',
-    image: groomingPoster.url,
-    // 卡面只放海报正文（左侧深蓝信息栏裁走）；点开放大时仍显示整张原图
-    cardImage: '/homepage-promo/grooming-card.webp',
+    image: '/homepage-promo/care-full.webp',
+    cardImage: '/homepage-promo/care.webp',
     menu: 2,
   },
   {
@@ -332,9 +330,8 @@ const PROMOS: Promo[] = [
     tag: 'WASH PLAN',
     title: '洗护方案',
     hint: '标准洗 vs 精致洗 · 项目一次看清',
-    image: washPlanPoster.url,
-    // 卡面只放海报正文（左侧深蓝信息栏裁走）；点开放大时仍显示整张原图
-    cardImage: '/homepage-promo/wash-plan-card.webp',
+    image: '/homepage-promo/wash-plan-full.webp',
+    cardImage: '/homepage-promo/wash-plan.webp',
     menu: 0,
   },
   {
@@ -342,7 +339,8 @@ const PROMOS: Promo[] = [
     tag: 'BOARDING',
     title: '寄养住宿',
     hint: '小房大房 · 实时房态可查',
-    image: '/homepage-promo/boarding.webp',
+    image: '/homepage-promo/boarding-full.webp',
+    cardImage: '/homepage-promo/boarding.webp',
     menu: 3,
   },
 ];
@@ -543,32 +541,6 @@ export default function CustomerPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  /**
-   * 提交成功之后：喺预约嘅备注补上房号同退房日期。
-   * 房态就由呢行推算，所以飞书永远只有一份真相，唔会有两套数据走样；
-   * 店员喺员工页睇备注就即刻知道边间房、几时退。
-   * 备注係自由文字，所以客人自己写嘅备注重唔会受到影响。
-   */
-  const roomPostedRef = useRef<string>('');
-  useEffect(() => {
-    if (!submitted || !lastBookingId) return;
-    if (formData.serviceType !== ServiceType.BOARDING || !selectedRoom) return;
-    if (roomPostedRef.current === lastBookingId) return;
-    roomPostedRef.current = lastBookingId;
-    fetch('/api/public/rooms', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        bookingId: lastBookingId,
-        room: selectedRoom,
-        checkOutDate,
-      }),
-    }).catch((error) => {
-      console.error('房号写入失败:', error);
-      roomPostedRef.current = '';
-    });
-  }, [submitted, lastBookingId, formData.serviceType, selectedRoom, checkOutDate]);
-
   useEffect(() => {
     const interval = setInterval(() => {
       refreshCounts();
@@ -625,6 +597,16 @@ export default function CustomerPage() {
 
   const bookedSlots = formData.bookingDate ? getBookedTimeSlots(formData.bookingDate) : new Set<string>();
 
+  /**
+   * 寄养嘅房号 + 退房日期（写喺备注）。
+   * 飞书表冇新字段（bookings 冻结，加唔到），备注係唯一自由文字通道；
+   * 房态就由呢行推算，所以顾客一落单，房间即刻变「寄养中」。
+   */
+  const roomNoteForBooking =
+    formData.serviceType === ServiceType.BOARDING && selectedRoom
+      ? `【房号：${selectedRoom}｜退房：${checkOutDate}】`
+      : '';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -637,7 +619,13 @@ export default function CustomerPage() {
 
     try {
       // 由服务端写入飞书并校验后才算成功；失败会抛错。
-      const booking = await createBooking(formData);
+      // 寄养嘅房号随预约一齐写入备注（顾客嘅备注明唔会受影响）。
+      const booking = await createBooking({
+        ...formData,
+        notes: roomNoteForBooking
+          ? `${roomNoteForBooking}\n${formData.notes}`.trim()
+          : formData.notes,
+      });
       if (booking) {
         setLastBookingId(booking.id);
         setSubmitted(true);
@@ -822,20 +810,28 @@ export default function CustomerPage() {
               key={promo.id}
               className="min-w-[92%] sm:min-w-[45%] snap-start overflow-hidden rounded-2xl bg-brand-v3-navy text-left text-white shadow-neumo-raised-md"
             >
+              {/* 卡面：点一下睇完整海报（卡面係裁走左側品牌欄嘅 4:3 版本，完整版喺 lightbox） */}
               <button
                 type="button"
                 aria-label={`查看大图：${promo.title}`}
                 onClick={() => setZoomPromo(promo.image)}
-                className="block w-full bg-brand-v3-cream"
+                className="relative block w-full bg-brand-v3-cream"
               >
               <img
                 src={promo.cardImage ?? promo.image}
                 alt={`${promo.title} · ${promo.hint}`}
-                width={1920}
-                height={1080}
+                width={960}
+                height={720}
                 loading={i === 0 ? 'eager' : 'lazy'}
-                className="aspect-video w-full object-contain"
+                className="aspect-[4/3] w-full object-cover object-top"
               />
+              {/* 放大提示图标：客人一眼就知道点卡面可以睇大图 */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-brand-v3-ink/55 text-[15px] leading-none text-white backdrop-blur-sm"
+              >
+                ⤢
+              </span>
               </button>
             <button
               type="button"

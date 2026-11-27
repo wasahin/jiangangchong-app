@@ -14,7 +14,7 @@ import {
   shareToWeChat
 } from '@/lib/storage';
 import { GROOMING_STAGES } from '@/lib/constants';
-import { sendWeChatNotification, sendStatusUpdate } from '@/lib/feishu';
+import { sendWeChatNotification, sendStatusUpdate } from '@/lib/notifications';
 import {
   submitBooking,
   fetchStaffBookings,

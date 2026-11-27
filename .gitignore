@@ -30,3 +30,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# 验收截图（verify 套件产出，唔好 commit）
+verify/shots/

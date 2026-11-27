@@ -1,0 +1,10 @@
+  const generateTimeOptions = () => {
+    const options = [];
+    for (let hour = 10; hour <= 17; hour++) {
+      for (let minute = 0; minute < 60; minute += 15) {
+        const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        options.push(timeStr);
+      }
+    }
+    return options;
+  };
