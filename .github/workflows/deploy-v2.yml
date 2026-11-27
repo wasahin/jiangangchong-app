@@ -1,8 +1,27 @@
 name: Deploy v2 to Cloudflare Pages
 
+# ─────────────────────────────────────────────────────────────────────────────
+# 呢个 workflow 喺**两个 repo** 都存在，因为佢要喺「有 Cloudflare 凭证嘅 repo」度跑：
+#
+#   archive-to-app     ← code 嘅源头（Lovable 喺呢度改代码）。但**冇** Cloudflare /
+#                        飞书 / 员工密码嘅 secret（GitHub secret 唔可以跨 repo 抄）。
+#   jiangangchong-app  ← 生产 repo，**有**全部 5 个 secret：
+#                        CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID /
+#                        FEISHU_APP_SECRET / STAFF_PASSWORD / STAFF_TOKEN_SECRET
+#                        其嘅 `lovable-sync` 分支由 archive-to-app 嘅 sync.yml
+#                        force-push 过来，所以呢个 workflow file 会自动出现在嗰度。
+#
+# 因此：
+#   - push 去 archive-to-app/main   → preflight 会发现冇 Cloudflare 凭证 → 优雅跳过
+#   - sync 推去 jiangangchong-app/lovable-sync → 有凭证 → 真正部署
+#
+# ⚠️ 生产项目 jiangangchong-app（域名 jiangangchong-app.pages.dev）**完全唔会**被呢个
+#    workflow 碰。呢个只部署去 jiangangchong-app-v2（灰度），而且飞书指向**测试表**。
+# ─────────────────────────────────────────────────────────────────────────────
+
 on:
   push:
-    branches: [ main ]
+    branches: [ main, lovable-sync ]
   workflow_dispatch:
 
 permissions:
@@ -13,7 +32,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # 先睇下呢个 repo 有冇 Cloudflare 凭证。冇就跳过（唔好报红）。
+  preflight:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "✓ Cloudflare 凭证齐 —— 会执行部署"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::本 repo 未设置 CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID —— 跳过部署（正常：真正嘅部署喺 jiangangchong-app 嘅 lovable-sync 分支触发）。"
+          fi
+
   deploy:
+    needs: preflight
+    if: needs.preflight.outputs.ready == 'true'
     runs-on: ubuntu-latest
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -66,3 +106,23 @@ jobs:
 
       - name: Deploy
         run: npx wrangler@4 pages deploy dist --project-name="$PROJECT" --branch=main
+
+      # 部署完即刻做真嘅线上核实：真係落一单入飞书（**测试表**）、验员工鉴权、
+      # 验房态写入要员工 token，最后清走测试记录。
+      # 呢个 gate 会捉到「部署咗但飞书凭证唔通」——唔係只睇 HTTP 200 就当成功。
+      - name: Live verification (real Feishu write + cleanup)
+        env:
+          NEXT_PUBLIC_FEISHU_APP_ID: cli_aacebd7850b8dcff
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          NEXT_PUBLIC_FEISHU_BASE_ID: PhDPbd1xgaKHposYFmycmRoTnLc
+          NEXT_PUBLIC_FEISHU_TABLE_ID: tblRztsA3fCnTdWM
+          STAFF_PASSWORD: ${{ secrets.STAFF_PASSWORD }}
+          STAFF_TOKEN_SECRET: ${{ secrets.STAFF_TOKEN_SECRET }}
+        run: |
+          for i in $(seq 1 12); do
+            if curl -sf "https://$PROJECT.pages.dev/api/public/rooms" -o /dev/null; then break; fi
+            echo "waiting for $PROJECT.pages.dev ... ($i)"
+            sleep 5
+          done
+          cd verify && node prod-verify.js "https://$PROJECT.pages.dev"
+
