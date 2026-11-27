@@ -313,6 +313,15 @@ const PROMOS = [
     menu: 2,
   },
   {
+    id: 'wash-plan',
+    tag: 'WASH PLAN',
+    title: '洗护方案',
+    hint: '标准洗 vs 精致洗 · 项目一次看清',
+    image: '/homepage-promo/wash-plan.webp',
+    full: '/homepage-promo/wash-plan-full.webp',
+    menu: 0,
+  },
+  {
     id: 'boarding',
     tag: 'BOARDING',
     title: '寄养住宿',
