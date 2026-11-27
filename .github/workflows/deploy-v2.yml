@@ -81,7 +81,13 @@ jobs:
           VITE_NEXT_PUBLIC_APP_URL: https://jiangangchong-app-v2.pages.dev
         run: |
           bun run build
-          test -f dist/_worker.js || (echo "dist/_worker.js missing" && exit 1)
+          # dist/_worker.js 係一个**目录**（nitro cloudflare-pages preset 嘅产物），
+          # 唔系单个文件 —— 用 test -f 会永远失败。要 check 入面嘅入口文件。
+          test -d dist/_worker.js || (echo "dist/_worker.js directory missing" && exit 1)
+          test -f dist/_worker.js/index.js || (echo "dist/_worker.js/index.js missing" && exit 1)
+          echo "✓ dist/_worker.js/index.js 就位"
+          test -d dist/homepage-promo || (echo "dist/homepage-promo missing" && exit 1)
+          ls dist/_worker.js | head -20
 
       - name: Check no secret in browser bundle
         env:
