@@ -34,3 +34,10 @@ use the editor.
 - Self-host target is Cloudflare Pages: CI builds with `NITRO_PRESET=cloudflare_pages` (honored only outside the Lovable sandbox) and deploys `dist/` via `wrangler pages deploy`; vite.config stays untouched so Lovable preview/publish keep working.
 - CI uses bun (`bun install --frozen-lockfile`) because the repo only has bun.lock.
 - Secrets only via `wrangler pages secret put`; wrangler.jsonc `vars` hold public Feishu ids, pointed at the TEST table until the owner approves the switch.
+- **Read `HANDOVER.md` before making changes.** It has the full status: what is already
+  done (deployment is live at https://jiangangchong-app-v2.pages.dev, all 253 acceptance
+  assertions green), the frozen constraints, the Feishu TEST table ids, the two-repo
+  secret layout, and how to run the `verify/` suite.
+- `verify/` is the acceptance suite (85 static contract + 132 mobile + 23 room E2E +
+  13 live). Run `cd verify && npm install && npm run contract` after every change; it
+  takes seconds and needs no network.
