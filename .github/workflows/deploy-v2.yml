@@ -1,0 +1,68 @@
+name: Deploy v2 to Cloudflare Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-v2
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      PROJECT: jiangangchong-app-v2
+    steps:
+      - uses: actions/checkout@v4
+
+      # Repo has bun.lock only (no package-lock.json), so CI uses bun.
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Contract checks
+        run: cd verify && npm install --no-audit --no-fund && npm run contract
+
+      - name: Build (Cloudflare Pages output in dist/)
+        env:
+          NITRO_PRESET: cloudflare_pages
+          # Build-time copies of public values (browser side). Never put secrets in VITE_*.
+          VITE_NEXT_PUBLIC_FEISHU_APP_ID: cli_aacebd7850b8dcff
+          VITE_NEXT_PUBLIC_FEISHU_BASE_ID: PhDPbd1xgaKHposYFmycmRoTnLc
+          VITE_NEXT_PUBLIC_FEISHU_TABLE_ID: tblRztsA3fCnTdWM
+          VITE_NEXT_PUBLIC_APP_URL: https://jiangangchong-app-v2.pages.dev
+        run: |
+          bun run build
+          test -f dist/_worker.js || (echo "dist/_worker.js missing" && exit 1)
+
+      - name: Check no secret in browser bundle
+        env:
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+        run: |
+          if [ -n "$FEISHU_APP_SECRET" ] && grep -rqF "$FEISHU_APP_SECRET" dist/assets; then
+            echo "FEISHU_APP_SECRET found in browser bundle"; exit 1
+          fi
+
+      - name: Ensure Pages project exists
+        run: npx wrangler@4 pages project create "$PROJECT" --production-branch=main || true
+
+      - name: Upload secrets
+        env:
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          STAFF_PASSWORD: ${{ secrets.STAFF_PASSWORD }}
+          STAFF_TOKEN_SECRET: ${{ secrets.STAFF_TOKEN_SECRET }}
+        run: |
+          for name in FEISHU_APP_SECRET STAFF_PASSWORD STAFF_TOKEN_SECRET; do
+            printf '%s' "${!name}" | npx wrangler@4 pages secret put "$name" --project-name="$PROJECT"
+          done
+
+      - name: Deploy
+        run: npx wrangler@4 pages deploy dist --project-name="$PROJECT" --branch=main

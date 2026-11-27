@@ -1,0 +1,19 @@
+// Cloudflare Pages config for self-hosting (staging project first; production stays untouched).
+// Build with: NITRO_PRESET=cloudflare_pages bun run build  ->  output in dist/ (_worker.js + static files)
+// Deploy with: npx wrangler pages deploy dist
+{
+  "name": "jiangangchong-app-v2",
+  "compatibility_date": "2026-11-01",
+  // Needed: server routes pass process.env to src/server/legacy/* (Feishu + staff token).
+  "compatibility_flags": ["nodejs_compat"],
+  "pages_build_output_dir": "./dist",
+  // Public values only. Secrets (FEISHU_APP_SECRET, STAFF_PASSWORD, STAFF_TOKEN_SECRET)
+  // are written by `wrangler pages secret put` in CI, never here.
+  "vars": {
+    "NEXT_PUBLIC_FEISHU_APP_ID": "cli_aacebd7850b8dcff",
+    // TEST table — switch to production only after the owner confirms all checks pass.
+    "NEXT_PUBLIC_FEISHU_BASE_ID": "PhDPbd1xgaKHposYFmycmRoTnLc",
+    "NEXT_PUBLIC_FEISHU_TABLE_ID": "tblRztsA3fCnTdWM",
+    "NEXT_PUBLIC_APP_URL": "https://jiangangchong-app-v2.pages.dev"
+  }
+}

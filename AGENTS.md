@@ -31,3 +31,6 @@ use the editor.
 
 - Legacy Cloudflare Pages Functions live in `src/server/legacy/*` and are exposed via thin server routes under `src/routes/api/public/*`; they read config from `process.env` — keeps original Feishu/staff-token logic intact.
 - tsconfig strict-index flags are relaxed because the imported app code was written without them.
+- Self-host target is Cloudflare Pages: CI builds with `NITRO_PRESET=cloudflare_pages` (honored only outside the Lovable sandbox) and deploys `dist/` via `wrangler pages deploy`; vite.config stays untouched so Lovable preview/publish keep working.
+- CI uses bun (`bun install --frozen-lockfile`) because the repo only has bun.lock.
+- Secrets only via `wrangler pages secret put`; wrangler.jsonc `vars` hold public Feishu ids, pointed at the TEST table until the owner approves the switch.
