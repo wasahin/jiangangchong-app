@@ -235,6 +235,8 @@ npm run contract             # 静态，<5 秒，唔使网络
   （`src/features/status.tsx` 已有同款写法，可以照抄）。
 - ⚠️ 唔好喺前端硬编码域名：用 `window.location.origin`。
 - ⚠️ `PUT /api/public/bookings` 嘅 `id` 放喺 **body**（唔系 query string）。
+- 验收：喺 `verify/contract-check.js` 加一条静态断言 —— `staff.tsx` 必须有状态链接复制按钮，
+  而且唔可以硬编码域名（只能用 `window.location.origin`）。
 
 **B. 客人版加「仲有几耐搞掂 / 预计完成时间」**
 - 店主明确要：「或者仲有幾耐會搞掂」。
