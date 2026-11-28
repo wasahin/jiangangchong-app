@@ -7,6 +7,7 @@ import { Navigation } from '@/components/Navigation';
 import { BrandPaw } from '@/components/BookingUI';
 import { BookingStatus, ServiceType } from '@/types/booking';
 import { GROOMING_STAGES, WEIGHT_RANGES } from '@/lib/constants';
+import { estimateRemaining, STORE_INFO } from '@/lib/eta';
 
 function parseText(value: any): string {
   if (!value) return '';
@@ -19,6 +20,11 @@ function parseText(value: any): string {
 
 function calculateProgress(booking: any): number {
   if (!booking) return 0;
+  if (booking.status === BookingStatus.COMPLETED) return 100;
+  // 优先用飞书已存嘅进度
+  if (typeof booking.progress === 'number' && Number.isFinite(booking.progress) && booking.progress > 0) {
+    return Math.round(Math.min(100, booking.progress));
+  }
   const serviceType = parseText(booking.serviceType) || 'standard';
   const steps = GROOMING_STAGES[serviceType as ServiceType];
   if (!steps || booking.currentStep === 0) return 0;
@@ -49,7 +55,6 @@ function StatusPageContent() {
   const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (bookingId === undefined) return;
@@ -82,13 +87,6 @@ function StatusPageContent() {
     return () => clearInterval(interval);
   }, [bookingId]);
 
-  const handleCopyLink = () => {
-    if (bookingId) {
-      navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
 
   if (loading) {
     return (
@@ -138,13 +136,27 @@ function StatusPageContent() {
 
   const progress = calculateProgress(booking);
   const currentStepName = getCurrentStepName(booking);
+  const eta = estimateRemaining({
+    serviceType: parseText(booking.serviceType),
+    currentStep: booking.currentStep,
+    progress: booking.progress,
+    status: booking.status,
+  });
+  const etaText = (() => {
+    if (!eta) return '';
+    if (booking.status === BookingStatus.COMPLETED) return '已经搞掂，可以来接毛孩啦';
+    if (!eta.started) return `开始后约需 ${eta.totalMinutes} 分钟`;
+    const done = new Date(Date.now() + eta.remainingMinutes * 60000);
+    const hhmm = `${String(done.getHours()).padStart(2, '0')}:${String(done.getMinutes()).padStart(2, '0')}`;
+    return `预计 ${hhmm} 完成（约仲有 ${eta.remainingMinutes} 分钟）`;
+  })();
 
   return (
     <div className="min-h-screen bg-brand-v3-cream p-4 pb-24">
       <div className="max-w-lg mx-auto space-y-4">
         
         <div className="text-center py-4">
-          <h1 className="text-xl font-bold text-gray-900">宠物专属状态页</h1>
+          <h1 className="text-xl font-bold text-gray-900">{parseText(booking.petName)}的洗护进度</h1>
           <p className="text-xs text-gray-500 mt-1">实时追踪洗护进度</p>
         </div>
 
@@ -161,6 +173,13 @@ function StatusPageContent() {
             <h2 className="text-3xl font-bold text-gray-900">{parseText(booking.petName)}</h2>
             <p className="text-sm text-gray-500 mt-1">{parseText(booking.serviceType)}</p>
           </div>
+
+          {etaText && (
+            <div className="mb-4 rounded-xl bg-white px-4 py-3 text-center border border-[#E6DCCB]">
+              <p className="text-xs text-gray-400">预计完成时间</p>
+              <p className="text-base font-semibold text-brand-v3-navy mt-0.5">{etaText}</p>
+            </div>
+          )}
 
           <div className="mb-4">
             <div className="flex justify-between text-sm mb-2">
@@ -253,15 +272,28 @@ function StatusPageContent() {
           </div>
         </NeumorphicCard>
 
-        <button
-          onClick={handleCopyLink}
-          className="w-full py-3 px-4 rounded-xl bg-brand-v3-gold text-white font-medium shadow-lg hover:shadow-xl transition-all active:scale-[0.98]"
-        >
-          {copied ? '✓ 链接已复制' : '复制状态链接'}
-        </button>
+        <NeumorphicCard>
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">有问题？联系门店</h3>
+          <div className="space-y-2 text-sm">
+            <a href={`tel:${STORE_INFO.phone.replace(/\s/g, '')}`} className="flex items-center justify-between rounded-xl bg-gray-50 p-3">
+              <span className="text-gray-400 text-xs">电话</span>
+              <span className="font-medium text-brand-v3-navy">{STORE_INFO.phone}</span>
+            </a>
+            {STORE_INFO.wechat && (
+              <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3">
+                <span className="text-gray-400 text-xs">微信</span>
+                <span className="font-medium text-gray-900">{STORE_INFO.wechat}</span>
+              </div>
+            )}
+            <div className="rounded-xl bg-gray-50 p-3">
+              <p className="text-gray-400 text-xs">地址</p>
+              <p className="font-medium text-gray-900 mt-0.5">{STORE_INFO.address}</p>
+            </div>
+          </div>
+        </NeumorphicCard>
 
         <p className="text-xs text-gray-400 text-center px-4">
-          此链接在您整个服务周期内固定不变，可随时打开查看最新状态
+          此页面每 15 秒自动更新，可随时打开查看最新状态
         </p>
       </div>
       

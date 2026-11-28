@@ -48,6 +48,8 @@ export interface Booking {
   status: BookingStatus;
   currentPhase: string;
   currentStep: number;
+  /** 飞书存咗嘅进度 0-100（员工 PUT 时写入） */
+  progress?: number | null;
   serviceStartedAt?: string;
   isPaused?: boolean;
   wechatNoticeSent: boolean;

@@ -10,6 +10,7 @@ import { BrandIcon, BrandPaw } from '@/components/BookingUI';
 import { useBookings } from '@/hooks/useBookings';
 import { Booking, BookingStatus, ServiceType } from '@/types/booking';
 import { loginStaff } from '@/lib/booking-api';
+import { statusShareText } from '@/lib/eta';
 
 const STAFF_SESSION_KEY = 'jingangchong_staff_session';
 
@@ -26,6 +27,27 @@ type RoomInfo = { name: string; type: string; capacity: string; price: string; o
  * 写入走 POST /api/public/rooms（服务端把房号补落预约备注），所以顾客睇到嘅
  * 房态板会即刻跟住变；顾客自己喺公开表单拣嘅房号，店员亦可以改。
  */
+
+/** 复制「<宠物名>的洗护进度：<当前域名>/status?booking=<id>」，员工直接贴落微信。 */
+function CopyStatusLinkButton({ booking, wide = false }: { booking: Booking; wide?: boolean }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    const text = statusShareText(window.location.origin, booking.petName, booking.id);
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      window.prompt('复制以下内容发给主人：', text);
+    }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <Button variant="secondary" size="small" className={wide ? 'w-full' : 'flex-1'} onClick={copy}>
+      {copied ? '✓ 已复制' : '复制状态链接'}
+    </Button>
+  );
+}
+
 function RoomAssign({
   booking,
   token,
@@ -247,7 +269,6 @@ export default function StaffPage() {
     startService,
     pauseService,
     finishService,
-    sendOwnerLink,
     calculateProgress,
     getCurrentStepName,
     calculateETA,
@@ -406,6 +427,7 @@ export default function StaffPage() {
                         >
                           接受预约
                         </Button>
+                        <CopyStatusLinkButton booking={booking} />
                       </div>
                     </div>
                   ))}
@@ -454,6 +476,7 @@ export default function StaffPage() {
                         >
                           推送到服务看板
                         </Button>
+                        <CopyStatusLinkButton booking={booking} />
                       </div>
                     </div>
                   ))}
@@ -611,14 +634,7 @@ export default function StaffPage() {
                         
                         {/* Send Owner Link Button */}
                         <div className="mt-2">
-                          <Button 
-                            variant="secondary" 
-                            size="small"
-                            className="w-full"
-                            onClick={() => sendOwnerLink(booking.id)}
-                          >
-                            发送状态链接给主人
-                          </Button>
+                          <CopyStatusLinkButton booking={booking} wide />
                         </div>
                       </div>
                     );
